@@ -1,0 +1,6 @@
+.idea/
+.m2/
+.mvnrepo/
+target/
+var/
+*.log

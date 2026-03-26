@@ -1,0 +1,7 @@
+.git
+.idea
+.mvnrepo
+var
+samples
+test-artifacts
+*.log

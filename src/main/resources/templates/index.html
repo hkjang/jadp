@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JADP Test Console</title>
+    <style>
+        :root {
+            --ink: #11212d;
+            --ink-soft: #47616f;
+            --paper: #f7f1e4;
+            --paper-strong: #fffaf0;
+            --accent: #0d8c7d;
+            --accent-dark: #0a5d53;
+            --accent-warm: #db7c26;
+            --line: rgba(17, 33, 45, 0.12);
+            --panel: rgba(255, 250, 240, 0.84);
+            --shadow: 0 24px 50px rgba(17, 33, 45, 0.12);
+            --radius: 22px;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: "Bahnschrift", "Segoe UI Variable", "Trebuchet MS", sans-serif;
+            color: var(--ink);
+            background:
+                    radial-gradient(circle at top left, rgba(219, 124, 38, 0.2), transparent 28%),
+                    radial-gradient(circle at top right, rgba(13, 140, 125, 0.22), transparent 24%),
+                    linear-gradient(135deg, #f2ead9 0%, #f8f5ef 50%, #efe7d6 100%);
+            min-height: 100vh;
+        }
+
+        .shell {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 32px 20px 56px;
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: 1.3fr 0.7fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .hero-card,
+        .panel {
+            background: var(--panel);
+            backdrop-filter: blur(14px);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        .hero-card {
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-card::after {
+            content: "";
+            position: absolute;
+            inset: auto -90px -90px auto;
+            width: 240px;
+            height: 240px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(13, 140, 125, 0.2), transparent 68%);
+        }
+
+        h1, h2, h3 {
+            margin: 0 0 12px;
+            font-family: "Georgia", "Times New Roman", serif;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+
+        p { margin: 0 0 12px; line-height: 1.6; color: var(--ink-soft); }
+
+        .hero-actions,
+        .top-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .link-chip,
+        button {
+            border-radius: 999px;
+            border: 1px solid rgba(17, 33, 45, 0.12);
+            padding: 11px 16px;
+            font: inherit;
+            text-decoration: none;
+            transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+        }
+
+        .link-chip {
+            background: rgba(255, 255, 255, 0.72);
+            color: var(--ink);
+        }
+
+        .link-chip:hover,
+        button:hover {
+            transform: translateY(-1px);
+            border-color: rgba(17, 33, 45, 0.24);
+        }
+
+        .stats {
+            display: grid;
+            gap: 14px;
+            padding: 24px;
+        }
+
+        .stat {
+            padding: 16px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.72);
+            border: 1px solid var(--line);
+        }
+
+        .stat strong {
+            display: block;
+            font-size: 1.9rem;
+            margin-bottom: 4px;
+        }
+
+        .workspace {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 24px;
+        }
+
+        .panel {
+            padding: 22px;
+        }
+
+        .dropzone {
+            border: 2px dashed rgba(13, 140, 125, 0.35);
+            border-radius: 20px;
+            padding: 28px;
+            background: linear-gradient(180deg, rgba(13, 140, 125, 0.06), rgba(255, 255, 255, 0.6));
+            text-align: center;
+            margin-bottom: 18px;
+        }
+
+        .dropzone.dragover {
+            border-color: var(--accent-warm);
+            background: linear-gradient(180deg, rgba(219, 124, 38, 0.12), rgba(255, 255, 255, 0.75));
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .field label {
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: var(--ink);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            border-radius: 16px;
+            border: 1px solid rgba(17, 33, 45, 0.14);
+            background: rgba(255, 255, 255, 0.78);
+            padding: 11px 14px;
+            font: inherit;
+            color: var(--ink);
+        }
+
+        .field.full,
+        .actions,
+        .toggle-row,
+        .result-tabs,
+        .result-pane,
+        .status-box,
+        .debug-box,
+        .recent-jobs {
+            grid-column: 1 / -1;
+        }
+
+        .toggle-row {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 2px;
+        }
+
+        .toggle {
+            padding: 12px 14px;
+            border-radius: 16px;
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.72);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toggle input { width: auto; }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        button.primary {
+            background: var(--accent);
+            color: white;
+            border-color: transparent;
+        }
+
+        button.secondary {
+            background: #fff;
+            color: var(--ink);
+        }
+
+        button.ghost {
+            background: rgba(255, 255, 255, 0.45);
+            color: var(--ink-soft);
+        }
+
+        .status-box,
+        .debug-box,
+        .result-pane,
+        .recent-jobs {
+            margin-top: 16px;
+            border-radius: 18px;
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.72);
+            padding: 16px;
+        }
+
+        .status-box strong {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .result-tabs {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .tab {
+            cursor: pointer;
+            border-radius: 14px;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.62);
+            border: 1px solid var(--line);
+        }
+
+        .tab.active {
+            background: var(--ink);
+            color: white;
+            border-color: transparent;
+        }
+
+        pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-break: break-word;
+            font-family: "Cascadia Code", "Consolas", monospace;
+            font-size: 0.9rem;
+            color: #1a202c;
+        }
+
+        iframe {
+            width: 100%;
+            min-height: 420px;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background: white;
+        }
+
+        .files {
+            display: grid;
+            gap: 10px;
+        }
+
+        .findings-grid {
+            display: grid;
+            gap: 10px;
+        }
+
+        .file-row,
+        .job-row,
+        .finding-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 12px;
+            align-items: center;
+            padding: 14px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.74);
+            border: 1px solid var(--line);
+        }
+
+        .finding-row {
+            grid-template-columns: 1fr;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            padding: 4px 10px;
+            font-size: 0.78rem;
+            background: rgba(13, 140, 125, 0.12);
+            color: var(--accent-dark);
+            margin-right: 8px;
+        }
+
+        .small {
+            font-size: 0.88rem;
+            color: var(--ink-soft);
+        }
+
+        .muted {
+            color: var(--ink-soft);
+        }
+
+        @media (max-width: 1024px) {
+            .hero,
+            .workspace {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 720px) {
+            .grid,
+            .toggle-row {
+                grid-template-columns: 1fr;
+            }
+            .shell {
+                padding: 18px 14px 36px;
+            }
+            .hero-card,
+            .panel {
+                padding: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="shell">
+    <section class="hero">
+        <div class="hero-card">
+            <p class="muted">Spring Boot + OpenDataLoader PDF</p>
+            <h1>PDF 변환 API를 눈으로 확인하는 테스트 콘솔</h1>
+            <p>업로드, 옵션 선택, 동기 미리보기, 비동기 Job 추적, 결과 파일 다운로드까지 한 화면에서 검증할 수 있습니다.</p>
+            <div class="hero-actions">
+                <a class="link-chip" th:href="${swaggerUrl}">Swagger UI</a>
+                <a class="link-chip" th:href="${healthUrl}">Actuator Health</a>
+                <a class="link-chip" th:href="${docsUrl}">개발 문서</a>
+            </div>
+        </div>
+        <div class="hero-card stats">
+            <div class="stat">
+                <strong>7</strong>
+                <span class="small">지원 포맷: json, text, html, pdf, markdown 계열</span>
+            </div>
+            <div class="stat">
+                <strong>2</strong>
+                <span class="small">실행 모드: sync preview, async job</span>
+            </div>
+            <div class="stat">
+                <strong>/api/v1</strong>
+                <span class="small">REST API, Swagger, Health, 브라우저 테스트 화면 제공</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="workspace">
+        <div class="panel">
+            <h2>변환 요청</h2>
+            <p>드래그 앤 드롭 또는 파일 선택으로 PDF를 올리고, 필요한 옵션을 지정한 뒤 실행하세요.</p>
+
+            <form id="convert-form">
+                <div id="dropzone" class="dropzone">
+                    <p><strong>PDF를 여기로 끌어오세요</strong></p>
+                    <p class="small">또는 아래 버튼으로 파일 선택</p>
+                    <input id="file" type="file" name="file" accept=".pdf,application/pdf">
+                    <p id="selected-file" class="small muted">선택된 파일이 없습니다.</p>
+                </div>
+
+                <div class="grid">
+                    <div class="field full">
+                        <label for="formats">출력 형식</label>
+                        <input id="formats" name="formats" value="json,markdown,html" placeholder="json,markdown,html">
+                    </div>
+
+                    <div class="field">
+                        <label for="pages">페이지 범위</label>
+                        <input id="pages" name="pages" placeholder="예: 1,3,5-7">
+                    </div>
+
+                    <div class="field">
+                        <label for="password">PDF 비밀번호</label>
+                        <input id="password" name="password" type="password" placeholder="암호화 PDF일 때만 입력">
+                    </div>
+
+                    <div class="field">
+                        <label for="readingOrder">Reading Order</label>
+                        <select id="readingOrder" name="readingOrder"></select>
+                    </div>
+
+                    <div class="field">
+                        <label for="tableMethod">Table Method</label>
+                        <select id="tableMethod" name="tableMethod"></select>
+                    </div>
+
+                    <div class="field">
+                        <label for="imageOutput">Image Output</label>
+                        <select id="imageOutput" name="imageOutput"></select>
+                    </div>
+
+                    <div class="field">
+                        <label for="imageFormat">Image Format</label>
+                        <select id="imageFormat" name="imageFormat"></select>
+                    </div>
+
+                    <div class="field">
+                        <label for="hybrid">Hybrid Backend</label>
+                        <select id="hybrid" name="hybrid"></select>
+                    </div>
+
+                    <div class="field">
+                        <label for="hybridMode">Hybrid Mode</label>
+                        <select id="hybridMode" name="hybridMode"></select>
+                    </div>
+
+                    <div class="field">
+                        <label for="hybridUrl">Hybrid URL</label>
+                        <input id="hybridUrl" name="hybridUrl" placeholder="예: http://localhost:8088">
+                    </div>
+
+                    <div class="field">
+                        <label for="hybridTimeout">Hybrid Timeout(ms)</label>
+                        <input id="hybridTimeout" name="hybridTimeout" type="number" value="30000">
+                    </div>
+
+                    <div class="field full">
+                        <label for="imageDir">Image Dir</label>
+                        <input id="imageDir" name="imageDir" placeholder="비우면 job output/images 사용">
+                    </div>
+
+                    <div class="toggle-row">
+                        <label class="toggle"><input id="sanitize" name="sanitize" type="checkbox" checked>민감정보 치환</label>
+                        <label class="toggle"><input id="keepLineBreaks" name="keepLineBreaks" type="checkbox">줄바꿈 유지</label>
+                        <label class="toggle"><input id="includeHeaderFooter" name="includeHeaderFooter" type="checkbox">헤더/푸터 포함</label>
+                        <label class="toggle"><input id="useStructTree" name="useStructTree" type="checkbox">Struct Tree 사용</label>
+                    </div>
+
+                    <div class="toggle-row">
+                        <label class="toggle"><input id="hybridFallback" name="hybridFallback" type="checkbox" checked>Hybrid 실패 시 fallback</label>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button class="primary" type="button" id="run-async">비동기 변환</button>
+                    <button class="secondary" type="button" id="run-sync">동기 미리보기</button>
+                    <button class="ghost" type="reset" id="reset-form">초기화</button>
+                </div>
+            </form>
+
+            <div id="status-box" class="status-box">
+                <strong>상태</strong>
+                <div id="status-text" class="small">대기 중</div>
+            </div>
+
+            <div class="result-tabs">
+                <button class="tab active" type="button" data-tab="markdown">Markdown</button>
+                <button class="tab" type="button" data-tab="json">JSON</button>
+                <button class="tab" type="button" data-tab="html">HTML</button>
+                <button class="tab" type="button" data-tab="files">Files</button>
+            </div>
+
+            <div id="pane-markdown" class="result-pane">
+                <pre id="markdown-output">아직 결과가 없습니다.</pre>
+            </div>
+            <div id="pane-json" class="result-pane" hidden>
+                <pre id="json-output">아직 결과가 없습니다.</pre>
+            </div>
+            <div id="pane-html" class="result-pane" hidden>
+                <iframe id="html-preview" title="HTML Preview"></iframe>
+            </div>
+            <div id="pane-files" class="result-pane" hidden>
+                <div id="file-list" class="files">
+                    <div class="small muted">생성 파일이 없습니다.</div>
+                </div>
+            </div>
+
+            <div class="debug-box">
+                <strong>디버그</strong>
+                <pre id="debug-output">요청 전</pre>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>최근 Job</h2>
+            <p>비동기 호출 후 여기서 상태 변화를 계속 볼 수 있습니다.</p>
+            <div id="recent-jobs" class="recent-jobs">
+                <div class="small muted">아직 Job 이력이 없습니다.</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="workspace" style="margin-top: 24px;">
+        <div class="panel">
+            <h2>PII 탐지와 마스킹</h2>
+            <p>PDF는 OpenDataLoader 구조 JSON 기반으로 탐지하고, PNG/JPG는 설정된 vLLM OpenAI 호환 OCR 백엔드가 있을 때만 호출합니다.</p>
+
+            <form id="pii-form">
+                <div id="pii-dropzone" class="dropzone">
+                    <p><strong>PDF 또는 이미지 파일을 올리세요</strong></p>
+                    <p class="small">PDF는 비OCR 구조 분석, PNG/JPG는 vLLM 비전 OCR 경로</p>
+                    <input id="pii-file" type="file" name="file" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg">
+                    <p id="pii-selected-file" class="small muted">선택된 파일이 없습니다.</p>
+                </div>
+
+                <div class="actions">
+                    <button class="primary" type="button" id="run-pii-detect">PII 탐지</button>
+                    <button class="secondary" type="button" id="run-pii-mask">Masked 파일 생성</button>
+                    <button class="ghost" type="reset" id="reset-pii-form">초기화</button>
+                </div>
+            </form>
+
+            <div id="pii-status-box" class="status-box">
+                <strong>PII 상태</strong>
+                <div id="pii-status-text" class="small">대기 중</div>
+            </div>
+
+            <div class="result-pane">
+                <pre id="pii-summary-output">아직 탐지 결과가 없습니다.</pre>
+            </div>
+
+            <div class="result-pane">
+                <strong>Masked 파일</strong>
+                <div id="pii-masked-file" class="files">
+                    <div class="small muted">아직 masked 파일이 없습니다.</div>
+                </div>
+            </div>
+
+            <div class="result-pane">
+                <strong>탐지 결과</strong>
+                <div id="pii-findings" class="findings-grid">
+                    <div class="small muted">아직 탐지 결과가 없습니다.</div>
+                </div>
+            </div>
+
+            <div class="debug-box">
+                <strong>PII 디버그</strong>
+                <pre id="pii-debug-output">요청 전</pre>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>PII API 메모</h2>
+            <div class="recent-jobs">
+                <div class="job-row">
+                    <div>
+                        <strong>POST /api/v1/pii/detect</strong>
+                        <div class="small">bounding box, 마스킹 결과 텍스트, page number, detection source 반환</div>
+                    </div>
+                </div>
+                <div class="job-row">
+                    <div>
+                        <strong>POST /api/v1/pii/mask</strong>
+                        <div class="small">같은 기준으로 탐지 후 다운로드 가능한 masked 파일 생성</div>
+                    </div>
+                </div>
+                <div class="job-row">
+                    <div>
+                        <strong>GET /api/v1/pii/files/{fileId}</strong>
+                        <div class="small">masked 결과물 다운로드</div>
+                    </div>
+                </div>
+                <div class="job-row">
+                    <div>
+                        <strong>마스킹 기준</strong>
+                        <div class="small">주민등록번호, 운전면허번호, 여권번호, 외국인등록번호, 전화번호, 카드번호, 계좌번호, 이름, 이메일, IP, 주소 지원</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

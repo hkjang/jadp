@@ -1,0 +1,3341 @@
+{
+  "executedAt": "2026-03-26T19:37:33.2287476+09:00",
+  "baseUrl": "http://127.0.0.1:18085",
+  "healthStatus": "UP",
+  "swaggerStatus": 200,
+  "homeStatus": 200,
+  "optionDefaults": {
+    "readingOrder": "xycut",
+    "tableMethod": "default",
+    "imageOutput": "external",
+    "imageFormat": "png",
+    "hybrid": "off",
+    "hybridMode": "auto",
+    "hybridTimeout": 30000,
+    "sanitize": true,
+    "includeHeaderFooter": false,
+    "hybridFallback": true
+  },
+  "validationChecks": [
+    {
+      "name": "invalid_pages_rejected",
+      "httpStatus": 400,
+      "passed": true,
+      "responsePreview": "{\"timestamp\":\"2026-03-26T10:37:33.220175900Z\",\"status\":400,\"error\":\"Bad Request\",\"message\":\"Invalid pages format. Example: 1,3,5-7\",\"path\":\"/api/v1/pdf/convert\"}"
+    }
+  ],
+  "scenarios": [
+    {
+      "name": "sync_financial_basic",
+      "mode": "sync",
+      "endpoint": "/api/v1/pdf/convert-sync",
+      "inputFile": "financial-statement.pdf",
+      "requestSummary": "formats=json,markdown,html, readingOrder=xycut, sanitize=true, tableMethod=default",
+      "httpStatus": 200,
+      "note": "재무제표 PDF sync 기본 변환",
+      "requestStartedAt": "2026-03-26T19:37:10.3125589+09:00",
+      "requestFinishedAt": "2026-03-26T19:37:11.5857937+09:00",
+      "jobId": "df3feb03-a79c-421e-b26e-7efde96108f7",
+      "finalStatus": "SUCCEEDED",
+      "files": [
+        {
+          "fileId": "c8a01536-894a-458c-a61a-01009dc5d0bb",
+          "format": "html",
+          "filename": "financial-statement.html",
+          "contentType": "text/html",
+          "size": 18620,
+          "relativePath": "financial-statement.html",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/c8a01536-894a-458c-a61a-01009dc5d0bb"
+        },
+        {
+          "fileId": "d9d9e850-6413-49ea-829c-3ce5877a8e0b",
+          "format": "json",
+          "filename": "financial-statement.json",
+          "contentType": "application/json",
+          "size": 128774,
+          "relativePath": "financial-statement.json",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/d9d9e850-6413-49ea-829c-3ce5877a8e0b"
+        },
+        {
+          "fileId": "f8cd85ec-95ff-4f7f-b1ba-71af0939725d",
+          "format": "markdown",
+          "filename": "financial-statement.md",
+          "contentType": "text/markdown",
+          "size": 13985,
+          "relativePath": "financial-statement.md",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/f8cd85ec-95ff-4f7f-b1ba-71af0939725d"
+        }
+      ],
+      "htmlPreviewUrl": "http://127.0.0.1:18085/api/v1/pdf/files/c8a01536-894a-458c-a61a-01009dc5d0bb",
+      "markdownSummary": {
+        "length": 9995,
+        "preview": "#### 2024회계연도(제21기)\n\n(2024.3.1 ∼ 2025.2.28)\n\n# 산학협력단 결산서\n\n포항공과대학교 산학협력단\n\n|Ⅰ.현  금  흐  름  표|\n|---|\n\n\n(단위: 원)\n\n####### 관항목항관목항관\n\n- Ⅰ. 현금유입액371,951,202,496326,142,514,420\n\n\n- 1.운영활동으로 인한 현금유입액342,842,497,678317,118,422,320\n\n\n- 1)산학협력수익 현금유입액59,392,677,47352,801,269,917\n\n- (1)산학협력연구수익58,162,245,58751,305",
+        "containsHtml": false,
+        "containsImageRef": false,
+        "containsAbsoluteWindowsPath": false,
+        "containsPlaceholder": false,
+        "hangulDetected": true
+      },
+      "jsonSummary": {
+        "rawLength": 124702,
+        "containsPlaceholder": true,
+        "maskedDateMetadata": true,
+        "parseError": null,
+        "fileName": "financial-statement.pdf",
+        "numberOfPages": 16,
+        "topLevelKids": 92,
+        "hasKids": true
+      },
+      "imageArtifactCount": 0
+    },
+    {
+      "name": "sync_financial_markdown_html",
+      "mode": "sync",
+      "endpoint": "/api/v1/pdf/convert-sync",
+      "inputFile": "financial-statement.pdf",
+      "requestSummary": "formats=json,markdown-with-html, includeHeaderFooter=true, keepLineBreaks=true, sanitize=true, useStructTree=true",
+      "httpStatus": 200,
+      "note": "재무제표 PDF에 markdown-with-html 및 struct tree 요청",
+      "requestStartedAt": "2026-03-26T19:37:11.6753731+09:00",
+      "requestFinishedAt": "2026-03-26T19:37:12.3501541+09:00",
+      "jobId": "bf67bf3a-f280-44f7-b94d-90e059f40c20",
+      "finalStatus": "SUCCEEDED",
+      "files": [
+        {
+          "fileId": "42f474c5-c3cc-4fee-a475-7d63f9d00c93",
+          "format": "json",
+          "filename": "financial-statement.json",
+          "contentType": "application/json",
+          "size": 2264869,
+          "relativePath": "financial-statement.json",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/42f474c5-c3cc-4fee-a475-7d63f9d00c93"
+        },
+        {
+          "fileId": "f9be357d-2678-4ba4-9232-47926fb2b55f",
+          "format": "markdown",
+          "filename": "financial-statement.md",
+          "contentType": "text/markdown",
+          "size": 107972,
+          "relativePath": "financial-statement.md",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/f9be357d-2678-4ba4-9232-47926fb2b55f"
+        }
+      ],
+      "htmlPreviewUrl": null,
+      "markdownSummary": {
+        "length": 107972,
+        "preview": "<table>\n  <tr>\n    <th></th>\n    <th></th>\n    <th></th>\n    <th></th>\n    <th></th>\n    <th></th>\n    <th></th>\n    <th></th>\n    <th></th>\n    <th></th>\n    <th></th>\n    <th></th>\n  </tr>\n  <tr>\n    <td></td>\n    <td></td>\n    <td></td>\n    <td></td>\n    <td></td>\n    <td></td>\n    <td></td>\n    ",
+        "containsHtml": true,
+        "containsImageRef": false,
+        "containsAbsoluteWindowsPath": false,
+        "containsPlaceholder": false,
+        "hangulDetected": false
+      },
+      "jsonSummary": {
+        "rawLength": 2260797,
+        "containsPlaceholder": true,
+        "maskedDateMetadata": true,
+        "parseError": null,
+        "fileName": "financial-statement.pdf",
+        "numberOfPages": 16,
+        "topLevelKids": 7,
+        "hasKids": true
+      },
+      "imageArtifactCount": 0
+    },
+    {
+      "name": "async_privacy_full_formats",
+      "mode": "async",
+      "endpoint": "/api/v1/pdf/convert",
+      "inputFile": "privacy-protection-guide.pdf",
+      "requestSummary": "formats=json,markdown,html,pdf,text, readingOrder=xycut, sanitize=true, tableMethod=default",
+      "httpStatus": 202,
+      "note": "개인정보보호 안내 PDF 전체 포맷 생성",
+      "requestStartedAt": "2026-03-26T19:37:12.4981506+09:00",
+      "requestFinishedAt": "2026-03-26T19:37:12.6150188+09:00",
+      "jobId": "a875bdd2-9b68-4fed-995f-c4b192542d98",
+      "finalStatus": "SUCCEEDED",
+      "processingMillis": 11058,
+      "files": [
+        {
+          "fileId": "b48bab66-4dab-48f5-ade3-ed5b015e57f1",
+          "format": "html",
+          "filename": "privacy-protection-guide.html",
+          "contentType": "text/html",
+          "size": 414656,
+          "relativePath": "privacy-protection-guide.html",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/b48bab66-4dab-48f5-ade3-ed5b015e57f1"
+        },
+        {
+          "fileId": "3cd98bd0-c7b0-442a-b16a-a35a61041f70",
+          "format": "json",
+          "filename": "privacy-protection-guide.json",
+          "contentType": "application/json",
+          "size": 2825193,
+          "relativePath": "privacy-protection-guide.json",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/3cd98bd0-c7b0-442a-b16a-a35a61041f70"
+        },
+        {
+          "fileId": "1cf88e60-1a69-43d1-9b63-614a486d1a6d",
+          "format": "markdown",
+          "filename": "privacy-protection-guide.md",
+          "contentType": "text/markdown",
+          "size": 336859,
+          "relativePath": "privacy-protection-guide.md",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/1cf88e60-1a69-43d1-9b63-614a486d1a6d"
+        },
+        {
+          "fileId": "a7c36c83-0068-4034-a4a6-0527b4d0cb5f",
+          "format": "text",
+          "filename": "privacy-protection-guide.txt",
+          "contentType": "text/plain",
+          "size": 197732,
+          "relativePath": "privacy-protection-guide.txt",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/a7c36c83-0068-4034-a4a6-0527b4d0cb5f"
+        },
+        {
+          "fileId": "5d309c48-91c4-4c2c-8941-9e6da831703c",
+          "format": "pdf",
+          "filename": "privacy-protection-guide_annotated.pdf",
+          "contentType": "application/pdf",
+          "size": 3232931,
+          "relativePath": "privacy-protection-guide_annotated.pdf",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/5d309c48-91c4-4c2c-8941-9e6da831703c"
+        },
+        {
+          "fileId": "4de27c05-7bab-4f5a-b61d-1bbb0f5bf1e4",
+          "format": "image",
+          "filename": "figure1.png",
+          "contentType": "image/png",
+          "size": 3181,
+          "relativePath": "privacy-protection-guide_figures/figure1.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/4de27c05-7bab-4f5a-b61d-1bbb0f5bf1e4"
+        },
+        {
+          "fileId": "14d93c9a-ed81-4225-bd7f-b3b2ad86a58e",
+          "format": "image",
+          "filename": "figure10.png",
+          "contentType": "image/png",
+          "size": 91487,
+          "relativePath": "privacy-protection-guide_figures/figure10.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/14d93c9a-ed81-4225-bd7f-b3b2ad86a58e"
+        },
+        {
+          "fileId": "4f018fbd-1bc1-4cb4-807f-157dc8857892",
+          "format": "image",
+          "filename": "figure100.png",
+          "contentType": "image/png",
+          "size": 2059,
+          "relativePath": "privacy-protection-guide_figures/figure100.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/4f018fbd-1bc1-4cb4-807f-157dc8857892"
+        },
+        {
+          "fileId": "6b49309d-0b92-49f5-819f-a51af6a1f046",
+          "format": "image",
+          "filename": "figure101.png",
+          "contentType": "image/png",
+          "size": 3126,
+          "relativePath": "privacy-protection-guide_figures/figure101.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/6b49309d-0b92-49f5-819f-a51af6a1f046"
+        },
+        {
+          "fileId": "fece491b-0f89-4332-8cd6-400578035c2b",
+          "format": "image",
+          "filename": "figure102.png",
+          "contentType": "image/png",
+          "size": 4315,
+          "relativePath": "privacy-protection-guide_figures/figure102.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/fece491b-0f89-4332-8cd6-400578035c2b"
+        },
+        {
+          "fileId": "90294a11-0c64-4b0d-b68e-6d5e7c1b5963",
+          "format": "image",
+          "filename": "figure103.png",
+          "contentType": "image/png",
+          "size": 2299,
+          "relativePath": "privacy-protection-guide_figures/figure103.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/90294a11-0c64-4b0d-b68e-6d5e7c1b5963"
+        },
+        {
+          "fileId": "f00edcb9-51f9-432b-a281-66f10f4cdbb0",
+          "format": "image",
+          "filename": "figure104.png",
+          "contentType": "image/png",
+          "size": 3638,
+          "relativePath": "privacy-protection-guide_figures/figure104.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/f00edcb9-51f9-432b-a281-66f10f4cdbb0"
+        },
+        {
+          "fileId": "fc921ac5-7c83-4088-a2f9-252962c25ea7",
+          "format": "image",
+          "filename": "figure105.png",
+          "contentType": "image/png",
+          "size": 1500,
+          "relativePath": "privacy-protection-guide_figures/figure105.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/fc921ac5-7c83-4088-a2f9-252962c25ea7"
+        },
+        {
+          "fileId": "20e6b4d2-a72c-4fb6-aaee-f6ce3864426c",
+          "format": "image",
+          "filename": "figure106.png",
+          "contentType": "image/png",
+          "size": 1341,
+          "relativePath": "privacy-protection-guide_figures/figure106.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/20e6b4d2-a72c-4fb6-aaee-f6ce3864426c"
+        },
+        {
+          "fileId": "dbb4935e-b050-439b-9936-b9045656dff6",
+          "format": "image",
+          "filename": "figure107.png",
+          "contentType": "image/png",
+          "size": 2389,
+          "relativePath": "privacy-protection-guide_figures/figure107.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/dbb4935e-b050-439b-9936-b9045656dff6"
+        },
+        {
+          "fileId": "465aad69-0806-4065-8a21-de077145e91b",
+          "format": "image",
+          "filename": "figure108.png",
+          "contentType": "image/png",
+          "size": 6471,
+          "relativePath": "privacy-protection-guide_figures/figure108.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/465aad69-0806-4065-8a21-de077145e91b"
+        },
+        {
+          "fileId": "fd09de21-d9e5-4b53-89ec-1451fc2e416f",
+          "format": "image",
+          "filename": "figure109.png",
+          "contentType": "image/png",
+          "size": 3006,
+          "relativePath": "privacy-protection-guide_figures/figure109.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/fd09de21-d9e5-4b53-89ec-1451fc2e416f"
+        },
+        {
+          "fileId": "30e7dfbd-583f-4416-892e-6cf4c5270152",
+          "format": "image",
+          "filename": "figure11.png",
+          "contentType": "image/png",
+          "size": 89636,
+          "relativePath": "privacy-protection-guide_figures/figure11.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/30e7dfbd-583f-4416-892e-6cf4c5270152"
+        },
+        {
+          "fileId": "5385a9c1-7547-486a-9765-3c62d0a7d2a0",
+          "format": "image",
+          "filename": "figure110.png",
+          "contentType": "image/png",
+          "size": 4035,
+          "relativePath": "privacy-protection-guide_figures/figure110.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/5385a9c1-7547-486a-9765-3c62d0a7d2a0"
+        },
+        {
+          "fileId": "dcfac736-b1dc-4eb2-a66a-946863da2cb0",
+          "format": "image",
+          "filename": "figure111.png",
+          "contentType": "image/png",
+          "size": 322,
+          "relativePath": "privacy-protection-guide_figures/figure111.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/dcfac736-b1dc-4eb2-a66a-946863da2cb0"
+        },
+        {
+          "fileId": "6236e5a3-5ca3-4cd0-974a-9a9e65d9ba85",
+          "format": "image",
+          "filename": "figure112.png",
+          "contentType": "image/png",
+          "size": 3154,
+          "relativePath": "privacy-protection-guide_figures/figure112.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/6236e5a3-5ca3-4cd0-974a-9a9e65d9ba85"
+        },
+        {
+          "fileId": "56322e0b-b12f-4615-80e6-46197de46a21",
+          "format": "image",
+          "filename": "figure113.png",
+          "contentType": "image/png",
+          "size": 1281,
+          "relativePath": "privacy-protection-guide_figures/figure113.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/56322e0b-b12f-4615-80e6-46197de46a21"
+        },
+        {
+          "fileId": "71dfcc93-148c-4f9c-bd54-587249b9b888",
+          "format": "image",
+          "filename": "figure114.png",
+          "contentType": "image/png",
+          "size": 308,
+          "relativePath": "privacy-protection-guide_figures/figure114.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/71dfcc93-148c-4f9c-bd54-587249b9b888"
+        },
+        {
+          "fileId": "4bd6c0a1-97fd-4201-a2b3-66ebec283baa",
+          "format": "image",
+          "filename": "figure115.png",
+          "contentType": "image/png",
+          "size": 3007,
+          "relativePath": "privacy-protection-guide_figures/figure115.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/4bd6c0a1-97fd-4201-a2b3-66ebec283baa"
+        },
+        {
+          "fileId": "2f2dca90-195c-44c1-8b2e-5917511b46a6",
+          "format": "image",
+          "filename": "figure116.png",
+          "contentType": "image/png",
+          "size": 57217,
+          "relativePath": "privacy-protection-guide_figures/figure116.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/2f2dca90-195c-44c1-8b2e-5917511b46a6"
+        },
+        {
+          "fileId": "a8c2c4eb-9464-417c-946d-3c090a477d8a",
+          "format": "image",
+          "filename": "figure117.png",
+          "contentType": "image/png",
+          "size": 2811,
+          "relativePath": "privacy-protection-guide_figures/figure117.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/a8c2c4eb-9464-417c-946d-3c090a477d8a"
+        },
+        {
+          "fileId": "e8387340-7a54-434f-bd9a-50ebe62fcac9",
+          "format": "image",
+          "filename": "figure118.png",
+          "contentType": "image/png",
+          "size": 2571,
+          "relativePath": "privacy-protection-guide_figures/figure118.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/e8387340-7a54-434f-bd9a-50ebe62fcac9"
+        },
+        {
+          "fileId": "49b9bc13-3552-4cf5-bbc8-b4e75ee18d75",
+          "format": "image",
+          "filename": "figure119.png",
+          "contentType": "image/png",
+          "size": 308,
+          "relativePath": "privacy-protection-guide_figures/figure119.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/49b9bc13-3552-4cf5-bbc8-b4e75ee18d75"
+        },
+        {
+          "fileId": "f83607dd-6f9b-4c42-99ab-a847d11aad71",
+          "format": "image",
+          "filename": "figure12.png",
+          "contentType": "image/png",
+          "size": 104159,
+          "relativePath": "privacy-protection-guide_figures/figure12.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/f83607dd-6f9b-4c42-99ab-a847d11aad71"
+        },
+        {
+          "fileId": "d04cb0bd-2735-4010-98cf-0641af95dc73",
+          "format": "image",
+          "filename": "figure120.png",
+          "contentType": "image/png",
+          "size": 48983,
+          "relativePath": "privacy-protection-guide_figures/figure120.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/d04cb0bd-2735-4010-98cf-0641af95dc73"
+        },
+        {
+          "fileId": "1cb06b4d-444d-412a-b446-1731a49b513c",
+          "format": "image",
+          "filename": "figure121.png",
+          "contentType": "image/png",
+          "size": 2698,
+          "relativePath": "privacy-protection-guide_figures/figure121.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/1cb06b4d-444d-412a-b446-1731a49b513c"
+        },
+        {
+          "fileId": "f6828ce5-9d1d-446f-9233-ac03e7ddb665",
+          "format": "image",
+          "filename": "figure122.png",
+          "contentType": "image/png",
+          "size": 503,
+          "relativePath": "privacy-protection-guide_figures/figure122.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/f6828ce5-9d1d-446f-9233-ac03e7ddb665"
+        },
+        {
+          "fileId": "13378fe9-1a1a-47a3-bf7f-8bf78f272d5e",
+          "format": "image",
+          "filename": "figure123.png",
+          "contentType": "image/png",
+          "size": 3001,
+          "relativePath": "privacy-protection-guide_figures/figure123.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/13378fe9-1a1a-47a3-bf7f-8bf78f272d5e"
+        },
+        {
+          "fileId": "6d617b3e-9df1-48c0-966f-8948d7e9ed34",
+          "format": "image",
+          "filename": "figure124.png",
+          "contentType": "image/png",
+          "size": 6429,
+          "relativePath": "privacy-protection-guide_figures/figure124.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/6d617b3e-9df1-48c0-966f-8948d7e9ed34"
+        },
+        {
+          "fileId": "c087eaa1-1373-4141-8500-d0d215b91e86",
+          "format": "image",
+          "filename": "figure125.png",
+          "contentType": "image/png",
+          "size": 315,
+          "relativePath": "privacy-protection-guide_figures/figure125.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/c087eaa1-1373-4141-8500-d0d215b91e86"
+        },
+        {
+          "fileId": "0dbd7e7d-057b-43e2-b470-7909d0a3d436",
+          "format": "image",
+          "filename": "figure126.png",
+          "contentType": "image/png",
+          "size": 3155,
+          "relativePath": "privacy-protection-guide_figures/figure126.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/0dbd7e7d-057b-43e2-b470-7909d0a3d436"
+        },
+        {
+          "fileId": "14358f8d-29e3-4e5f-9aed-455a3ba00e75",
+          "format": "image",
+          "filename": "figure127.png",
+          "contentType": "image/png",
+          "size": 3324,
+          "relativePath": "privacy-protection-guide_figures/figure127.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/14358f8d-29e3-4e5f-9aed-455a3ba00e75"
+        },
+        {
+          "fileId": "f8ba84cd-ac26-45fc-b990-8d87e1ee15c9",
+          "format": "image",
+          "filename": "figure128.png",
+          "contentType": "image/png",
+          "size": 327,
+          "relativePath": "privacy-protection-guide_figures/figure128.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/f8ba84cd-ac26-45fc-b990-8d87e1ee15c9"
+        },
+        {
+          "fileId": "23fc1592-ea22-4873-8b8d-1b0fbf1feced",
+          "format": "image",
+          "filename": "figure129.png",
+          "contentType": "image/png",
+          "size": 6526,
+          "relativePath": "privacy-protection-guide_figures/figure129.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/23fc1592-ea22-4873-8b8d-1b0fbf1feced"
+        },
+        {
+          "fileId": "0ee3efb5-9144-4f9e-aa8c-69d522eca4f9",
+          "format": "image",
+          "filename": "figure13.png",
+          "contentType": "image/png",
+          "size": 723,
+          "relativePath": "privacy-protection-guide_figures/figure13.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/0ee3efb5-9144-4f9e-aa8c-69d522eca4f9"
+        },
+        {
+          "fileId": "e8e14200-9be4-4db8-b5ba-8d47bc270cbf",
+          "format": "image",
+          "filename": "figure130.png",
+          "contentType": "image/png",
+          "size": 3003,
+          "relativePath": "privacy-protection-guide_figures/figure130.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/e8e14200-9be4-4db8-b5ba-8d47bc270cbf"
+        },
+        {
+          "fileId": "60cf8c37-0630-46de-a0fb-bde83f327c8f",
+          "format": "image",
+          "filename": "figure131.png",
+          "contentType": "image/png",
+          "size": 50308,
+          "relativePath": "privacy-protection-guide_figures/figure131.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/60cf8c37-0630-46de-a0fb-bde83f327c8f"
+        },
+        {
+          "fileId": "8ae1c2d3-ecb5-4366-a182-761c2e6e6d40",
+          "format": "image",
+          "filename": "figure132.png",
+          "contentType": "image/png",
+          "size": 3163,
+          "relativePath": "privacy-protection-guide_figures/figure132.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/8ae1c2d3-ecb5-4366-a182-761c2e6e6d40"
+        },
+        {
+          "fileId": "2217e955-ccb3-4547-ae58-d70720176295",
+          "format": "image",
+          "filename": "figure133.png",
+          "contentType": "image/png",
+          "size": 4288,
+          "relativePath": "privacy-protection-guide_figures/figure133.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/2217e955-ccb3-4547-ae58-d70720176295"
+        },
+        {
+          "fileId": "25e69eac-4372-4274-986e-9cc03ffaefc1",
+          "format": "image",
+          "filename": "figure134.png",
+          "contentType": "image/png",
+          "size": 503,
+          "relativePath": "privacy-protection-guide_figures/figure134.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/25e69eac-4372-4274-986e-9cc03ffaefc1"
+        },
+        {
+          "fileId": "e4f86ab3-37b9-4f86-93f7-ba0bbb68f626",
+          "format": "image",
+          "filename": "figure135.png",
+          "contentType": "image/png",
+          "size": 2792,
+          "relativePath": "privacy-protection-guide_figures/figure135.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/e4f86ab3-37b9-4f86-93f7-ba0bbb68f626"
+        },
+        {
+          "fileId": "b9561cfe-83d4-4d72-ab2f-3881506841d4",
+          "format": "image",
+          "filename": "figure136.png",
+          "contentType": "image/png",
+          "size": 6168,
+          "relativePath": "privacy-protection-guide_figures/figure136.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/b9561cfe-83d4-4d72-ab2f-3881506841d4"
+        },
+        {
+          "fileId": "b07f41d3-d611-421f-be3d-9024ac3a66fa",
+          "format": "image",
+          "filename": "figure137.png",
+          "contentType": "image/png",
+          "size": 320,
+          "relativePath": "privacy-protection-guide_figures/figure137.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/b07f41d3-d611-421f-be3d-9024ac3a66fa"
+        },
+        {
+          "fileId": "132acb1c-3a2a-43e3-ace3-debd3b293039",
+          "format": "image",
+          "filename": "figure138.png",
+          "contentType": "image/png",
+          "size": 16844,
+          "relativePath": "privacy-protection-guide_figures/figure138.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/132acb1c-3a2a-43e3-ace3-debd3b293039"
+        },
+        {
+          "fileId": "675aa4ee-09f8-488b-afed-83cb1f1ee17d",
+          "format": "image",
+          "filename": "figure139.png",
+          "contentType": "image/png",
+          "size": 2758,
+          "relativePath": "privacy-protection-guide_figures/figure139.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/675aa4ee-09f8-488b-afed-83cb1f1ee17d"
+        },
+        {
+          "fileId": "e72382d1-c5d3-4e33-adbd-88517d78fc48",
+          "format": "image",
+          "filename": "figure14.png",
+          "contentType": "image/png",
+          "size": 101156,
+          "relativePath": "privacy-protection-guide_figures/figure14.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/e72382d1-c5d3-4e33-adbd-88517d78fc48"
+        },
+        {
+          "fileId": "f1827b47-1d8f-4348-9ee1-fab9031f51fa",
+          "format": "image",
+          "filename": "figure140.png",
+          "contentType": "image/png",
+          "size": 327,
+          "relativePath": "privacy-protection-guide_figures/figure140.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/f1827b47-1d8f-4348-9ee1-fab9031f51fa"
+        },
+        {
+          "fileId": "e32c37d2-2bfd-4023-8015-5cefcbda31da",
+          "format": "image",
+          "filename": "figure141.png",
+          "contentType": "image/png",
+          "size": 4695,
+          "relativePath": "privacy-protection-guide_figures/figure141.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/e32c37d2-2bfd-4023-8015-5cefcbda31da"
+        },
+        {
+          "fileId": "ff623449-b959-45f9-96e0-19e76d0963f7",
+          "format": "image",
+          "filename": "figure142.png",
+          "contentType": "image/png",
+          "size": 4142,
+          "relativePath": "privacy-protection-guide_figures/figure142.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/ff623449-b959-45f9-96e0-19e76d0963f7"
+        },
+        {
+          "fileId": "e12716d6-a2e3-4158-a682-636ca1bdabf2",
+          "format": "image",
+          "filename": "figure143.png",
+          "contentType": "image/png",
+          "size": 3594,
+          "relativePath": "privacy-protection-guide_figures/figure143.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/e12716d6-a2e3-4158-a682-636ca1bdabf2"
+        },
+        {
+          "fileId": "cade8f2c-8795-4c8c-928d-2f3542a5d3d4",
+          "format": "image",
+          "filename": "figure144.png",
+          "contentType": "image/png",
+          "size": 8458,
+          "relativePath": "privacy-protection-guide_figures/figure144.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/cade8f2c-8795-4c8c-928d-2f3542a5d3d4"
+        },
+        {
+          "fileId": "0d53ed19-8148-49c0-9e11-54989207291f",
+          "format": "image",
+          "filename": "figure145.png",
+          "contentType": "image/png",
+          "size": 7788,
+          "relativePath": "privacy-protection-guide_figures/figure145.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/0d53ed19-8148-49c0-9e11-54989207291f"
+        },
+        {
+          "fileId": "787e5a5b-4935-4094-bf54-88f1806959e9",
+          "format": "image",
+          "filename": "figure146.png",
+          "contentType": "image/png",
+          "size": 7758,
+          "relativePath": "privacy-protection-guide_figures/figure146.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/787e5a5b-4935-4094-bf54-88f1806959e9"
+        },
+        {
+          "fileId": "e5871265-e218-4aed-9728-1b9d19c95c5d",
+          "format": "image",
+          "filename": "figure147.png",
+          "contentType": "image/png",
+          "size": 599,
+          "relativePath": "privacy-protection-guide_figures/figure147.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/e5871265-e218-4aed-9728-1b9d19c95c5d"
+        },
+        {
+          "fileId": "3432461d-a80b-4050-b75f-17a5154f4f4d",
+          "format": "image",
+          "filename": "figure148.png",
+          "contentType": "image/png",
+          "size": 55066,
+          "relativePath": "privacy-protection-guide_figures/figure148.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/3432461d-a80b-4050-b75f-17a5154f4f4d"
+        },
+        {
+          "fileId": "6e402938-18fc-4468-9902-cb4044af5d4c",
+          "format": "image",
+          "filename": "figure149.png",
+          "contentType": "image/png",
+          "size": 4669,
+          "relativePath": "privacy-protection-guide_figures/figure149.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/6e402938-18fc-4468-9902-cb4044af5d4c"
+        },
+        {
+          "fileId": "be944413-8a08-43fb-9076-7f211a6e53e7",
+          "format": "image",
+          "filename": "figure15.png",
+          "contentType": "image/png",
+          "size": 32026,
+          "relativePath": "privacy-protection-guide_figures/figure15.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/be944413-8a08-43fb-9076-7f211a6e53e7"
+        },
+        {
+          "fileId": "254b1ee8-8c77-41ab-970a-e562ded868b4",
+          "format": "image",
+          "filename": "figure150.png",
+          "contentType": "image/png",
+          "size": 4990,
+          "relativePath": "privacy-protection-guide_figures/figure150.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/254b1ee8-8c77-41ab-970a-e562ded868b4"
+        },
+        {
+          "fileId": "76070ebf-75ec-44db-9ebb-6b11377c6575",
+          "format": "image",
+          "filename": "figure151.png",
+          "contentType": "image/png",
+          "size": 4534,
+          "relativePath": "privacy-protection-guide_figures/figure151.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/76070ebf-75ec-44db-9ebb-6b11377c6575"
+        },
+        {
+          "fileId": "a30db644-05aa-42fa-873b-bc3257bb2e3a",
+          "format": "image",
+          "filename": "figure152.png",
+          "contentType": "image/png",
+          "size": 3006,
+          "relativePath": "privacy-protection-guide_figures/figure152.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/a30db644-05aa-42fa-873b-bc3257bb2e3a"
+        },
+        {
+          "fileId": "16759b84-44ca-4734-aa5f-504556c501f1",
+          "format": "image",
+          "filename": "figure153.png",
+          "contentType": "image/png",
+          "size": 12907,
+          "relativePath": "privacy-protection-guide_figures/figure153.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/16759b84-44ca-4734-aa5f-504556c501f1"
+        },
+        {
+          "fileId": "e86ab9ba-34e2-4b80-858d-27056becb816",
+          "format": "image",
+          "filename": "figure154.png",
+          "contentType": "image/png",
+          "size": 307,
+          "relativePath": "privacy-protection-guide_figures/figure154.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/e86ab9ba-34e2-4b80-858d-27056becb816"
+        },
+        {
+          "fileId": "74fb7a34-d178-4fac-9b2b-119cfabfdf00",
+          "format": "image",
+          "filename": "figure155.png",
+          "contentType": "image/png",
+          "size": 3010,
+          "relativePath": "privacy-protection-guide_figures/figure155.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/74fb7a34-d178-4fac-9b2b-119cfabfdf00"
+        },
+        {
+          "fileId": "83bceff9-12b1-47c6-a2a5-ddb3d1d27582",
+          "format": "image",
+          "filename": "figure156.png",
+          "contentType": "image/png",
+          "size": 1628,
+          "relativePath": "privacy-protection-guide_figures/figure156.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/83bceff9-12b1-47c6-a2a5-ddb3d1d27582"
+        },
+        {
+          "fileId": "448f997d-f01b-4f20-8f0e-383763d3c640",
+          "format": "image",
+          "filename": "figure157.png",
+          "contentType": "image/png",
+          "size": 315,
+          "relativePath": "privacy-protection-guide_figures/figure157.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/448f997d-f01b-4f20-8f0e-383763d3c640"
+        },
+        {
+          "fileId": "fbc63965-356f-4ca0-be0d-0811fbb3fd56",
+          "format": "image",
+          "filename": "figure158.png",
+          "contentType": "image/png",
+          "size": 3072,
+          "relativePath": "privacy-protection-guide_figures/figure158.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/fbc63965-356f-4ca0-be0d-0811fbb3fd56"
+        },
+        {
+          "fileId": "ec6ca792-8a7f-484c-be79-27ef9a37b6b9",
+          "format": "image",
+          "filename": "figure159.png",
+          "contentType": "image/png",
+          "size": 46751,
+          "relativePath": "privacy-protection-guide_figures/figure159.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/ec6ca792-8a7f-484c-be79-27ef9a37b6b9"
+        },
+        {
+          "fileId": "82e390bf-dee8-4bd8-9d8d-2a944564c3d1",
+          "format": "image",
+          "filename": "figure16.png",
+          "contentType": "image/png",
+          "size": 54835,
+          "relativePath": "privacy-protection-guide_figures/figure16.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/82e390bf-dee8-4bd8-9d8d-2a944564c3d1"
+        },
+        {
+          "fileId": "0a74363d-ee5b-46df-8039-3cb67a407304",
+          "format": "image",
+          "filename": "figure160.png",
+          "contentType": "image/png",
+          "size": 80533,
+          "relativePath": "privacy-protection-guide_figures/figure160.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/0a74363d-ee5b-46df-8039-3cb67a407304"
+        },
+        {
+          "fileId": "c982ce7f-fcf5-4770-9f0f-871f6f474718",
+          "format": "image",
+          "filename": "figure161.png",
+          "contentType": "image/png",
+          "size": 313,
+          "relativePath": "privacy-protection-guide_figures/figure161.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/c982ce7f-fcf5-4770-9f0f-871f6f474718"
+        },
+        {
+          "fileId": "11eaabbb-07c4-4374-8f94-ab295e07475e",
+          "format": "image",
+          "filename": "figure162.png",
+          "contentType": "image/png",
+          "size": 3221,
+          "relativePath": "privacy-protection-guide_figures/figure162.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/11eaabbb-07c4-4374-8f94-ab295e07475e"
+        },
+        {
+          "fileId": "a1478ec1-31dc-4c48-97c0-b962522d8d0c",
+          "format": "image",
+          "filename": "figure163.png",
+          "contentType": "image/png",
+          "size": 23521,
+          "relativePath": "privacy-protection-guide_figures/figure163.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/a1478ec1-31dc-4c48-97c0-b962522d8d0c"
+        },
+        {
+          "fileId": "9ce9236d-e418-4fe6-91df-8ab00606cdf6",
+          "format": "image",
+          "filename": "figure164.png",
+          "contentType": "image/png",
+          "size": 308,
+          "relativePath": "privacy-protection-guide_figures/figure164.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/9ce9236d-e418-4fe6-91df-8ab00606cdf6"
+        },
+        {
+          "fileId": "4d6cc747-6bdd-4207-a174-86f403021306",
+          "format": "image",
+          "filename": "figure165.png",
+          "contentType": "image/png",
+          "size": 2807,
+          "relativePath": "privacy-protection-guide_figures/figure165.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/4d6cc747-6bdd-4207-a174-86f403021306"
+        },
+        {
+          "fileId": "845b77d0-af42-4e31-82d0-5941ddc81e31",
+          "format": "image",
+          "filename": "figure166.png",
+          "contentType": "image/png",
+          "size": 2562,
+          "relativePath": "privacy-protection-guide_figures/figure166.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/845b77d0-af42-4e31-82d0-5941ddc81e31"
+        },
+        {
+          "fileId": "18bbd817-ee91-4a48-b8ca-ff3c9931ac94",
+          "format": "image",
+          "filename": "figure167.png",
+          "contentType": "image/png",
+          "size": 315,
+          "relativePath": "privacy-protection-guide_figures/figure167.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/18bbd817-ee91-4a48-b8ca-ff3c9931ac94"
+        },
+        {
+          "fileId": "5fcede38-e3fc-4ab4-aee0-df144710f5ed",
+          "format": "image",
+          "filename": "figure168.png",
+          "contentType": "image/png",
+          "size": 2146,
+          "relativePath": "privacy-protection-guide_figures/figure168.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/5fcede38-e3fc-4ab4-aee0-df144710f5ed"
+        },
+        {
+          "fileId": "989fbaf6-7ea5-4ee5-b287-e882410e60da",
+          "format": "image",
+          "filename": "figure169.png",
+          "contentType": "image/png",
+          "size": 4637,
+          "relativePath": "privacy-protection-guide_figures/figure169.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/989fbaf6-7ea5-4ee5-b287-e882410e60da"
+        },
+        {
+          "fileId": "b68399f8-43cc-4dbe-a0f9-7caf6a25f3e5",
+          "format": "image",
+          "filename": "figure17.png",
+          "contentType": "image/png",
+          "size": 172644,
+          "relativePath": "privacy-protection-guide_figures/figure17.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/b68399f8-43cc-4dbe-a0f9-7caf6a25f3e5"
+        },
+        {
+          "fileId": "376f0bf4-292e-4aa8-b0b7-a4c51a8d4965",
+          "format": "image",
+          "filename": "figure170.png",
+          "contentType": "image/png",
+          "size": 3006,
+          "relativePath": "privacy-protection-guide_figures/figure170.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/376f0bf4-292e-4aa8-b0b7-a4c51a8d4965"
+        },
+        {
+          "fileId": "5adf901f-bee5-4197-a988-8a71923f2440",
+          "format": "image",
+          "filename": "figure171.png",
+          "contentType": "image/png",
+          "size": 7638,
+          "relativePath": "privacy-protection-guide_figures/figure171.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/5adf901f-bee5-4197-a988-8a71923f2440"
+        },
+        {
+          "fileId": "ab78ccb1-4cd7-4aaa-b385-e5c0fed3552a",
+          "format": "image",
+          "filename": "figure172.png",
+          "contentType": "image/png",
+          "size": 322,
+          "relativePath": "privacy-protection-guide_figures/figure172.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/ab78ccb1-4cd7-4aaa-b385-e5c0fed3552a"
+        },
+        {
+          "fileId": "1f2a7e16-c6ea-41e7-9322-ae69c4940685",
+          "format": "image",
+          "filename": "figure173.png",
+          "contentType": "image/png",
+          "size": 3155,
+          "relativePath": "privacy-protection-guide_figures/figure173.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/1f2a7e16-c6ea-41e7-9322-ae69c4940685"
+        },
+        {
+          "fileId": "a40d3af9-f798-47a6-beb5-4f6c255dba50",
+          "format": "image",
+          "filename": "figure174.png",
+          "contentType": "image/png",
+          "size": 803,
+          "relativePath": "privacy-protection-guide_figures/figure174.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/a40d3af9-f798-47a6-beb5-4f6c255dba50"
+        },
+        {
+          "fileId": "98b246ba-9356-430c-80c7-0a05b8fc1244",
+          "format": "image",
+          "filename": "figure175.png",
+          "contentType": "image/png",
+          "size": 327,
+          "relativePath": "privacy-protection-guide_figures/figure175.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/98b246ba-9356-430c-80c7-0a05b8fc1244"
+        },
+        {
+          "fileId": "fa7c4557-5f54-49ba-ab75-53e61366754f",
+          "format": "image",
+          "filename": "figure176.png",
+          "contentType": "image/png",
+          "size": 3143,
+          "relativePath": "privacy-protection-guide_figures/figure176.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/fa7c4557-5f54-49ba-ab75-53e61366754f"
+        },
+        {
+          "fileId": "7cbad6cb-82c2-4a7a-893f-04d7504093fe",
+          "format": "image",
+          "filename": "figure177.png",
+          "contentType": "image/png",
+          "size": 60324,
+          "relativePath": "privacy-protection-guide_figures/figure177.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/7cbad6cb-82c2-4a7a-893f-04d7504093fe"
+        },
+        {
+          "fileId": "9fddf173-1c90-4624-95ba-959e86e2c13e",
+          "format": "image",
+          "filename": "figure178.png",
+          "contentType": "image/png",
+          "size": 63755,
+          "relativePath": "privacy-protection-guide_figures/figure178.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/9fddf173-1c90-4624-95ba-959e86e2c13e"
+        },
+        {
+          "fileId": "2b6d42e5-6f17-4806-a939-e49e6bcf148d",
+          "format": "image",
+          "filename": "figure179.png",
+          "contentType": "image/png",
+          "size": 3212,
+          "relativePath": "privacy-protection-guide_figures/figure179.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/2b6d42e5-6f17-4806-a939-e49e6bcf148d"
+        },
+        {
+          "fileId": "06009677-9647-4432-b1b6-ab292595953c",
+          "format": "image",
+          "filename": "figure18.png",
+          "contentType": "image/png",
+          "size": 6101,
+          "relativePath": "privacy-protection-guide_figures/figure18.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/06009677-9647-4432-b1b6-ab292595953c"
+        },
+        {
+          "fileId": "1a0d669d-8714-42f2-a048-e1384822e848",
+          "format": "image",
+          "filename": "figure180.png",
+          "contentType": "image/png",
+          "size": 13831,
+          "relativePath": "privacy-protection-guide_figures/figure180.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/1a0d669d-8714-42f2-a048-e1384822e848"
+        },
+        {
+          "fileId": "a1d401c9-bd54-4cac-92ac-2c7d909e3ed3",
+          "format": "image",
+          "filename": "figure181.png",
+          "contentType": "image/png",
+          "size": 313,
+          "relativePath": "privacy-protection-guide_figures/figure181.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/a1d401c9-bd54-4cac-92ac-2c7d909e3ed3"
+        },
+        {
+          "fileId": "16576751-8b47-4ef1-9679-428c0916c3d0",
+          "format": "image",
+          "filename": "figure182.png",
+          "contentType": "image/png",
+          "size": 2879,
+          "relativePath": "privacy-protection-guide_figures/figure182.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/16576751-8b47-4ef1-9679-428c0916c3d0"
+        },
+        {
+          "fileId": "0743ddcf-00d8-42a9-a1c2-b87c05643af0",
+          "format": "image",
+          "filename": "figure183.png",
+          "contentType": "image/png",
+          "size": 3754,
+          "relativePath": "privacy-protection-guide_figures/figure183.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/0743ddcf-00d8-42a9-a1c2-b87c05643af0"
+        },
+        {
+          "fileId": "7bc51318-d9e7-47c3-a672-8e2c555e9d4f",
+          "format": "image",
+          "filename": "figure184.png",
+          "contentType": "image/png",
+          "size": 322,
+          "relativePath": "privacy-protection-guide_figures/figure184.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/7bc51318-d9e7-47c3-a672-8e2c555e9d4f"
+        },
+        {
+          "fileId": "5dfc0d1d-38af-4b9e-a3ba-17c19d3060c1",
+          "format": "image",
+          "filename": "figure185.png",
+          "contentType": "image/png",
+          "size": 58067,
+          "relativePath": "privacy-protection-guide_figures/figure185.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/5dfc0d1d-38af-4b9e-a3ba-17c19d3060c1"
+        },
+        {
+          "fileId": "265ad1f3-205c-45ad-87dc-fd6dcd8d6679",
+          "format": "image",
+          "filename": "figure186.png",
+          "contentType": "image/png",
+          "size": 369,
+          "relativePath": "privacy-protection-guide_figures/figure186.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/265ad1f3-205c-45ad-87dc-fd6dcd8d6679"
+        },
+        {
+          "fileId": "4ffdf750-e978-448d-a7a8-b58042900e78",
+          "format": "image",
+          "filename": "figure187.png",
+          "contentType": "image/png",
+          "size": 4695,
+          "relativePath": "privacy-protection-guide_figures/figure187.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/4ffdf750-e978-448d-a7a8-b58042900e78"
+        },
+        {
+          "fileId": "660a022c-0879-4be4-b317-b34257b61b62",
+          "format": "image",
+          "filename": "figure188.png",
+          "contentType": "image/png",
+          "size": 5430,
+          "relativePath": "privacy-protection-guide_figures/figure188.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/660a022c-0879-4be4-b317-b34257b61b62"
+        },
+        {
+          "fileId": "9cd02cdc-2dd1-4e87-81a0-484f6e9dc9b0",
+          "format": "image",
+          "filename": "figure189.png",
+          "contentType": "image/png",
+          "size": 3006,
+          "relativePath": "privacy-protection-guide_figures/figure189.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/9cd02cdc-2dd1-4e87-81a0-484f6e9dc9b0"
+        },
+        {
+          "fileId": "df6103a9-056e-4a52-9399-9ccb12aebccb",
+          "format": "image",
+          "filename": "figure19.png",
+          "contentType": "image/png",
+          "size": 3024,
+          "relativePath": "privacy-protection-guide_figures/figure19.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/df6103a9-056e-4a52-9399-9ccb12aebccb"
+        },
+        {
+          "fileId": "a581afdb-c439-4abb-b2df-8d43ea7fa217",
+          "format": "image",
+          "filename": "figure190.png",
+          "contentType": "image/png",
+          "size": 5440,
+          "relativePath": "privacy-protection-guide_figures/figure190.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/a581afdb-c439-4abb-b2df-8d43ea7fa217"
+        },
+        {
+          "fileId": "6dca0541-2e15-4293-8079-58dfc91e4ffe",
+          "format": "image",
+          "filename": "figure191.png",
+          "contentType": "image/png",
+          "size": 320,
+          "relativePath": "privacy-protection-guide_figures/figure191.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/6dca0541-2e15-4293-8079-58dfc91e4ffe"
+        },
+        {
+          "fileId": "94e6be6b-ccbd-4692-9fb6-063426b0e6f0",
+          "format": "image",
+          "filename": "figure192.png",
+          "contentType": "image/png",
+          "size": 3165,
+          "relativePath": "privacy-protection-guide_figures/figure192.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/94e6be6b-ccbd-4692-9fb6-063426b0e6f0"
+        },
+        {
+          "fileId": "442b29c7-6e35-4f21-ba5d-2326854d8663",
+          "format": "image",
+          "filename": "figure193.png",
+          "contentType": "image/png",
+          "size": 1245,
+          "relativePath": "privacy-protection-guide_figures/figure193.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/442b29c7-6e35-4f21-ba5d-2326854d8663"
+        },
+        {
+          "fileId": "08db9f4b-e5cc-4781-b1f0-0bc99ce29da0",
+          "format": "image",
+          "filename": "figure194.png",
+          "contentType": "image/png",
+          "size": 327,
+          "relativePath": "privacy-protection-guide_figures/figure194.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/08db9f4b-e5cc-4781-b1f0-0bc99ce29da0"
+        },
+        {
+          "fileId": "a63c54ae-6dcd-4986-9d8d-ee52f7bd5d75",
+          "format": "image",
+          "filename": "figure195.png",
+          "contentType": "image/png",
+          "size": 3077,
+          "relativePath": "privacy-protection-guide_figures/figure195.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/a63c54ae-6dcd-4986-9d8d-ee52f7bd5d75"
+        },
+        {
+          "fileId": "4e262fc1-b1f8-42cb-a9ca-3f9b2434ef7a",
+          "format": "image",
+          "filename": "figure196.png",
+          "contentType": "image/png",
+          "size": 59775,
+          "relativePath": "privacy-protection-guide_figures/figure196.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/4e262fc1-b1f8-42cb-a9ca-3f9b2434ef7a"
+        },
+        {
+          "fileId": "e1c4440b-44c1-45fa-8cf6-968647b8aaa3",
+          "format": "image",
+          "filename": "figure197.png",
+          "contentType": "image/png",
+          "size": 3091,
+          "relativePath": "privacy-protection-guide_figures/figure197.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/e1c4440b-44c1-45fa-8cf6-968647b8aaa3"
+        },
+        {
+          "fileId": "a6cacc57-21a6-4385-aa88-632d63e4d664",
+          "format": "image",
+          "filename": "figure198.png",
+          "contentType": "image/png",
+          "size": 10032,
+          "relativePath": "privacy-protection-guide_figures/figure198.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/a6cacc57-21a6-4385-aa88-632d63e4d664"
+        },
+        {
+          "fileId": "f8433a3d-6051-4d7c-a06d-37a1666649d1",
+          "format": "image",
+          "filename": "figure199.png",
+          "contentType": "image/png",
+          "size": 260,
+          "relativePath": "privacy-protection-guide_figures/figure199.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/f8433a3d-6051-4d7c-a06d-37a1666649d1"
+        },
+        {
+          "fileId": "37418da0-979c-4f74-86f2-8477377c593d",
+          "format": "image",
+          "filename": "figure2.png",
+          "contentType": "image/png",
+          "size": 399415,
+          "relativePath": "privacy-protection-guide_figures/figure2.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/37418da0-979c-4f74-86f2-8477377c593d"
+        },
+        {
+          "fileId": "b216fd08-b075-4b82-8715-2b1d0e167048",
+          "format": "image",
+          "filename": "figure20.png",
+          "contentType": "image/png",
+          "size": 7201,
+          "relativePath": "privacy-protection-guide_figures/figure20.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/b216fd08-b075-4b82-8715-2b1d0e167048"
+        },
+        {
+          "fileId": "5cfe3b04-7991-4ed5-89bc-09708b2d4610",
+          "format": "image",
+          "filename": "figure200.png",
+          "contentType": "image/png",
+          "size": 2807,
+          "relativePath": "privacy-protection-guide_figures/figure200.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/5cfe3b04-7991-4ed5-89bc-09708b2d4610"
+        },
+        {
+          "fileId": "079a5cdc-558f-42b2-b552-42b5e32484b9",
+          "format": "image",
+          "filename": "figure201.png",
+          "contentType": "image/png",
+          "size": 9984,
+          "relativePath": "privacy-protection-guide_figures/figure201.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/079a5cdc-558f-42b2-b552-42b5e32484b9"
+        },
+        {
+          "fileId": "b1e71b30-e989-454c-ae95-da3993b5d37f",
+          "format": "image",
+          "filename": "figure202.png",
+          "contentType": "image/png",
+          "size": 245,
+          "relativePath": "privacy-protection-guide_figures/figure202.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/b1e71b30-e989-454c-ae95-da3993b5d37f"
+        },
+        {
+          "fileId": "c7134ed2-5544-407a-bd20-58ed1c253f93",
+          "format": "image",
+          "filename": "figure203.png",
+          "contentType": "image/png",
+          "size": 58364,
+          "relativePath": "privacy-protection-guide_figures/figure203.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/c7134ed2-5544-407a-bd20-58ed1c253f93"
+        },
+        {
+          "fileId": "78008015-2e08-44d5-b21e-141d64b01ea4",
+          "format": "image",
+          "filename": "figure204.png",
+          "contentType": "image/png",
+          "size": 2786,
+          "relativePath": "privacy-protection-guide_figures/figure204.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/78008015-2e08-44d5-b21e-141d64b01ea4"
+        },
+        {
+          "fileId": "7bd5ef7d-c535-4a42-b625-591e66485adf",
+          "format": "image",
+          "filename": "figure205.png",
+          "contentType": "image/png",
+          "size": 308,
+          "relativePath": "privacy-protection-guide_figures/figure205.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/7bd5ef7d-c535-4a42-b625-591e66485adf"
+        },
+        {
+          "fileId": "d9211bc5-3215-4fa6-8856-623a66647206",
+          "format": "image",
+          "filename": "figure206.png",
+          "contentType": "image/png",
+          "size": 2824,
+          "relativePath": "privacy-protection-guide_figures/figure206.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/d9211bc5-3215-4fa6-8856-623a66647206"
+        },
+        {
+          "fileId": "bb92389e-6240-4f5a-bb70-73d64a3d4970",
+          "format": "image",
+          "filename": "figure207.png",
+          "contentType": "image/png",
+          "size": 2824,
+          "relativePath": "privacy-protection-guide_figures/figure207.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/bb92389e-6240-4f5a-bb70-73d64a3d4970"
+        },
+        {
+          "fileId": "c93b736e-48e3-4325-9470-e9c63200a54f",
+          "format": "image",
+          "filename": "figure208.png",
+          "contentType": "image/png",
+          "size": 2146,
+          "relativePath": "privacy-protection-guide_figures/figure208.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/c93b736e-48e3-4325-9470-e9c63200a54f"
+        },
+        {
+          "fileId": "ba3b07c0-0148-4ac6-a3e2-8fdb938b04b2",
+          "format": "image",
+          "filename": "figure209.png",
+          "contentType": "image/png",
+          "size": 6630,
+          "relativePath": "privacy-protection-guide_figures/figure209.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/ba3b07c0-0148-4ac6-a3e2-8fdb938b04b2"
+        },
+        {
+          "fileId": "5ec7856f-b09c-4c85-8d9a-edde40eeb92f",
+          "format": "image",
+          "filename": "figure21.png",
+          "contentType": "image/png",
+          "size": 308,
+          "relativePath": "privacy-protection-guide_figures/figure21.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/5ec7856f-b09c-4c85-8d9a-edde40eeb92f"
+        },
+        {
+          "fileId": "5a557730-848d-4e18-a8c5-ab1db10c0331",
+          "format": "image",
+          "filename": "figure210.png",
+          "contentType": "image/png",
+          "size": 7143,
+          "relativePath": "privacy-protection-guide_figures/figure210.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/5a557730-848d-4e18-a8c5-ab1db10c0331"
+        },
+        {
+          "fileId": "e21aadbb-1770-46e7-aa6e-81c00a05c107",
+          "format": "image",
+          "filename": "figure211.png",
+          "contentType": "image/png",
+          "size": 6766,
+          "relativePath": "privacy-protection-guide_figures/figure211.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/e21aadbb-1770-46e7-aa6e-81c00a05c107"
+        },
+        {
+          "fileId": "1d00c50b-c6fe-4af1-871a-8e567a86b859",
+          "format": "image",
+          "filename": "figure212.png",
+          "contentType": "image/png",
+          "size": 2146,
+          "relativePath": "privacy-protection-guide_figures/figure212.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/1d00c50b-c6fe-4af1-871a-8e567a86b859"
+        },
+        {
+          "fileId": "6ec1b4c1-9c05-4cb7-899e-8b9e960452d7",
+          "format": "image",
+          "filename": "figure213.png",
+          "contentType": "image/png",
+          "size": 2636,
+          "relativePath": "privacy-protection-guide_figures/figure213.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/6ec1b4c1-9c05-4cb7-899e-8b9e960452d7"
+        },
+        {
+          "fileId": "5d7db107-751b-47d5-b8bb-540d59a90ac2",
+          "format": "image",
+          "filename": "figure214.png",
+          "contentType": "image/png",
+          "size": 3958,
+          "relativePath": "privacy-protection-guide_figures/figure214.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/5d7db107-751b-47d5-b8bb-540d59a90ac2"
+        },
+        {
+          "fileId": "e5405150-c125-43df-b333-539d5b5d7898",
+          "format": "image",
+          "filename": "figure215.png",
+          "contentType": "image/png",
+          "size": 2453,
+          "relativePath": "privacy-protection-guide_figures/figure215.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/e5405150-c125-43df-b333-539d5b5d7898"
+        },
+        {
+          "fileId": "8dd2163b-8c86-43b1-a4b6-71496b8be745",
+          "format": "image",
+          "filename": "figure216.png",
+          "contentType": "image/png",
+          "size": 1859,
+          "relativePath": "privacy-protection-guide_figures/figure216.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/8dd2163b-8c86-43b1-a4b6-71496b8be745"
+        },
+        {
+          "fileId": "c7efd779-d5b2-4f26-834b-db6d2aff1ddb",
+          "format": "image",
+          "filename": "figure217.png",
+          "contentType": "image/png",
+          "size": 4893,
+          "relativePath": "privacy-protection-guide_figures/figure217.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/c7efd779-d5b2-4f26-834b-db6d2aff1ddb"
+        },
+        {
+          "fileId": "67589d12-c9c6-4648-ae4a-12e413a75079",
+          "format": "image",
+          "filename": "figure218.png",
+          "contentType": "image/png",
+          "size": 3006,
+          "relativePath": "privacy-protection-guide_figures/figure218.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/67589d12-c9c6-4648-ae4a-12e413a75079"
+        },
+        {
+          "fileId": "76ba70e5-3bf2-4235-b5b3-5d2ce0d29f0b",
+          "format": "image",
+          "filename": "figure219.png",
+          "contentType": "image/png",
+          "size": 6714,
+          "relativePath": "privacy-protection-guide_figures/figure219.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/76ba70e5-3bf2-4235-b5b3-5d2ce0d29f0b"
+        },
+        {
+          "fileId": "d3f81c40-6f4c-44cd-86fc-030c476e5cba",
+          "format": "image",
+          "filename": "figure22.png",
+          "contentType": "image/png",
+          "size": 2991,
+          "relativePath": "privacy-protection-guide_figures/figure22.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/d3f81c40-6f4c-44cd-86fc-030c476e5cba"
+        },
+        {
+          "fileId": "cac1e253-ceb1-40a1-97ae-771bcf346e45",
+          "format": "image",
+          "filename": "figure220.png",
+          "contentType": "image/png",
+          "size": 313,
+          "relativePath": "privacy-protection-guide_figures/figure220.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/cac1e253-ceb1-40a1-97ae-771bcf346e45"
+        },
+        {
+          "fileId": "31a08251-1237-4bc3-8b2e-6c6943bfb259",
+          "format": "image",
+          "filename": "figure221.png",
+          "contentType": "image/png",
+          "size": 3086,
+          "relativePath": "privacy-protection-guide_figures/figure221.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/31a08251-1237-4bc3-8b2e-6c6943bfb259"
+        },
+        {
+          "fileId": "da7d28e8-2b9c-493a-beaa-d8d314a46a4b",
+          "format": "image",
+          "filename": "figure222.png",
+          "contentType": "image/png",
+          "size": 1762,
+          "relativePath": "privacy-protection-guide_figures/figure222.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/da7d28e8-2b9c-493a-beaa-d8d314a46a4b"
+        },
+        {
+          "fileId": "3fe1b733-b8a2-4273-875b-9d0795e0e7d0",
+          "format": "image",
+          "filename": "figure223.png",
+          "contentType": "image/png",
+          "size": 326,
+          "relativePath": "privacy-protection-guide_figures/figure223.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/3fe1b733-b8a2-4273-875b-9d0795e0e7d0"
+        },
+        {
+          "fileId": "9ef3ad18-7583-44df-88a5-afba407d9774",
+          "format": "image",
+          "filename": "figure224.png",
+          "contentType": "image/png",
+          "size": 3134,
+          "relativePath": "privacy-protection-guide_figures/figure224.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/9ef3ad18-7583-44df-88a5-afba407d9774"
+        },
+        {
+          "fileId": "0afb7d52-dcae-4802-bafc-7132ae296239",
+          "format": "image",
+          "filename": "figure225.png",
+          "contentType": "image/png",
+          "size": 60798,
+          "relativePath": "privacy-protection-guide_figures/figure225.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/0afb7d52-dcae-4802-bafc-7132ae296239"
+        },
+        {
+          "fileId": "e40b1255-f818-4826-b143-bc355c0f61d1",
+          "format": "image",
+          "filename": "figure226.png",
+          "contentType": "image/png",
+          "size": 976,
+          "relativePath": "privacy-protection-guide_figures/figure226.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/e40b1255-f818-4826-b143-bc355c0f61d1"
+        },
+        {
+          "fileId": "526302c6-7a28-4e0d-a033-dd835411a99a",
+          "format": "image",
+          "filename": "figure227.png",
+          "contentType": "image/png",
+          "size": 3202,
+          "relativePath": "privacy-protection-guide_figures/figure227.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/526302c6-7a28-4e0d-a033-dd835411a99a"
+        },
+        {
+          "fileId": "483ade29-77bd-4fdb-bf23-4e20e5d661d4",
+          "format": "image",
+          "filename": "figure228.png",
+          "contentType": "image/png",
+          "size": 3782,
+          "relativePath": "privacy-protection-guide_figures/figure228.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/483ade29-77bd-4fdb-bf23-4e20e5d661d4"
+        },
+        {
+          "fileId": "468904c3-1002-4940-8f4c-b51a8eb41fb9",
+          "format": "image",
+          "filename": "figure229.png",
+          "contentType": "image/png",
+          "size": 353,
+          "relativePath": "privacy-protection-guide_figures/figure229.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/468904c3-1002-4940-8f4c-b51a8eb41fb9"
+        },
+        {
+          "fileId": "3fab64df-65e6-42e8-8191-20026ad0b583",
+          "format": "image",
+          "filename": "figure23.png",
+          "contentType": "image/png",
+          "size": 4497,
+          "relativePath": "privacy-protection-guide_figures/figure23.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/3fab64df-65e6-42e8-8191-20026ad0b583"
+        },
+        {
+          "fileId": "e7307591-22cb-4bbe-be15-577764105ec3",
+          "format": "image",
+          "filename": "figure230.png",
+          "contentType": "image/png",
+          "size": 69920,
+          "relativePath": "privacy-protection-guide_figures/figure230.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/e7307591-22cb-4bbe-be15-577764105ec3"
+        },
+        {
+          "fileId": "b57e63e7-fa17-4813-98f2-08b5fd1a6a68",
+          "format": "image",
+          "filename": "figure231.png",
+          "contentType": "image/png",
+          "size": 358,
+          "relativePath": "privacy-protection-guide_figures/figure231.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/b57e63e7-fa17-4813-98f2-08b5fd1a6a68"
+        },
+        {
+          "fileId": "047e8913-861b-44ce-8de2-aa70858761bf",
+          "format": "image",
+          "filename": "figure232.png",
+          "contentType": "image/png",
+          "size": 2906,
+          "relativePath": "privacy-protection-guide_figures/figure232.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/047e8913-861b-44ce-8de2-aa70858761bf"
+        },
+        {
+          "fileId": "1b4c14cf-d120-4f63-9edf-4b4693bb996b",
+          "format": "image",
+          "filename": "figure233.png",
+          "contentType": "image/png",
+          "size": 5777,
+          "relativePath": "privacy-protection-guide_figures/figure233.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/1b4c14cf-d120-4f63-9edf-4b4693bb996b"
+        },
+        {
+          "fileId": "9cd13070-530f-4c58-a734-38dbb2404e3e",
+          "format": "image",
+          "filename": "figure234.png",
+          "contentType": "image/png",
+          "size": 320,
+          "relativePath": "privacy-protection-guide_figures/figure234.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/9cd13070-530f-4c58-a734-38dbb2404e3e"
+        },
+        {
+          "fileId": "d9aa6c49-932f-48a4-a94e-6c2658e35b8b",
+          "format": "image",
+          "filename": "figure235.png",
+          "contentType": "image/png",
+          "size": 4695,
+          "relativePath": "privacy-protection-guide_figures/figure235.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/d9aa6c49-932f-48a4-a94e-6c2658e35b8b"
+        },
+        {
+          "fileId": "156f8cf1-6c76-47de-850e-e6711e040a4e",
+          "format": "image",
+          "filename": "figure236.png",
+          "contentType": "image/png",
+          "size": 4039,
+          "relativePath": "privacy-protection-guide_figures/figure236.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/156f8cf1-6c76-47de-850e-e6711e040a4e"
+        },
+        {
+          "fileId": "393f5433-e11c-49d7-9c86-a685bac3f2d9",
+          "format": "image",
+          "filename": "figure237.png",
+          "contentType": "image/png",
+          "size": 3006,
+          "relativePath": "privacy-protection-guide_figures/figure237.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/393f5433-e11c-49d7-9c86-a685bac3f2d9"
+        },
+        {
+          "fileId": "c1db619b-56e8-4a02-bf66-905adfc94543",
+          "format": "image",
+          "filename": "figure238.png",
+          "contentType": "image/png",
+          "size": 6354,
+          "relativePath": "privacy-protection-guide_figures/figure238.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/c1db619b-56e8-4a02-bf66-905adfc94543"
+        },
+        {
+          "fileId": "1d6449dd-6574-468b-8446-37db4182d23c",
+          "format": "image",
+          "filename": "figure239.png",
+          "contentType": "image/png",
+          "size": 311,
+          "relativePath": "privacy-protection-guide_figures/figure239.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/1d6449dd-6574-468b-8446-37db4182d23c"
+        },
+        {
+          "fileId": "a9bbf735-f78b-41be-bb50-634cec878ee0",
+          "format": "image",
+          "filename": "figure24.png",
+          "contentType": "image/png",
+          "size": 315,
+          "relativePath": "privacy-protection-guide_figures/figure24.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/a9bbf735-f78b-41be-bb50-634cec878ee0"
+        },
+        {
+          "fileId": "55a3722e-7578-4516-b375-fa39b22b5d53",
+          "format": "image",
+          "filename": "figure240.png",
+          "contentType": "image/png",
+          "size": 3041,
+          "relativePath": "privacy-protection-guide_figures/figure240.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/55a3722e-7578-4516-b375-fa39b22b5d53"
+        },
+        {
+          "fileId": "c2507db3-e3ff-433d-a3b2-58cde6a24e05",
+          "format": "image",
+          "filename": "figure241.png",
+          "contentType": "image/png",
+          "size": 1750,
+          "relativePath": "privacy-protection-guide_figures/figure241.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/c2507db3-e3ff-433d-a3b2-58cde6a24e05"
+        },
+        {
+          "fileId": "4c289f93-7936-428e-95b7-37540cb09275",
+          "format": "image",
+          "filename": "figure242.png",
+          "contentType": "image/png",
+          "size": 314,
+          "relativePath": "privacy-protection-guide_figures/figure242.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/4c289f93-7936-428e-95b7-37540cb09275"
+        },
+        {
+          "fileId": "b713ee9f-d820-4e8a-9d07-80b287ede9f3",
+          "format": "image",
+          "filename": "figure243.png",
+          "contentType": "image/png",
+          "size": 3145,
+          "relativePath": "privacy-protection-guide_figures/figure243.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/b713ee9f-d820-4e8a-9d07-80b287ede9f3"
+        },
+        {
+          "fileId": "cea744c0-10c9-454c-9305-baa1a0391d45",
+          "format": "image",
+          "filename": "figure244.png",
+          "contentType": "image/png",
+          "size": 43104,
+          "relativePath": "privacy-protection-guide_figures/figure244.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/cea744c0-10c9-454c-9305-baa1a0391d45"
+        },
+        {
+          "fileId": "a7e3d715-bd40-4b60-b07c-1309b4834120",
+          "format": "image",
+          "filename": "figure245.png",
+          "contentType": "image/png",
+          "size": 64559,
+          "relativePath": "privacy-protection-guide_figures/figure245.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/a7e3d715-bd40-4b60-b07c-1309b4834120"
+        },
+        {
+          "fileId": "d1d7e6fe-bcc6-4bc1-9123-346605b94920",
+          "format": "image",
+          "filename": "figure246.png",
+          "contentType": "image/png",
+          "size": 3120,
+          "relativePath": "privacy-protection-guide_figures/figure246.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/d1d7e6fe-bcc6-4bc1-9123-346605b94920"
+        },
+        {
+          "fileId": "56a4e2f3-0e4a-4289-98aa-454007f66d3b",
+          "format": "image",
+          "filename": "figure247.png",
+          "contentType": "image/png",
+          "size": 8527,
+          "relativePath": "privacy-protection-guide_figures/figure247.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/56a4e2f3-0e4a-4289-98aa-454007f66d3b"
+        },
+        {
+          "fileId": "20ec74bc-5f56-40bf-9eee-303b274952a0",
+          "format": "image",
+          "filename": "figure248.png",
+          "contentType": "image/png",
+          "size": 327,
+          "relativePath": "privacy-protection-guide_figures/figure248.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/20ec74bc-5f56-40bf-9eee-303b274952a0"
+        },
+        {
+          "fileId": "f8eabbdd-e671-413f-a6c3-e97deea51116",
+          "format": "image",
+          "filename": "figure249.png",
+          "contentType": "image/png",
+          "size": 2913,
+          "relativePath": "privacy-protection-guide_figures/figure249.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/f8eabbdd-e671-413f-a6c3-e97deea51116"
+        },
+        {
+          "fileId": "4adf296f-7b63-432b-8d90-fbf45858ac44",
+          "format": "image",
+          "filename": "figure25.png",
+          "contentType": "image/png",
+          "size": 3073,
+          "relativePath": "privacy-protection-guide_figures/figure25.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/4adf296f-7b63-432b-8d90-fbf45858ac44"
+        },
+        {
+          "fileId": "c7102ee5-93a7-43a7-a36d-9553291ffdd9",
+          "format": "image",
+          "filename": "figure250.png",
+          "contentType": "image/png",
+          "size": 15112,
+          "relativePath": "privacy-protection-guide_figures/figure250.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/c7102ee5-93a7-43a7-a36d-9553291ffdd9"
+        },
+        {
+          "fileId": "71ec7437-2c55-49f6-b18d-05b71789d0ad",
+          "format": "image",
+          "filename": "figure251.png",
+          "contentType": "image/png",
+          "size": 314,
+          "relativePath": "privacy-protection-guide_figures/figure251.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/71ec7437-2c55-49f6-b18d-05b71789d0ad"
+        },
+        {
+          "fileId": "ae444ecb-ee35-44a3-8dbe-4116c83d3d96",
+          "format": "image",
+          "filename": "figure252.png",
+          "contentType": "image/png",
+          "size": 12203,
+          "relativePath": "privacy-protection-guide_figures/figure252.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/ae444ecb-ee35-44a3-8dbe-4116c83d3d96"
+        },
+        {
+          "fileId": "b478b239-d5e5-44e9-b0c3-8e06c1d4901a",
+          "format": "image",
+          "filename": "figure253.png",
+          "contentType": "image/png",
+          "size": 2769,
+          "relativePath": "privacy-protection-guide_figures/figure253.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/b478b239-d5e5-44e9-b0c3-8e06c1d4901a"
+        },
+        {
+          "fileId": "1ffb01a4-9f5d-4b9b-a300-6d43d28e8164",
+          "format": "image",
+          "filename": "figure254.png",
+          "contentType": "image/png",
+          "size": 307,
+          "relativePath": "privacy-protection-guide_figures/figure254.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/1ffb01a4-9f5d-4b9b-a300-6d43d28e8164"
+        },
+        {
+          "fileId": "bcfd3b18-35ec-4ae6-afbf-fc95a9fdfcae",
+          "format": "image",
+          "filename": "figure255.png",
+          "contentType": "image/png",
+          "size": 4899,
+          "relativePath": "privacy-protection-guide_figures/figure255.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/bcfd3b18-35ec-4ae6-afbf-fc95a9fdfcae"
+        },
+        {
+          "fileId": "d36e8011-5fab-483b-b2f8-8fd62e9ecf5c",
+          "format": "image",
+          "filename": "figure256.png",
+          "contentType": "image/png",
+          "size": 4695,
+          "relativePath": "privacy-protection-guide_figures/figure256.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/d36e8011-5fab-483b-b2f8-8fd62e9ecf5c"
+        },
+        {
+          "fileId": "6f6bb0aa-e02e-422b-bf45-2317a3c307e8",
+          "format": "image",
+          "filename": "figure257.png",
+          "contentType": "image/png",
+          "size": 2824,
+          "relativePath": "privacy-protection-guide_figures/figure257.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/6f6bb0aa-e02e-422b-bf45-2317a3c307e8"
+        },
+        {
+          "fileId": "4f88dc6e-235f-426d-8bed-882b3cf3d853",
+          "format": "image",
+          "filename": "figure258.png",
+          "contentType": "image/png",
+          "size": 6706,
+          "relativePath": "privacy-protection-guide_figures/figure258.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/4f88dc6e-235f-426d-8bed-882b3cf3d853"
+        },
+        {
+          "fileId": "1f616b28-7b99-4daf-9db4-f22131689833",
+          "format": "image",
+          "filename": "figure259.png",
+          "contentType": "image/png",
+          "size": 3006,
+          "relativePath": "privacy-protection-guide_figures/figure259.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/1f616b28-7b99-4daf-9db4-f22131689833"
+        },
+        {
+          "fileId": "ce7fed32-3248-42d8-b786-e11bb2b61e09",
+          "format": "image",
+          "filename": "figure26.png",
+          "contentType": "image/png",
+          "size": 53485,
+          "relativePath": "privacy-protection-guide_figures/figure26.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/ce7fed32-3248-42d8-b786-e11bb2b61e09"
+        },
+        {
+          "fileId": "f8e25941-7224-4767-9444-c20689626170",
+          "format": "image",
+          "filename": "figure260.png",
+          "contentType": "image/png",
+          "size": 8920,
+          "relativePath": "privacy-protection-guide_figures/figure260.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/f8e25941-7224-4767-9444-c20689626170"
+        },
+        {
+          "fileId": "46ee3d73-94ca-4b02-928e-a642ac332aaa",
+          "format": "image",
+          "filename": "figure261.png",
+          "contentType": "image/png",
+          "size": 314,
+          "relativePath": "privacy-protection-guide_figures/figure261.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/46ee3d73-94ca-4b02-928e-a642ac332aaa"
+        },
+        {
+          "fileId": "76ea8ea1-96b5-43c8-8272-27ee78a7c57f",
+          "format": "image",
+          "filename": "figure262.png",
+          "contentType": "image/png",
+          "size": 3154,
+          "relativePath": "privacy-protection-guide_figures/figure262.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/76ea8ea1-96b5-43c8-8272-27ee78a7c57f"
+        },
+        {
+          "fileId": "81e4ba2d-df39-4622-ba26-511e545fe0bb",
+          "format": "image",
+          "filename": "figure263.png",
+          "contentType": "image/png",
+          "size": 4489,
+          "relativePath": "privacy-protection-guide_figures/figure263.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/81e4ba2d-df39-4622-ba26-511e545fe0bb"
+        },
+        {
+          "fileId": "1091ce4e-cabc-47ae-8c5b-4f169d8061ee",
+          "format": "image",
+          "filename": "figure264.png",
+          "contentType": "image/png",
+          "size": 308,
+          "relativePath": "privacy-protection-guide_figures/figure264.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/1091ce4e-cabc-47ae-8c5b-4f169d8061ee"
+        },
+        {
+          "fileId": "9fb93654-da2d-4506-b241-dc67f1184a06",
+          "format": "image",
+          "filename": "figure265.png",
+          "contentType": "image/png",
+          "size": 3060,
+          "relativePath": "privacy-protection-guide_figures/figure265.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/9fb93654-da2d-4506-b241-dc67f1184a06"
+        },
+        {
+          "fileId": "e1745f43-e5a0-4cf7-b395-750211a9ab44",
+          "format": "image",
+          "filename": "figure266.png",
+          "contentType": "image/png",
+          "size": 136907,
+          "relativePath": "privacy-protection-guide_figures/figure266.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/e1745f43-e5a0-4cf7-b395-750211a9ab44"
+        },
+        {
+          "fileId": "246345b9-b08a-45ed-88f2-2fb7aa046cf3",
+          "format": "image",
+          "filename": "figure267.png",
+          "contentType": "image/png",
+          "size": 80182,
+          "relativePath": "privacy-protection-guide_figures/figure267.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/246345b9-b08a-45ed-88f2-2fb7aa046cf3"
+        },
+        {
+          "fileId": "4735100b-7662-4fce-9137-71aa026c8775",
+          "format": "image",
+          "filename": "figure268.png",
+          "contentType": "image/png",
+          "size": 3122,
+          "relativePath": "privacy-protection-guide_figures/figure268.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/4735100b-7662-4fce-9137-71aa026c8775"
+        },
+        {
+          "fileId": "b3dd49d0-2b02-48bd-b940-fa61e74c8fa2",
+          "format": "image",
+          "filename": "figure269.png",
+          "contentType": "image/png",
+          "size": 8679,
+          "relativePath": "privacy-protection-guide_figures/figure269.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/b3dd49d0-2b02-48bd-b940-fa61e74c8fa2"
+        },
+        {
+          "fileId": "7cadf4b1-c1c9-4145-80b6-75c51bb1d724",
+          "format": "image",
+          "filename": "figure27.png",
+          "contentType": "image/png",
+          "size": 3137,
+          "relativePath": "privacy-protection-guide_figures/figure27.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/7cadf4b1-c1c9-4145-80b6-75c51bb1d724"
+        },
+        {
+          "fileId": "ec2d28aa-8b0b-4306-9497-a0aba331719b",
+          "format": "image",
+          "filename": "figure270.png",
+          "contentType": "image/png",
+          "size": 327,
+          "relativePath": "privacy-protection-guide_figures/figure270.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/ec2d28aa-8b0b-4306-9497-a0aba331719b"
+        },
+        {
+          "fileId": "c6787ecd-1ccc-4c88-bfd3-08b3d4efc7cb",
+          "format": "image",
+          "filename": "figure271.png",
+          "contentType": "image/png",
+          "size": 2915,
+          "relativePath": "privacy-protection-guide_figures/figure271.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/c6787ecd-1ccc-4c88-bfd3-08b3d4efc7cb"
+        },
+        {
+          "fileId": "89bafc87-f09e-4005-8e14-fa71e3a7ba6c",
+          "format": "image",
+          "filename": "figure272.png",
+          "contentType": "image/png",
+          "size": 2800,
+          "relativePath": "privacy-protection-guide_figures/figure272.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/89bafc87-f09e-4005-8e14-fa71e3a7ba6c"
+        },
+        {
+          "fileId": "853448de-3aa0-4a04-943c-b674788d03e2",
+          "format": "image",
+          "filename": "figure273.png",
+          "contentType": "image/png",
+          "size": 246,
+          "relativePath": "privacy-protection-guide_figures/figure273.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/853448de-3aa0-4a04-943c-b674788d03e2"
+        },
+        {
+          "fileId": "cec34508-85bb-4a07-aaa7-ec11846c7822",
+          "format": "image",
+          "filename": "figure274.png",
+          "contentType": "image/png",
+          "size": 53214,
+          "relativePath": "privacy-protection-guide_figures/figure274.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/cec34508-85bb-4a07-aaa7-ec11846c7822"
+        },
+        {
+          "fileId": "eb4f5e98-b050-4bf2-9349-accf4b5a42d8",
+          "format": "image",
+          "filename": "figure275.png",
+          "contentType": "image/png",
+          "size": 2720,
+          "relativePath": "privacy-protection-guide_figures/figure275.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/eb4f5e98-b050-4bf2-9349-accf4b5a42d8"
+        },
+        {
+          "fileId": "109cf8fb-bd95-4136-9a1e-609bf6479468",
+          "format": "image",
+          "filename": "figure276.png",
+          "contentType": "image/png",
+          "size": 375,
+          "relativePath": "privacy-protection-guide_figures/figure276.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/109cf8fb-bd95-4136-9a1e-609bf6479468"
+        },
+        {
+          "fileId": "aea73d2c-d47a-4d35-b4f5-34406862dbce",
+          "format": "image",
+          "filename": "figure277.png",
+          "contentType": "image/png",
+          "size": 4724,
+          "relativePath": "privacy-protection-guide_figures/figure277.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/aea73d2c-d47a-4d35-b4f5-34406862dbce"
+        },
+        {
+          "fileId": "8687a9b3-f0a6-4635-a893-35fad4c7fd63",
+          "format": "image",
+          "filename": "figure278.png",
+          "contentType": "image/png",
+          "size": 3006,
+          "relativePath": "privacy-protection-guide_figures/figure278.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/8687a9b3-f0a6-4635-a893-35fad4c7fd63"
+        },
+        {
+          "fileId": "08613f43-c1ac-4001-80af-2bfa7c63b7bd",
+          "format": "image",
+          "filename": "figure279.png",
+          "contentType": "image/png",
+          "size": 8478,
+          "relativePath": "privacy-protection-guide_figures/figure279.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/08613f43-c1ac-4001-80af-2bfa7c63b7bd"
+        },
+        {
+          "fileId": "ed3262d2-97f2-4a30-9fbb-20e1062a3979",
+          "format": "image",
+          "filename": "figure28.png",
+          "contentType": "image/png",
+          "size": 3100,
+          "relativePath": "privacy-protection-guide_figures/figure28.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/ed3262d2-97f2-4a30-9fbb-20e1062a3979"
+        },
+        {
+          "fileId": "29dc7721-4b13-4ffc-b034-bad00ebfabee",
+          "format": "image",
+          "filename": "figure280.png",
+          "contentType": "image/png",
+          "size": 315,
+          "relativePath": "privacy-protection-guide_figures/figure280.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/29dc7721-4b13-4ffc-b034-bad00ebfabee"
+        },
+        {
+          "fileId": "3207c5c2-a742-4ba8-9a95-79ec82f9493c",
+          "format": "image",
+          "filename": "figure281.png",
+          "contentType": "image/png",
+          "size": 3074,
+          "relativePath": "privacy-protection-guide_figures/figure281.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/3207c5c2-a742-4ba8-9a95-79ec82f9493c"
+        },
+        {
+          "fileId": "7e014b18-c3ef-4c0d-b085-7a3af2fefebe",
+          "format": "image",
+          "filename": "figure282.png",
+          "contentType": "image/png",
+          "size": 762,
+          "relativePath": "privacy-protection-guide_figures/figure282.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/7e014b18-c3ef-4c0d-b085-7a3af2fefebe"
+        },
+        {
+          "fileId": "b32cf79b-3886-4634-ae5d-b864ae9fd15f",
+          "format": "image",
+          "filename": "figure283.png",
+          "contentType": "image/png",
+          "size": 313,
+          "relativePath": "privacy-protection-guide_figures/figure283.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/b32cf79b-3886-4634-ae5d-b864ae9fd15f"
+        },
+        {
+          "fileId": "4fa4d0f1-2d03-4f95-a0a6-de0e58a2ef0a",
+          "format": "image",
+          "filename": "figure284.png",
+          "contentType": "image/png",
+          "size": 3063,
+          "relativePath": "privacy-protection-guide_figures/figure284.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/4fa4d0f1-2d03-4f95-a0a6-de0e58a2ef0a"
+        },
+        {
+          "fileId": "16eb37c9-6f35-42ec-9489-8b9de2349d8f",
+          "format": "image",
+          "filename": "figure285.png",
+          "contentType": "image/png",
+          "size": 64597,
+          "relativePath": "privacy-protection-guide_figures/figure285.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/16eb37c9-6f35-42ec-9489-8b9de2349d8f"
+        },
+        {
+          "fileId": "abb14695-ebdf-4c1c-8271-3ab66f740d29",
+          "format": "image",
+          "filename": "figure286.png",
+          "contentType": "image/png",
+          "size": 82647,
+          "relativePath": "privacy-protection-guide_figures/figure286.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/abb14695-ebdf-4c1c-8271-3ab66f740d29"
+        },
+        {
+          "fileId": "ff30af0c-770a-4b4a-8b48-b4180ec38471",
+          "format": "image",
+          "filename": "figure287.png",
+          "contentType": "image/png",
+          "size": 2709,
+          "relativePath": "privacy-protection-guide_figures/figure287.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/ff30af0c-770a-4b4a-8b48-b4180ec38471"
+        },
+        {
+          "fileId": "1a0568fc-1723-4d5e-9e4b-9d67b76d46ce",
+          "format": "image",
+          "filename": "figure288.png",
+          "contentType": "image/png",
+          "size": 308,
+          "relativePath": "privacy-protection-guide_figures/figure288.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/1a0568fc-1723-4d5e-9e4b-9d67b76d46ce"
+        },
+        {
+          "fileId": "aff77fcb-8cfe-424d-9b68-c6cf382f9740",
+          "format": "image",
+          "filename": "figure289.png",
+          "contentType": "image/png",
+          "size": 3221,
+          "relativePath": "privacy-protection-guide_figures/figure289.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/aff77fcb-8cfe-424d-9b68-c6cf382f9740"
+        },
+        {
+          "fileId": "86e6560c-9e7a-4c19-b650-74e7fdc3f763",
+          "format": "image",
+          "filename": "figure29.png",
+          "contentType": "image/png",
+          "size": 314,
+          "relativePath": "privacy-protection-guide_figures/figure29.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/86e6560c-9e7a-4c19-b650-74e7fdc3f763"
+        },
+        {
+          "fileId": "da8a6f04-9dfc-40af-bcf4-221ae9764580",
+          "format": "image",
+          "filename": "figure290.png",
+          "contentType": "image/png",
+          "size": 9057,
+          "relativePath": "privacy-protection-guide_figures/figure290.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/da8a6f04-9dfc-40af-bcf4-221ae9764580"
+        },
+        {
+          "fileId": "85241d5a-e5ca-41d0-93f3-7f76432538c3",
+          "format": "image",
+          "filename": "figure291.png",
+          "contentType": "image/png",
+          "size": 315,
+          "relativePath": "privacy-protection-guide_figures/figure291.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/85241d5a-e5ca-41d0-93f3-7f76432538c3"
+        },
+        {
+          "fileId": "aae3af3a-8b7a-4777-9a54-4e2b87f28e32",
+          "format": "image",
+          "filename": "figure292.png",
+          "contentType": "image/png",
+          "size": 2880,
+          "relativePath": "privacy-protection-guide_figures/figure292.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/aae3af3a-8b7a-4777-9a54-4e2b87f28e32"
+        },
+        {
+          "fileId": "ea144d77-1424-46bb-a64c-6d43ee7c2703",
+          "format": "image",
+          "filename": "figure293.png",
+          "contentType": "image/png",
+          "size": 5932,
+          "relativePath": "privacy-protection-guide_figures/figure293.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/ea144d77-1424-46bb-a64c-6d43ee7c2703"
+        },
+        {
+          "fileId": "68a7b741-be9b-49db-9200-c2021b1ca1cb",
+          "format": "image",
+          "filename": "figure294.png",
+          "contentType": "image/png",
+          "size": 327,
+          "relativePath": "privacy-protection-guide_figures/figure294.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/68a7b741-be9b-49db-9200-c2021b1ca1cb"
+        },
+        {
+          "fileId": "5f3a298f-d342-490a-a9f7-0138c447dbbe",
+          "format": "image",
+          "filename": "figure295.png",
+          "contentType": "image/png",
+          "size": 4695,
+          "relativePath": "privacy-protection-guide_figures/figure295.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/5f3a298f-d342-490a-a9f7-0138c447dbbe"
+        },
+        {
+          "fileId": "f0ed5e07-d1dc-445a-bfa1-f2ad5ec30baa",
+          "format": "image",
+          "filename": "figure296.png",
+          "contentType": "image/png",
+          "size": 2087,
+          "relativePath": "privacy-protection-guide_figures/figure296.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/f0ed5e07-d1dc-445a-bfa1-f2ad5ec30baa"
+        },
+        {
+          "fileId": "9f763d3d-59ec-40cf-860a-f83cb853a8d9",
+          "format": "image",
+          "filename": "figure297.png",
+          "contentType": "image/png",
+          "size": 127,
+          "relativePath": "privacy-protection-guide_figures/figure297.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/9f763d3d-59ec-40cf-860a-f83cb853a8d9"
+        },
+        {
+          "fileId": "dd08576e-c18a-4b06-8b91-5d7dad9d080b",
+          "format": "image",
+          "filename": "figure298.png",
+          "contentType": "image/png",
+          "size": 459,
+          "relativePath": "privacy-protection-guide_figures/figure298.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/dd08576e-c18a-4b06-8b91-5d7dad9d080b"
+        },
+        {
+          "fileId": "0a8267df-cfb1-4f5c-a7ab-e825f57efe4f",
+          "format": "image",
+          "filename": "figure299.png",
+          "contentType": "image/png",
+          "size": 348,
+          "relativePath": "privacy-protection-guide_figures/figure299.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/0a8267df-cfb1-4f5c-a7ab-e825f57efe4f"
+        },
+        {
+          "fileId": "19dd4d18-c6fc-496a-82e9-21ef336410ea",
+          "format": "image",
+          "filename": "figure3.png",
+          "contentType": "image/png",
+          "size": 44555,
+          "relativePath": "privacy-protection-guide_figures/figure3.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/19dd4d18-c6fc-496a-82e9-21ef336410ea"
+        },
+        {
+          "fileId": "3c2b9ccc-2b7f-455d-87be-3e68a261837e",
+          "format": "image",
+          "filename": "figure30.png",
+          "contentType": "image/png",
+          "size": 2942,
+          "relativePath": "privacy-protection-guide_figures/figure30.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/3c2b9ccc-2b7f-455d-87be-3e68a261837e"
+        },
+        {
+          "fileId": "5496dace-dfc3-42b5-83b0-bbb06ce502b6",
+          "format": "image",
+          "filename": "figure300.png",
+          "contentType": "image/png",
+          "size": 122,
+          "relativePath": "privacy-protection-guide_figures/figure300.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/5496dace-dfc3-42b5-83b0-bbb06ce502b6"
+        },
+        {
+          "fileId": "6c8b5692-a739-4f99-8114-fa29e47c809e",
+          "format": "image",
+          "filename": "figure301.png",
+          "contentType": "image/png",
+          "size": 468,
+          "relativePath": "privacy-protection-guide_figures/figure301.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/6c8b5692-a739-4f99-8114-fa29e47c809e"
+        },
+        {
+          "fileId": "ca73d593-bb44-440c-af3b-7949726a4422",
+          "format": "image",
+          "filename": "figure302.png",
+          "contentType": "image/png",
+          "size": 336,
+          "relativePath": "privacy-protection-guide_figures/figure302.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/ca73d593-bb44-440c-af3b-7949726a4422"
+        },
+        {
+          "fileId": "7b6ecd5e-79a2-4ff7-accb-8033e19d24a5",
+          "format": "image",
+          "filename": "figure303.png",
+          "contentType": "image/png",
+          "size": 122,
+          "relativePath": "privacy-protection-guide_figures/figure303.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/7b6ecd5e-79a2-4ff7-accb-8033e19d24a5"
+        },
+        {
+          "fileId": "26d61072-e7fd-4b95-87ea-c53e3131d320",
+          "format": "image",
+          "filename": "figure304.png",
+          "contentType": "image/png",
+          "size": 465,
+          "relativePath": "privacy-protection-guide_figures/figure304.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/26d61072-e7fd-4b95-87ea-c53e3131d320"
+        },
+        {
+          "fileId": "904a9796-c83f-4ad7-b036-e29ed8417e2d",
+          "format": "image",
+          "filename": "figure305.png",
+          "contentType": "image/png",
+          "size": 332,
+          "relativePath": "privacy-protection-guide_figures/figure305.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/904a9796-c83f-4ad7-b036-e29ed8417e2d"
+        },
+        {
+          "fileId": "facea265-6e48-4658-9443-1311ae78376a",
+          "format": "image",
+          "filename": "figure306.png",
+          "contentType": "image/png",
+          "size": 122,
+          "relativePath": "privacy-protection-guide_figures/figure306.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/facea265-6e48-4658-9443-1311ae78376a"
+        },
+        {
+          "fileId": "97c141bc-6cc5-4e98-9bc0-ea2d7855a180",
+          "format": "image",
+          "filename": "figure307.png",
+          "contentType": "image/png",
+          "size": 465,
+          "relativePath": "privacy-protection-guide_figures/figure307.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/97c141bc-6cc5-4e98-9bc0-ea2d7855a180"
+        },
+        {
+          "fileId": "e95a91a4-6d92-4324-a6ef-887a24d2f6a4",
+          "format": "image",
+          "filename": "figure308.png",
+          "contentType": "image/png",
+          "size": 345,
+          "relativePath": "privacy-protection-guide_figures/figure308.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/e95a91a4-6d92-4324-a6ef-887a24d2f6a4"
+        },
+        {
+          "fileId": "2a691a0e-b24a-467a-a86d-9bacffeb440a",
+          "format": "image",
+          "filename": "figure309.png",
+          "contentType": "image/png",
+          "size": 62461,
+          "relativePath": "privacy-protection-guide_figures/figure309.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/2a691a0e-b24a-467a-a86d-9bacffeb440a"
+        },
+        {
+          "fileId": "be7c54ea-deb5-4f7e-92b5-ca02ac874205",
+          "format": "image",
+          "filename": "figure31.png",
+          "contentType": "image/png",
+          "size": 8262,
+          "relativePath": "privacy-protection-guide_figures/figure31.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/be7c54ea-deb5-4f7e-92b5-ca02ac874205"
+        },
+        {
+          "fileId": "73520f5d-de98-4da0-b46e-029bf420848c",
+          "format": "image",
+          "filename": "figure310.png",
+          "contentType": "image/png",
+          "size": 122,
+          "relativePath": "privacy-protection-guide_figures/figure310.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/73520f5d-de98-4da0-b46e-029bf420848c"
+        },
+        {
+          "fileId": "a93f4664-a051-4059-8c1d-f53dfdf2520b",
+          "format": "image",
+          "filename": "figure311.png",
+          "contentType": "image/png",
+          "size": 465,
+          "relativePath": "privacy-protection-guide_figures/figure311.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/a93f4664-a051-4059-8c1d-f53dfdf2520b"
+        },
+        {
+          "fileId": "d3f6bcbf-7b54-4da5-a7ba-3a38fc3c8437",
+          "format": "image",
+          "filename": "figure312.png",
+          "contentType": "image/png",
+          "size": 334,
+          "relativePath": "privacy-protection-guide_figures/figure312.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/d3f6bcbf-7b54-4da5-a7ba-3a38fc3c8437"
+        },
+        {
+          "fileId": "34e2cb0f-f5c3-4f98-99d8-778f13d80b52",
+          "format": "image",
+          "filename": "figure313.png",
+          "contentType": "image/png",
+          "size": 127,
+          "relativePath": "privacy-protection-guide_figures/figure313.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/34e2cb0f-f5c3-4f98-99d8-778f13d80b52"
+        },
+        {
+          "fileId": "6023aa31-b829-4df2-95bf-636cdd010cb3",
+          "format": "image",
+          "filename": "figure314.png",
+          "contentType": "image/png",
+          "size": 461,
+          "relativePath": "privacy-protection-guide_figures/figure314.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/6023aa31-b829-4df2-95bf-636cdd010cb3"
+        },
+        {
+          "fileId": "5b85f03e-43f9-43a4-962a-bb8426b89c99",
+          "format": "image",
+          "filename": "figure315.png",
+          "contentType": "image/png",
+          "size": 336,
+          "relativePath": "privacy-protection-guide_figures/figure315.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/5b85f03e-43f9-43a4-962a-bb8426b89c99"
+        },
+        {
+          "fileId": "985b38f7-3c4d-471b-ba7e-58b574785a0c",
+          "format": "image",
+          "filename": "figure316.png",
+          "contentType": "image/png",
+          "size": 122,
+          "relativePath": "privacy-protection-guide_figures/figure316.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/985b38f7-3c4d-471b-ba7e-58b574785a0c"
+        },
+        {
+          "fileId": "311fbd9d-75d8-4b3a-aae1-7f52703587b6",
+          "format": "image",
+          "filename": "figure317.png",
+          "contentType": "image/png",
+          "size": 492,
+          "relativePath": "privacy-protection-guide_figures/figure317.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/311fbd9d-75d8-4b3a-aae1-7f52703587b6"
+        },
+        {
+          "fileId": "439955a7-2f0b-4942-b7fa-dd1095fb23d4",
+          "format": "image",
+          "filename": "figure318.png",
+          "contentType": "image/png",
+          "size": 339,
+          "relativePath": "privacy-protection-guide_figures/figure318.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/439955a7-2f0b-4942-b7fa-dd1095fb23d4"
+        },
+        {
+          "fileId": "3b0d8a0c-851b-41d5-a19f-d35e25796eda",
+          "format": "image",
+          "filename": "figure319.png",
+          "contentType": "image/png",
+          "size": 17688,
+          "relativePath": "privacy-protection-guide_figures/figure319.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/3b0d8a0c-851b-41d5-a19f-d35e25796eda"
+        },
+        {
+          "fileId": "1e3f4130-0e75-4412-9131-b7c0f5155c1c",
+          "format": "image",
+          "filename": "figure32.png",
+          "contentType": "image/png",
+          "size": 328,
+          "relativePath": "privacy-protection-guide_figures/figure32.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/1e3f4130-0e75-4412-9131-b7c0f5155c1c"
+        },
+        {
+          "fileId": "b870f312-e971-4174-98b8-6bae9c46fae0",
+          "format": "image",
+          "filename": "figure320.png",
+          "contentType": "image/png",
+          "size": 19016,
+          "relativePath": "privacy-protection-guide_figures/figure320.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/b870f312-e971-4174-98b8-6bae9c46fae0"
+        },
+        {
+          "fileId": "d01f88b6-657d-41c0-8d3d-5a39d49a4546",
+          "format": "image",
+          "filename": "figure321.png",
+          "contentType": "image/png",
+          "size": 122,
+          "relativePath": "privacy-protection-guide_figures/figure321.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/d01f88b6-657d-41c0-8d3d-5a39d49a4546"
+        },
+        {
+          "fileId": "9d1259ce-a6a9-4a86-b3dd-fd0cf781ed18",
+          "format": "image",
+          "filename": "figure322.png",
+          "contentType": "image/png",
+          "size": 492,
+          "relativePath": "privacy-protection-guide_figures/figure322.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/9d1259ce-a6a9-4a86-b3dd-fd0cf781ed18"
+        },
+        {
+          "fileId": "6495b161-2239-45f6-b4b0-e48d559a54ae",
+          "format": "image",
+          "filename": "figure323.png",
+          "contentType": "image/png",
+          "size": 330,
+          "relativePath": "privacy-protection-guide_figures/figure323.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/6495b161-2239-45f6-b4b0-e48d559a54ae"
+        },
+        {
+          "fileId": "5361bb8c-76fe-4ba6-9519-55280069dbc2",
+          "format": "image",
+          "filename": "figure324.png",
+          "contentType": "image/png",
+          "size": 127,
+          "relativePath": "privacy-protection-guide_figures/figure324.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/5361bb8c-76fe-4ba6-9519-55280069dbc2"
+        },
+        {
+          "fileId": "e223aa22-f675-4d37-b063-30b1c1e389a8",
+          "format": "image",
+          "filename": "figure325.png",
+          "contentType": "image/png",
+          "size": 468,
+          "relativePath": "privacy-protection-guide_figures/figure325.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/e223aa22-f675-4d37-b063-30b1c1e389a8"
+        },
+        {
+          "fileId": "28ee306c-3405-49cb-bc23-1bae610ae051",
+          "format": "image",
+          "filename": "figure326.png",
+          "contentType": "image/png",
+          "size": 338,
+          "relativePath": "privacy-protection-guide_figures/figure326.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/28ee306c-3405-49cb-bc23-1bae610ae051"
+        },
+        {
+          "fileId": "46f3b469-792e-48c9-98e9-83c01ea0204f",
+          "format": "image",
+          "filename": "figure327.png",
+          "contentType": "image/png",
+          "size": 167975,
+          "relativePath": "privacy-protection-guide_figures/figure327.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/46f3b469-792e-48c9-98e9-83c01ea0204f"
+        },
+        {
+          "fileId": "16e1496f-af03-41c4-8ecb-1a30ca654b12",
+          "format": "image",
+          "filename": "figure33.png",
+          "contentType": "image/png",
+          "size": 12546,
+          "relativePath": "privacy-protection-guide_figures/figure33.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/16e1496f-af03-41c4-8ecb-1a30ca654b12"
+        },
+        {
+          "fileId": "d61251bb-f653-473a-a92e-faf5ec84803b",
+          "format": "image",
+          "filename": "figure34.png",
+          "contentType": "image/png",
+          "size": 2805,
+          "relativePath": "privacy-protection-guide_figures/figure34.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/d61251bb-f653-473a-a92e-faf5ec84803b"
+        },
+        {
+          "fileId": "b0fe6fa4-e46b-4177-8c6c-a838d1567042",
+          "format": "image",
+          "filename": "figure35.png",
+          "contentType": "image/png",
+          "size": 314,
+          "relativePath": "privacy-protection-guide_figures/figure35.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/b0fe6fa4-e46b-4177-8c6c-a838d1567042"
+        },
+        {
+          "fileId": "48a883f7-7082-46fe-ad1b-1f0e0b0119b8",
+          "format": "image",
+          "filename": "figure36.png",
+          "contentType": "image/png",
+          "size": 4669,
+          "relativePath": "privacy-protection-guide_figures/figure36.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/48a883f7-7082-46fe-ad1b-1f0e0b0119b8"
+        },
+        {
+          "fileId": "9fccd056-faf1-47a6-a820-d83543503389",
+          "format": "image",
+          "filename": "figure37.png",
+          "contentType": "image/png",
+          "size": 6487,
+          "relativePath": "privacy-protection-guide_figures/figure37.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/9fccd056-faf1-47a6-a820-d83543503389"
+        },
+        {
+          "fileId": "e82ebacf-714f-4695-870a-17fe230dc4cf",
+          "format": "image",
+          "filename": "figure38.png",
+          "contentType": "image/png",
+          "size": 8034,
+          "relativePath": "privacy-protection-guide_figures/figure38.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/e82ebacf-714f-4695-870a-17fe230dc4cf"
+        },
+        {
+          "fileId": "36535c52-7b01-4caa-a7d0-205ab9bd135b",
+          "format": "image",
+          "filename": "figure39.png",
+          "contentType": "image/png",
+          "size": 100809,
+          "relativePath": "privacy-protection-guide_figures/figure39.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/36535c52-7b01-4caa-a7d0-205ab9bd135b"
+        },
+        {
+          "fileId": "6ddae392-7295-4f9e-a69c-11f73bb2d9d2",
+          "format": "image",
+          "filename": "figure4.png",
+          "contentType": "image/png",
+          "size": 9016,
+          "relativePath": "privacy-protection-guide_figures/figure4.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/6ddae392-7295-4f9e-a69c-11f73bb2d9d2"
+        },
+        {
+          "fileId": "1a89022b-696b-4a6f-8405-6590d33cc3f6",
+          "format": "image",
+          "filename": "figure40.png",
+          "contentType": "image/png",
+          "size": 6426,
+          "relativePath": "privacy-protection-guide_figures/figure40.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/1a89022b-696b-4a6f-8405-6590d33cc3f6"
+        },
+        {
+          "fileId": "e04168db-e4d5-4031-be5f-ff8f04fce5ac",
+          "format": "image",
+          "filename": "figure41.png",
+          "contentType": "image/png",
+          "size": 6420,
+          "relativePath": "privacy-protection-guide_figures/figure41.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/e04168db-e4d5-4031-be5f-ff8f04fce5ac"
+        },
+        {
+          "fileId": "1da2b2e9-ff32-4bbc-a271-495222a234f8",
+          "format": "image",
+          "filename": "figure42.png",
+          "contentType": "image/png",
+          "size": 6945,
+          "relativePath": "privacy-protection-guide_figures/figure42.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/1da2b2e9-ff32-4bbc-a271-495222a234f8"
+        },
+        {
+          "fileId": "74aea91b-80fb-4488-867e-ff91dab7ec69",
+          "format": "image",
+          "filename": "figure43.png",
+          "contentType": "image/png",
+          "size": 49124,
+          "relativePath": "privacy-protection-guide_figures/figure43.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/74aea91b-80fb-4488-867e-ff91dab7ec69"
+        },
+        {
+          "fileId": "b4a3708e-af85-40fc-bc3e-1f09a0fd5c4c",
+          "format": "image",
+          "filename": "figure44.png",
+          "contentType": "image/png",
+          "size": 841,
+          "relativePath": "privacy-protection-guide_figures/figure44.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/b4a3708e-af85-40fc-bc3e-1f09a0fd5c4c"
+        },
+        {
+          "fileId": "ed64c3b3-3f90-4d14-966b-a60a7f738a6e",
+          "format": "image",
+          "filename": "figure45.png",
+          "contentType": "image/png",
+          "size": 4695,
+          "relativePath": "privacy-protection-guide_figures/figure45.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/ed64c3b3-3f90-4d14-966b-a60a7f738a6e"
+        },
+        {
+          "fileId": "f34cf8ba-a708-4fcb-a831-157e28d2711f",
+          "format": "image",
+          "filename": "figure46.png",
+          "contentType": "image/png",
+          "size": 4695,
+          "relativePath": "privacy-protection-guide_figures/figure46.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/f34cf8ba-a708-4fcb-a831-157e28d2711f"
+        },
+        {
+          "fileId": "6d6a48ac-51ea-40e3-b683-f61d21787ade",
+          "format": "image",
+          "filename": "figure47.png",
+          "contentType": "image/png",
+          "size": 5796,
+          "relativePath": "privacy-protection-guide_figures/figure47.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/6d6a48ac-51ea-40e3-b683-f61d21787ade"
+        },
+        {
+          "fileId": "0820c0dc-73f0-40fa-9ae6-cb30d6af9cb0",
+          "format": "image",
+          "filename": "figure48.png",
+          "contentType": "image/png",
+          "size": 3006,
+          "relativePath": "privacy-protection-guide_figures/figure48.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/0820c0dc-73f0-40fa-9ae6-cb30d6af9cb0"
+        },
+        {
+          "fileId": "2d7da170-9c03-473b-a992-ca2fba90a7f1",
+          "format": "image",
+          "filename": "figure49.png",
+          "contentType": "image/png",
+          "size": 5363,
+          "relativePath": "privacy-protection-guide_figures/figure49.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/2d7da170-9c03-473b-a992-ca2fba90a7f1"
+        },
+        {
+          "fileId": "282a00de-7f8a-43c9-b814-dd925c78e1b6",
+          "format": "image",
+          "filename": "figure5.png",
+          "contentType": "image/png",
+          "size": 7067,
+          "relativePath": "privacy-protection-guide_figures/figure5.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/282a00de-7f8a-43c9-b814-dd925c78e1b6"
+        },
+        {
+          "fileId": "d795a626-3210-4e01-adb1-33d11c9d363d",
+          "format": "image",
+          "filename": "figure50.png",
+          "contentType": "image/png",
+          "size": 311,
+          "relativePath": "privacy-protection-guide_figures/figure50.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/d795a626-3210-4e01-adb1-33d11c9d363d"
+        },
+        {
+          "fileId": "818915dc-a7ed-4f01-8995-6711a8373b7f",
+          "format": "image",
+          "filename": "figure51.png",
+          "contentType": "image/png",
+          "size": 3053,
+          "relativePath": "privacy-protection-guide_figures/figure51.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/818915dc-a7ed-4f01-8995-6711a8373b7f"
+        },
+        {
+          "fileId": "49520365-9c60-4279-a5a3-1a8c4c0a8f16",
+          "format": "image",
+          "filename": "figure52.png",
+          "contentType": "image/png",
+          "size": 4976,
+          "relativePath": "privacy-protection-guide_figures/figure52.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/49520365-9c60-4279-a5a3-1a8c4c0a8f16"
+        },
+        {
+          "fileId": "fa85a27f-fdf8-4ba1-9196-b7fc8d3cdb75",
+          "format": "image",
+          "filename": "figure53.png",
+          "contentType": "image/png",
+          "size": 313,
+          "relativePath": "privacy-protection-guide_figures/figure53.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/fa85a27f-fdf8-4ba1-9196-b7fc8d3cdb75"
+        },
+        {
+          "fileId": "9832b835-acac-4a98-85e4-a90363a59a02",
+          "format": "image",
+          "filename": "figure54.png",
+          "contentType": "image/png",
+          "size": 3110,
+          "relativePath": "privacy-protection-guide_figures/figure54.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/9832b835-acac-4a98-85e4-a90363a59a02"
+        },
+        {
+          "fileId": "ad550068-ed48-4ee1-bcc5-6ce5968e15dc",
+          "format": "image",
+          "filename": "figure55.png",
+          "contentType": "image/png",
+          "size": 51326,
+          "relativePath": "privacy-protection-guide_figures/figure55.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/ad550068-ed48-4ee1-bcc5-6ce5968e15dc"
+        },
+        {
+          "fileId": "838327f8-a361-4af9-8a8d-78260f7cd7ef",
+          "format": "image",
+          "filename": "figure56.png",
+          "contentType": "image/png",
+          "size": 3078,
+          "relativePath": "privacy-protection-guide_figures/figure56.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/838327f8-a361-4af9-8a8d-78260f7cd7ef"
+        },
+        {
+          "fileId": "f70f9bf6-324f-4f13-8fd7-4f0c50f347b8",
+          "format": "image",
+          "filename": "figure57.png",
+          "contentType": "image/png",
+          "size": 4667,
+          "relativePath": "privacy-protection-guide_figures/figure57.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/f70f9bf6-324f-4f13-8fd7-4f0c50f347b8"
+        },
+        {
+          "fileId": "9c054a22-aacc-4358-a5ff-ae44ddf52eda",
+          "format": "image",
+          "filename": "figure58.png",
+          "contentType": "image/png",
+          "size": 312,
+          "relativePath": "privacy-protection-guide_figures/figure58.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/9c054a22-aacc-4358-a5ff-ae44ddf52eda"
+        },
+        {
+          "fileId": "bc9753f9-79e2-4b48-a4dd-1f9db7bc9824",
+          "format": "image",
+          "filename": "figure59.png",
+          "contentType": "image/png",
+          "size": 2863,
+          "relativePath": "privacy-protection-guide_figures/figure59.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/bc9753f9-79e2-4b48-a4dd-1f9db7bc9824"
+        },
+        {
+          "fileId": "43f30e0b-d70e-46ca-bc9b-da3a59033bdc",
+          "format": "image",
+          "filename": "figure6.png",
+          "contentType": "image/png",
+          "size": 7354,
+          "relativePath": "privacy-protection-guide_figures/figure6.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/43f30e0b-d70e-46ca-bc9b-da3a59033bdc"
+        },
+        {
+          "fileId": "3e61ab7b-ee8a-4017-aae1-c8612a94fd02",
+          "format": "image",
+          "filename": "figure60.png",
+          "contentType": "image/png",
+          "size": 3191,
+          "relativePath": "privacy-protection-guide_figures/figure60.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/3e61ab7b-ee8a-4017-aae1-c8612a94fd02"
+        },
+        {
+          "fileId": "fd2e8cec-911f-4962-831e-e699c9cf027b",
+          "format": "image",
+          "filename": "figure61.png",
+          "contentType": "image/png",
+          "size": 313,
+          "relativePath": "privacy-protection-guide_figures/figure61.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/fd2e8cec-911f-4962-831e-e699c9cf027b"
+        },
+        {
+          "fileId": "0830d232-b5aa-4f5d-b49f-b8a4888e806c",
+          "format": "image",
+          "filename": "figure62.png",
+          "contentType": "image/png",
+          "size": 29723,
+          "relativePath": "privacy-protection-guide_figures/figure62.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/0830d232-b5aa-4f5d-b49f-b8a4888e806c"
+        },
+        {
+          "fileId": "6dfeecd9-d17f-4691-9604-191be54738f9",
+          "format": "image",
+          "filename": "figure63.png",
+          "contentType": "image/png",
+          "size": 2756,
+          "relativePath": "privacy-protection-guide_figures/figure63.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/6dfeecd9-d17f-4691-9604-191be54738f9"
+        },
+        {
+          "fileId": "f596b422-edd0-45c5-bf97-24e67b602950",
+          "format": "image",
+          "filename": "figure64.png",
+          "contentType": "image/png",
+          "size": 312,
+          "relativePath": "privacy-protection-guide_figures/figure64.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/f596b422-edd0-45c5-bf97-24e67b602950"
+        },
+        {
+          "fileId": "9e3c2be0-a6eb-4376-96d1-7e232ef773f5",
+          "format": "image",
+          "filename": "figure65.png",
+          "contentType": "image/png",
+          "size": 2146,
+          "relativePath": "privacy-protection-guide_figures/figure65.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/9e3c2be0-a6eb-4376-96d1-7e232ef773f5"
+        },
+        {
+          "fileId": "fe48c16a-a246-4926-ac12-3be81a3ae2fe",
+          "format": "image",
+          "filename": "figure66.png",
+          "contentType": "image/png",
+          "size": 4695,
+          "relativePath": "privacy-protection-guide_figures/figure66.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/fe48c16a-a246-4926-ac12-3be81a3ae2fe"
+        },
+        {
+          "fileId": "da8aa7d9-c416-489b-bb4b-ce0095ea22e1",
+          "format": "image",
+          "filename": "figure67.png",
+          "contentType": "image/png",
+          "size": 2093,
+          "relativePath": "privacy-protection-guide_figures/figure67.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/da8aa7d9-c416-489b-bb4b-ce0095ea22e1"
+        },
+        {
+          "fileId": "bf2f7a1e-f78e-4f98-9f1f-3c8cc2847c0f",
+          "format": "image",
+          "filename": "figure68.png",
+          "contentType": "image/png",
+          "size": 17043,
+          "relativePath": "privacy-protection-guide_figures/figure68.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/bf2f7a1e-f78e-4f98-9f1f-3c8cc2847c0f"
+        },
+        {
+          "fileId": "b37f05bd-69aa-47cc-adec-1627cd6fa9d9",
+          "format": "image",
+          "filename": "figure69.png",
+          "contentType": "image/png",
+          "size": 15738,
+          "relativePath": "privacy-protection-guide_figures/figure69.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/b37f05bd-69aa-47cc-adec-1627cd6fa9d9"
+        },
+        {
+          "fileId": "5e23355e-6b93-4972-8e4a-8baffb5fdbbb",
+          "format": "image",
+          "filename": "figure7.png",
+          "contentType": "image/png",
+          "size": 110921,
+          "relativePath": "privacy-protection-guide_figures/figure7.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/5e23355e-6b93-4972-8e4a-8baffb5fdbbb"
+        },
+        {
+          "fileId": "8ab2c20a-5680-43fa-8056-e094fbbdbdce",
+          "format": "image",
+          "filename": "figure70.png",
+          "contentType": "image/png",
+          "size": 16078,
+          "relativePath": "privacy-protection-guide_figures/figure70.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/8ab2c20a-5680-43fa-8056-e094fbbdbdce"
+        },
+        {
+          "fileId": "12178faa-9753-4837-96a5-fcbbe1b34a53",
+          "format": "image",
+          "filename": "figure71.png",
+          "contentType": "image/png",
+          "size": 19338,
+          "relativePath": "privacy-protection-guide_figures/figure71.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/12178faa-9753-4837-96a5-fcbbe1b34a53"
+        },
+        {
+          "fileId": "92859f3f-72c9-47ab-ba55-e2748708f9ef",
+          "format": "image",
+          "filename": "figure72.png",
+          "contentType": "image/png",
+          "size": 8766,
+          "relativePath": "privacy-protection-guide_figures/figure72.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/92859f3f-72c9-47ab-ba55-e2748708f9ef"
+        },
+        {
+          "fileId": "80017864-0493-4a24-9181-5e044996d463",
+          "format": "image",
+          "filename": "figure73.png",
+          "contentType": "image/png",
+          "size": 10725,
+          "relativePath": "privacy-protection-guide_figures/figure73.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/80017864-0493-4a24-9181-5e044996d463"
+        },
+        {
+          "fileId": "e49c08c5-4065-446e-b738-aa010e5cbdff",
+          "format": "image",
+          "filename": "figure74.png",
+          "contentType": "image/png",
+          "size": 667,
+          "relativePath": "privacy-protection-guide_figures/figure74.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/e49c08c5-4065-446e-b738-aa010e5cbdff"
+        },
+        {
+          "fileId": "6b3457ec-ce92-4063-9000-1c2d1f4fc408",
+          "format": "image",
+          "filename": "figure75.png",
+          "contentType": "image/png",
+          "size": 867,
+          "relativePath": "privacy-protection-guide_figures/figure75.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/6b3457ec-ce92-4063-9000-1c2d1f4fc408"
+        },
+        {
+          "fileId": "87bb461a-3f13-4707-b210-430fce583f79",
+          "format": "image",
+          "filename": "figure76.png",
+          "contentType": "image/png",
+          "size": 1154,
+          "relativePath": "privacy-protection-guide_figures/figure76.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/87bb461a-3f13-4707-b210-430fce583f79"
+        },
+        {
+          "fileId": "5d1090a6-db9d-4b98-a072-2be179f9adc4",
+          "format": "image",
+          "filename": "figure77.png",
+          "contentType": "image/png",
+          "size": 1235,
+          "relativePath": "privacy-protection-guide_figures/figure77.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/5d1090a6-db9d-4b98-a072-2be179f9adc4"
+        },
+        {
+          "fileId": "5078decd-891a-4ee3-b1a3-9c4f27536580",
+          "format": "image",
+          "filename": "figure78.png",
+          "contentType": "image/png",
+          "size": 1235,
+          "relativePath": "privacy-protection-guide_figures/figure78.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/5078decd-891a-4ee3-b1a3-9c4f27536580"
+        },
+        {
+          "fileId": "70131eb5-1647-418f-9301-95a283ff2ffb",
+          "format": "image",
+          "filename": "figure79.png",
+          "contentType": "image/png",
+          "size": 3237,
+          "relativePath": "privacy-protection-guide_figures/figure79.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/70131eb5-1647-418f-9301-95a283ff2ffb"
+        },
+        {
+          "fileId": "5742f3d4-552b-42a8-b321-811a984c74b8",
+          "format": "image",
+          "filename": "figure8.png",
+          "contentType": "image/png",
+          "size": 8579,
+          "relativePath": "privacy-protection-guide_figures/figure8.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/5742f3d4-552b-42a8-b321-811a984c74b8"
+        },
+        {
+          "fileId": "66dd1202-bb42-4c0c-a8fa-90a1a6bdb4f0",
+          "format": "image",
+          "filename": "figure80.png",
+          "contentType": "image/png",
+          "size": 537,
+          "relativePath": "privacy-protection-guide_figures/figure80.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/66dd1202-bb42-4c0c-a8fa-90a1a6bdb4f0"
+        },
+        {
+          "fileId": "f82322c6-45e7-4360-86b9-fd144fb4fae4",
+          "format": "image",
+          "filename": "figure81.png",
+          "contentType": "image/png",
+          "size": 951,
+          "relativePath": "privacy-protection-guide_figures/figure81.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/f82322c6-45e7-4360-86b9-fd144fb4fae4"
+        },
+        {
+          "fileId": "c5dec805-57ce-4e31-bc36-e828c31a37e1",
+          "format": "image",
+          "filename": "figure82.png",
+          "contentType": "image/png",
+          "size": 790,
+          "relativePath": "privacy-protection-guide_figures/figure82.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/c5dec805-57ce-4e31-bc36-e828c31a37e1"
+        },
+        {
+          "fileId": "7a002b0b-fa8e-4866-a7e2-72995a38e24f",
+          "format": "image",
+          "filename": "figure83.png",
+          "contentType": "image/png",
+          "size": 903,
+          "relativePath": "privacy-protection-guide_figures/figure83.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/7a002b0b-fa8e-4866-a7e2-72995a38e24f"
+        },
+        {
+          "fileId": "4767f29b-aa91-4f1c-9073-98dae985b12c",
+          "format": "image",
+          "filename": "figure84.png",
+          "contentType": "image/png",
+          "size": 892,
+          "relativePath": "privacy-protection-guide_figures/figure84.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/4767f29b-aa91-4f1c-9073-98dae985b12c"
+        },
+        {
+          "fileId": "0632f408-4a6a-4e6b-bbf8-f4feda267961",
+          "format": "image",
+          "filename": "figure85.png",
+          "contentType": "image/png",
+          "size": 3325,
+          "relativePath": "privacy-protection-guide_figures/figure85.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/0632f408-4a6a-4e6b-bbf8-f4feda267961"
+        },
+        {
+          "fileId": "1842713d-3f7e-4d99-ac73-fa3b679df304",
+          "format": "image",
+          "filename": "figure86.png",
+          "contentType": "image/png",
+          "size": 873,
+          "relativePath": "privacy-protection-guide_figures/figure86.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/1842713d-3f7e-4d99-ac73-fa3b679df304"
+        },
+        {
+          "fileId": "bd795d64-8a8f-41ee-9615-38050eeaf337",
+          "format": "image",
+          "filename": "figure87.png",
+          "contentType": "image/png",
+          "size": 828,
+          "relativePath": "privacy-protection-guide_figures/figure87.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/bd795d64-8a8f-41ee-9615-38050eeaf337"
+        },
+        {
+          "fileId": "b0e288ec-d1cb-4e7a-a88c-9e87e3b724cd",
+          "format": "image",
+          "filename": "figure88.png",
+          "contentType": "image/png",
+          "size": 647,
+          "relativePath": "privacy-protection-guide_figures/figure88.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/b0e288ec-d1cb-4e7a-a88c-9e87e3b724cd"
+        },
+        {
+          "fileId": "dae11258-a6ea-4045-8f11-6ce37024f4bb",
+          "format": "image",
+          "filename": "figure89.png",
+          "contentType": "image/png",
+          "size": 467,
+          "relativePath": "privacy-protection-guide_figures/figure89.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/dae11258-a6ea-4045-8f11-6ce37024f4bb"
+        },
+        {
+          "fileId": "80948133-3b25-46d5-87f5-975867fe39b9",
+          "format": "image",
+          "filename": "figure9.png",
+          "contentType": "image/png",
+          "size": 7908,
+          "relativePath": "privacy-protection-guide_figures/figure9.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/80948133-3b25-46d5-87f5-975867fe39b9"
+        },
+        {
+          "fileId": "1b95fc07-2aca-47b6-ab92-ef22ab70ec25",
+          "format": "image",
+          "filename": "figure90.png",
+          "contentType": "image/png",
+          "size": 617,
+          "relativePath": "privacy-protection-guide_figures/figure90.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/1b95fc07-2aca-47b6-ab92-ef22ab70ec25"
+        },
+        {
+          "fileId": "802b60d1-64eb-4a51-9e6d-e8b0f2d12ad3",
+          "format": "image",
+          "filename": "figure91.png",
+          "contentType": "image/png",
+          "size": 1576,
+          "relativePath": "privacy-protection-guide_figures/figure91.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/802b60d1-64eb-4a51-9e6d-e8b0f2d12ad3"
+        },
+        {
+          "fileId": "dc78055e-105c-4c19-b536-fa41392e5768",
+          "format": "image",
+          "filename": "figure92.png",
+          "contentType": "image/png",
+          "size": 3818,
+          "relativePath": "privacy-protection-guide_figures/figure92.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/dc78055e-105c-4c19-b536-fa41392e5768"
+        },
+        {
+          "fileId": "eb71db2d-a844-4a49-b911-4583f5e265a4",
+          "format": "image",
+          "filename": "figure93.png",
+          "contentType": "image/png",
+          "size": 3839,
+          "relativePath": "privacy-protection-guide_figures/figure93.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/eb71db2d-a844-4a49-b911-4583f5e265a4"
+        },
+        {
+          "fileId": "a9f285ea-96fd-4643-ad07-be439fdc5b8f",
+          "format": "image",
+          "filename": "figure94.png",
+          "contentType": "image/png",
+          "size": 3859,
+          "relativePath": "privacy-protection-guide_figures/figure94.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/a9f285ea-96fd-4643-ad07-be439fdc5b8f"
+        },
+        {
+          "fileId": "bdf80e39-3eb0-47fc-93ec-ac9dd5e3ab14",
+          "format": "image",
+          "filename": "figure95.png",
+          "contentType": "image/png",
+          "size": 3678,
+          "relativePath": "privacy-protection-guide_figures/figure95.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/bdf80e39-3eb0-47fc-93ec-ac9dd5e3ab14"
+        },
+        {
+          "fileId": "e1570adb-09e9-47b3-9448-c7520fc65af4",
+          "format": "image",
+          "filename": "figure96.png",
+          "contentType": "image/png",
+          "size": 5468,
+          "relativePath": "privacy-protection-guide_figures/figure96.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/e1570adb-09e9-47b3-9448-c7520fc65af4"
+        },
+        {
+          "fileId": "f1744539-2dad-40ea-b046-ea2d49fae793",
+          "format": "image",
+          "filename": "figure97.png",
+          "contentType": "image/png",
+          "size": 1095,
+          "relativePath": "privacy-protection-guide_figures/figure97.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/f1744539-2dad-40ea-b046-ea2d49fae793"
+        },
+        {
+          "fileId": "9cec5911-e291-4e77-8906-68289f99a400",
+          "format": "image",
+          "filename": "figure98.png",
+          "contentType": "image/png",
+          "size": 3052,
+          "relativePath": "privacy-protection-guide_figures/figure98.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/9cec5911-e291-4e77-8906-68289f99a400"
+        },
+        {
+          "fileId": "9297a159-d45f-4300-8b95-2267685e2f02",
+          "format": "image",
+          "filename": "figure99.png",
+          "contentType": "image/png",
+          "size": 3645,
+          "relativePath": "privacy-protection-guide_figures/figure99.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/9297a159-d45f-4300-8b95-2267685e2f02"
+        }
+      ],
+      "jsonSummary": {
+        "rawLength": 2641283,
+        "containsPlaceholder": true,
+        "maskedDateMetadata": true,
+        "parseError": null,
+        "fileName": "privacy-protection-guide.pdf",
+        "numberOfPages": 151,
+        "topLevelKids": 1792,
+        "hasKids": true
+      },
+      "markdownSummary": {
+        "length": 141628,
+        "preview": "##### 목차\n\n|업무내용|페이지|\n|---|---|\n|￭각급학교개인정보보호업무연간일정|1|\n|￭개인정보보호법해설|3|\n|1.개인정보내부관리계획개정및이행실태점검<br><br>-내부관리계획개정기안문(개정사항이있는경우)<br>-내부관리계획표준안(예시)<br>-내부관리계획검토결과보고서기안문(개정사항이없는경우)<br>-내부관리계획이행실태점검결과기안문및이행실태점검표(예시)<br>|22|\n|2.개인정보처리방침개정및홈페이지공개<br><br>-개인정보처리방침정비기안문(예시)<br>-개인정보처리방침표준안(예시)<br>|54|\n|3.개인정보파일일제",
+        "containsHtml": true,
+        "containsImageRef": false,
+        "containsAbsoluteWindowsPath": false,
+        "containsPlaceholder": true,
+        "hangulDetected": true
+      },
+      "imageArtifactCount": 327
+    },
+    {
+      "name": "async_privacy_pages_subset",
+      "mode": "async",
+      "endpoint": "/api/v1/pdf/convert",
+      "inputFile": "privacy-protection-guide.pdf",
+      "requestSummary": "formats=json,markdown, keepLineBreaks=true, pages=1-2, sanitize=true, useStructTree=true",
+      "httpStatus": 202,
+      "note": "개인정보보호 PDF 페이지 범위 및 줄바꿈/struct tree 요청",
+      "requestStartedAt": "2026-03-26T19:37:24.8221896+09:00",
+      "requestFinishedAt": "2026-03-26T19:37:24.8812171+09:00",
+      "jobId": "86a0ffaa-1f51-490e-8b7e-53117382fdae",
+      "finalStatus": "SUCCEEDED",
+      "processingMillis": 5972,
+      "files": [
+        {
+          "fileId": "d0b5366d-a047-4f30-b1f3-2744c51f1388",
+          "format": "json",
+          "filename": "privacy-protection-guide.json",
+          "contentType": "application/json",
+          "size": 2825163,
+          "relativePath": "privacy-protection-guide.json",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/d0b5366d-a047-4f30-b1f3-2744c51f1388"
+        },
+        {
+          "fileId": "a0fa01a5-1de9-4d41-9e9d-37a9e2e5c1e8",
+          "format": "markdown",
+          "filename": "privacy-protection-guide.md",
+          "contentType": "text/markdown",
+          "size": 339990,
+          "relativePath": "privacy-protection-guide.md",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/a0fa01a5-1de9-4d41-9e9d-37a9e2e5c1e8"
+        }
+      ],
+      "jsonSummary": {
+        "rawLength": 2642131,
+        "containsPlaceholder": true,
+        "maskedDateMetadata": true,
+        "parseError": null,
+        "fileName": "privacy-protection-guide.pdf",
+        "numberOfPages": 151,
+        "topLevelKids": 1792,
+        "hasKids": true
+      },
+      "markdownSummary": {
+        "length": 144971,
+        "preview": "##### 목차\n\n|업무내용|페이지|\n|---|---|\n|￭각급학교개인정보보호업무연간일정|1|\n|￭개인정보보호법해설|3|\n|1.개인정보내부관리계획개정및이행실태점검<br><br>-내부관리계획개정기안문(개정사항이있는경우)<br>-내부관리계획표준안(예시)<br>-내부관리계획검토결과보고서기안문(개정사항이없는경우)<br>-내부관리계획이행실태점검결과기안문및이행실태점검표(예시)<br>|22|\n|2.개인정보처리방침개정및홈페이지공개<br><br>-개인정보처리방침정비기안문(예시)<br>-개인정보처리방침표준안(예시)<br>|54|\n|3.개인정보파일일제",
+        "containsHtml": true,
+        "containsImageRef": false,
+        "containsAbsoluteWindowsPath": false,
+        "containsPlaceholder": true,
+        "hangulDetected": true
+      },
+      "imageArtifactCount": 0
+    },
+    {
+      "name": "async_museum_markdown_images",
+      "mode": "async",
+      "endpoint": "/api/v1/pdf/convert",
+      "inputFile": "korean-complex.pdf",
+      "requestSummary": "formats=json,markdown-with-images, imageFormat=png, imageOutput=external, sanitize=false",
+      "httpStatus": 202,
+      "note": "이미지 포함 Markdown 및 sanitize off",
+      "requestStartedAt": "2026-03-26T19:37:31.0335067+09:00",
+      "requestFinishedAt": "2026-03-26T19:37:31.1327411+09:00",
+      "jobId": "417ef2f6-93f4-495f-8786-36d82fd52258",
+      "finalStatus": "SUCCEEDED",
+      "processingMillis": 1403,
+      "files": [
+        {
+          "fileId": "51d2a3e0-53f3-467a-9fd9-b0f499cff02c",
+          "format": "json",
+          "filename": "korean-complex.json",
+          "contentType": "application/json",
+          "size": 31801,
+          "relativePath": "korean-complex.json",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/51d2a3e0-53f3-467a-9fd9-b0f499cff02c"
+        },
+        {
+          "fileId": "14c7545d-bcde-420b-8374-f97d1c2d1547",
+          "format": "markdown",
+          "filename": "korean-complex.md",
+          "contentType": "text/markdown",
+          "size": 10322,
+          "relativePath": "korean-complex.md",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/14c7545d-bcde-420b-8374-f97d1c2d1547"
+        },
+        {
+          "fileId": "259ba078-ddff-4ea8-afaa-0abebf349093",
+          "format": "image",
+          "filename": "imageFile1.png",
+          "contentType": "image/png",
+          "size": 1748,
+          "relativePath": "korean-complex_images/imageFile1.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/259ba078-ddff-4ea8-afaa-0abebf349093"
+        },
+        {
+          "fileId": "78e08af0-969a-4143-a0c4-402585f38df2",
+          "format": "image",
+          "filename": "imageFile2.png",
+          "contentType": "image/png",
+          "size": 395216,
+          "relativePath": "korean-complex_images/imageFile2.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/78e08af0-969a-4143-a0c4-402585f38df2"
+        },
+        {
+          "fileId": "2adce200-57ef-4b91-99bf-b933f4c2df15",
+          "format": "image",
+          "filename": "imageFile3.png",
+          "contentType": "image/png",
+          "size": 1193654,
+          "relativePath": "korean-complex_images/imageFile3.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/2adce200-57ef-4b91-99bf-b933f4c2df15"
+        },
+        {
+          "fileId": "ab0310c6-ca1b-4d7b-bb0f-f5dd5ca1fba0",
+          "format": "image",
+          "filename": "imageFile4.png",
+          "contentType": "image/png",
+          "size": 276619,
+          "relativePath": "korean-complex_images/imageFile4.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/ab0310c6-ca1b-4d7b-bb0f-f5dd5ca1fba0"
+        },
+        {
+          "fileId": "28191c16-0410-4850-aa3d-00aafe1160db",
+          "format": "image",
+          "filename": "imageFile5.png",
+          "contentType": "image/png",
+          "size": 405793,
+          "relativePath": "korean-complex_images/imageFile5.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/28191c16-0410-4850-aa3d-00aafe1160db"
+        },
+        {
+          "fileId": "698e9244-0fe2-4553-ba1d-8dc06656196d",
+          "format": "image",
+          "filename": "imageFile6.png",
+          "contentType": "image/png",
+          "size": 1152049,
+          "relativePath": "korean-complex_images/imageFile6.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/698e9244-0fe2-4553-ba1d-8dc06656196d"
+        },
+        {
+          "fileId": "d6bd7623-8009-4fd4-a00d-99bed81f533b",
+          "format": "image",
+          "filename": "imageFile7.png",
+          "contentType": "image/png",
+          "size": 337651,
+          "relativePath": "korean-complex_images/imageFile7.png",
+          "downloadUrl": "http://127.0.0.1:18085/api/v1/pdf/files/d6bd7623-8009-4fd4-a00d-99bed81f533b"
+        }
+      ],
+      "jsonSummary": {
+        "rawLength": 26943,
+        "containsPlaceholder": false,
+        "maskedDateMetadata": false,
+        "parseError": null,
+        "fileName": "korean-complex.pdf",
+        "numberOfPages": 5,
+        "topLevelKids": 70,
+        "hasKids": true
+      },
+      "markdownSummary": {
+        "length": 5556,
+        "preview": "Conservation  Science  in  Museum  Vol.  14,  1~5  (2013)\n\n![image 1](/api/v1/pdf/files/259ba078-ddff-4ea8-afaa-0abebf349093)\n\n## 공주수촌리출토칠기칼집의보존\n\n이용희1,  연정아1,  박정혜1,  김수철2,*\n\n- 1국립중앙박물관보존과학부\n- 2한국전통문화대학교보존과학과\n\n\n# Conservation of the Lacquered Sheath Excavated from Soochon-ri, Gongju, Korea\n\nLee  Yon",
+        "containsHtml": false,
+        "containsImageRef": true,
+        "containsAbsoluteWindowsPath": false,
+        "containsPlaceholder": false,
+        "hangulDetected": true
+      },
+      "imageArtifactCount": 7
+    }
+  ]
+}

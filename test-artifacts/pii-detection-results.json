@@ -1,0 +1,873 @@
+{
+  "executedAt": "2026-03-26T20:12:34.6319436+09:00",
+  "baseUrl": "http://127.0.0.1:18086",
+  "results": [
+    {
+      "name": "synthetic_full_detect",
+      "file": "samples\\\\pii\\\\synthetic-korean-pii-full.pdf",
+      "note": "12개 기준 유형이 모두 들어간 합성 한글 PDF",
+      "findingCount": 12,
+      "types": [
+        "BANK_ACCOUNT_NUMBER",
+        "CREDIT_CARD_NUMBER",
+        "DRIVER_LICENSE_NUMBER",
+        "EMAIL_ADDRESS",
+        "FOREIGNER_REGISTRATION_NUMBER",
+        "IP_ADDRESS",
+        "LANDLINE_PHONE_NUMBER",
+        "MOBILE_PHONE_NUMBER",
+        "PASSPORT_NUMBER",
+        "PERSON_NAME",
+        "RESIDENT_REGISTRATION_NUMBER",
+        "STREET_ADDRESS"
+      ],
+      "pages": [
+        1
+      ],
+      "findings": [
+        {
+          "type": "STREET_ADDRESS",
+          "label": "주소",
+          "originalText": "서울 영등포구 국제금융로 10 3층",
+          "maskedText": "서울 영등포구 국제금융로 *****",
+          "pageNumber": 1,
+          "boundingBox": {
+            "x": 50.0,
+            "y": 508.616,
+            "width": 246.848,
+            "height": 23.586230769230767
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "IP_ADDRESS",
+          "label": "IP주소",
+          "originalText": "192.168.254.123",
+          "maskedText": "192.168.***.123",
+          "pageNumber": 1,
+          "boundingBox": {
+            "x": 50.0,
+            "y": 532.2022307692307,
+            "width": 246.848,
+            "height": 23.586230769230767
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "EMAIL_ADDRESS",
+          "label": "이메일",
+          "originalText": "abcdefg@naver.com",
+          "maskedText": "abc****@naver.com",
+          "pageNumber": 1,
+          "boundingBox": {
+            "x": 50.0,
+            "y": 555.7884615384615,
+            "width": 246.848,
+            "height": 23.586230769230767
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "BANK_ACCOUNT_NUMBER",
+          "label": "계좌번호",
+          "originalText": "123-45-6789-012",
+          "maskedText": "***-**-****-012",
+          "pageNumber": 1,
+          "boundingBox": {
+            "x": 50.0,
+            "y": 579.3746923076923,
+            "width": 246.848,
+            "height": 23.586230769230767
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "CREDIT_CARD_NUMBER",
+          "label": "신용카드번호",
+          "originalText": "4111-1111-1111-1111",
+          "maskedText": "****-****-****-1111",
+          "pageNumber": 1,
+          "boundingBox": {
+            "x": 50.0,
+            "y": 602.9609230769231,
+            "width": 246.848,
+            "height": 23.586230769230767
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "LANDLINE_PHONE_NUMBER",
+          "label": "전화번호",
+          "originalText": "02-1234-5678",
+          "maskedText": "02-1234-****",
+          "pageNumber": 1,
+          "boundingBox": {
+            "x": 50.0,
+            "y": 626.5471538461538,
+            "width": 246.848,
+            "height": 23.586230769230767
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "MOBILE_PHONE_NUMBER",
+          "label": "휴대폰번호",
+          "originalText": "010-1234-5678",
+          "maskedText": "010-1234-****",
+          "pageNumber": 1,
+          "boundingBox": {
+            "x": 50.0,
+            "y": 650.1333846153846,
+            "width": 246.848,
+            "height": 23.586230769230767
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "FOREIGNER_REGISTRATION_NUMBER",
+          "label": "외국인등록번호",
+          "originalText": "123456-5123456",
+          "maskedText": "123456-*******",
+          "pageNumber": 1,
+          "boundingBox": {
+            "x": 50.0,
+            "y": 673.7196153846154,
+            "width": 246.848,
+            "height": 23.586230769230767
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "PASSPORT_NUMBER",
+          "label": "여권번호",
+          "originalText": "M12345678",
+          "maskedText": "M1234****",
+          "pageNumber": 1,
+          "boundingBox": {
+            "x": 50.0,
+            "y": 697.3058461538461,
+            "width": 246.848,
+            "height": 23.586230769230767
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "DRIVER_LICENSE_NUMBER",
+          "label": "운전면허번호",
+          "originalText": "11-24-123456-62",
+          "maskedText": "11-24-******-62",
+          "pageNumber": 1,
+          "boundingBox": {
+            "x": 50.0,
+            "y": 720.892076923077,
+            "width": 246.848,
+            "height": 23.586230769230767
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "RESIDENT_REGISTRATION_NUMBER",
+          "label": "주민등록번호",
+          "originalText": "800901-1234567",
+          "maskedText": "800901-*******",
+          "pageNumber": 1,
+          "boundingBox": {
+            "x": 50.0,
+            "y": 744.4783076923077,
+            "width": 246.848,
+            "height": 23.586230769230767
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "PERSON_NAME",
+          "label": "이름",
+          "originalText": "홍길동",
+          "maskedText": "홍*동",
+          "pageNumber": 1,
+          "boundingBox": {
+            "x": 50.0,
+            "y": 768.0645384615384,
+            "width": 246.848,
+            "height": 23.586230769230767
+          },
+          "detectionSource": "pdf-structured"
+        }
+      ]
+    },
+    {
+      "name": "synthetic_multipage_detect",
+      "file": "samples\\\\pii\\\\synthetic-korean-pii-multipage.pdf",
+      "note": "다중 페이지 합성 한글 PDF",
+      "findingCount": 12,
+      "types": [
+        "BANK_ACCOUNT_NUMBER",
+        "CREDIT_CARD_NUMBER",
+        "DRIVER_LICENSE_NUMBER",
+        "EMAIL_ADDRESS",
+        "FOREIGNER_REGISTRATION_NUMBER",
+        "IP_ADDRESS",
+        "LANDLINE_PHONE_NUMBER",
+        "MOBILE_PHONE_NUMBER",
+        "PASSPORT_NUMBER",
+        "PERSON_NAME",
+        "RESIDENT_REGISTRATION_NUMBER",
+        "STREET_ADDRESS"
+      ],
+      "pages": [
+        1,
+        2
+      ],
+      "findings": [
+        {
+          "type": "BANK_ACCOUNT_NUMBER",
+          "label": "계좌번호",
+          "originalText": "987-65-4321-001",
+          "maskedText": "***-**-****-001",
+          "pageNumber": 1,
+          "boundingBox": {
+            "x": 50.0,
+            "y": 676.616,
+            "width": 173.782,
+            "height": 22.924199999999995
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "EMAIL_ADDRESS",
+          "label": "이메일",
+          "originalText": "test@korea.kr",
+          "maskedText": "****@korea.kr",
+          "pageNumber": 1,
+          "boundingBox": {
+            "x": 50.0,
+            "y": 699.5402,
+            "width": 173.782,
+            "height": 22.924199999999995
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "LANDLINE_PHONE_NUMBER",
+          "label": "전화번호",
+          "originalText": "031-555-1234",
+          "maskedText": "031-555-****",
+          "pageNumber": 1,
+          "boundingBox": {
+            "x": 50.0,
+            "y": 722.4644,
+            "width": 173.782,
+            "height": 22.924199999999995
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "MOBILE_PHONE_NUMBER",
+          "label": "휴대폰번호",
+          "originalText": "010 9876 5432",
+          "maskedText": "010-9876-****",
+          "pageNumber": 1,
+          "boundingBox": {
+            "x": 50.0,
+            "y": 745.3886,
+            "width": 173.782,
+            "height": 22.924199999999995
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "PERSON_NAME",
+          "label": "이름",
+          "originalText": "선우용녀",
+          "maskedText": "선*용*",
+          "pageNumber": 1,
+          "boundingBox": {
+            "x": 50.0,
+            "y": 768.3127999999999,
+            "width": 173.782,
+            "height": 22.924199999999995
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "IP_ADDRESS",
+          "label": "IP주소",
+          "originalText": "10.20.30.40",
+          "maskedText": "10.20.***.40",
+          "pageNumber": 2,
+          "boundingBox": {
+            "x": 50.0,
+            "y": 628.616,
+            "width": 298.13,
+            "height": 23.231571428571424
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "CREDIT_CARD_NUMBER",
+          "label": "신용카드번호",
+          "originalText": "4012-8888-8888-1881",
+          "maskedText": "****-****-****-1881",
+          "pageNumber": 2,
+          "boundingBox": {
+            "x": 50.0,
+            "y": 651.8475714285714,
+            "width": 298.13,
+            "height": 23.231571428571424
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "FOREIGNER_REGISTRATION_NUMBER",
+          "label": "외국인등록번호",
+          "originalText": "770707-7123456",
+          "maskedText": "770707-*******",
+          "pageNumber": 2,
+          "boundingBox": {
+            "x": 50.0,
+            "y": 675.0791428571429,
+            "width": 298.13,
+            "height": 23.231571428571424
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "RESIDENT_REGISTRATION_NUMBER",
+          "label": "주민등록번호",
+          "originalText": "900101-2345678",
+          "maskedText": "900101-*******",
+          "pageNumber": 2,
+          "boundingBox": {
+            "x": 50.0,
+            "y": 698.3107142857143,
+            "width": 298.13,
+            "height": 23.231571428571424
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "DRIVER_LICENSE_NUMBER",
+          "label": "운전면허번호",
+          "originalText": "26-11-654321-33",
+          "maskedText": "26-11-******-33",
+          "pageNumber": 2,
+          "boundingBox": {
+            "x": 50.0,
+            "y": 721.5422857142858,
+            "width": 298.13,
+            "height": 23.231571428571424
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "PASSPORT_NUMBER",
+          "label": "여권번호",
+          "originalText": "S76543210",
+          "maskedText": "S7654****",
+          "pageNumber": 2,
+          "boundingBox": {
+            "x": 50.0,
+            "y": 744.7738571428571,
+            "width": 298.13,
+            "height": 23.231571428571424
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "STREET_ADDRESS",
+          "label": "주소",
+          "originalText": "부산 해운대구 센텀중앙로 97 A동 1203호",
+          "maskedText": "부산 해운대구 센텀중앙로 *****",
+          "pageNumber": 2,
+          "boundingBox": {
+            "x": 50.0,
+            "y": 768.0054285714285,
+            "width": 298.13,
+            "height": 23.231571428571424
+          },
+          "detectionSource": "pdf-structured"
+        }
+      ]
+    },
+    {
+      "name": "privacy_guide_negative_control",
+      "file": "samples\\\\privacy-protection-guide.pdf",
+      "note": "공개 개인정보보호 안내서 baseline",
+      "findingCount": 15,
+      "types": [
+        "EMAIL_ADDRESS",
+        "LANDLINE_PHONE_NUMBER",
+        "MOBILE_PHONE_NUMBER"
+      ],
+      "pages": [
+        54,
+        66,
+        134,
+        138,
+        140
+      ],
+      "findings": [
+        {
+          "type": "LANDLINE_PHONE_NUMBER",
+          "label": "전화번호",
+          "originalText": "02-234-5678",
+          "maskedText": "02-234-****",
+          "pageNumber": 54,
+          "boundingBox": {
+            "x": 442.977,
+            "y": 91.528,
+            "width": 55.88000000000005,
+            "height": 11.951999999999998
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "LANDLINE_PHONE_NUMBER",
+          "label": "전화번호",
+          "originalText": "02-123-1234",
+          "maskedText": "02-123-****",
+          "pageNumber": 54,
+          "boundingBox": {
+            "x": 464.701,
+            "y": 159.82,
+            "width": 53.539999999999964,
+            "height": 11.700000000000017
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "LANDLINE_PHONE_NUMBER",
+          "label": "전화번호",
+          "originalText": "02-123-1234",
+          "maskedText": "02-123-****",
+          "pageNumber": 54,
+          "boundingBox": {
+            "x": 464.701,
+            "y": 184.66,
+            "width": 53.539999999999964,
+            "height": 11.700000000000017
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "LANDLINE_PHONE_NUMBER",
+          "label": "전화번호",
+          "originalText": "02-123-1234",
+          "maskedText": "02-123-****",
+          "pageNumber": 54,
+          "boundingBox": {
+            "x": 464.701,
+            "y": 209.5,
+            "width": 53.539999999999964,
+            "height": 11.699999999999989
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "LANDLINE_PHONE_NUMBER",
+          "label": "전화번호",
+          "originalText": "02-124-2345",
+          "maskedText": "02-124-****",
+          "pageNumber": 54,
+          "boundingBox": {
+            "x": 177.181,
+            "y": 275.62,
+            "width": 281.62800000000004,
+            "height": 11.699999999999989
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "EMAIL_ADDRESS",
+          "label": "이메일",
+          "originalText": "abcd@efgf.co.kr",
+          "maskedText": "****@efgf.co.kr",
+          "pageNumber": 54,
+          "boundingBox": {
+            "x": 177.181,
+            "y": 275.62,
+            "width": 281.62800000000004,
+            "height": 11.699999999999989
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "LANDLINE_PHONE_NUMBER",
+          "label": "전화번호",
+          "originalText": "02-000-0000",
+          "maskedText": "02-000-****",
+          "pageNumber": 66,
+          "boundingBox": {
+            "x": 82.8,
+            "y": 290.256,
+            "width": 166.56,
+            "height": 77.45700000000005
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "MOBILE_PHONE_NUMBER",
+          "label": "휴대폰번호",
+          "originalText": "010-1234 -4567",
+          "maskedText": "010-1234-****",
+          "pageNumber": 134,
+          "boundingBox": {
+            "x": 341.245,
+            "y": 455.572,
+            "width": 51.04000000000002,
+            "height": 41.02800000000002
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "LANDLINE_PHONE_NUMBER",
+          "label": "전화번호",
+          "originalText": "000-123-0000",
+          "maskedText": "000-123-****",
+          "pageNumber": 138,
+          "boundingBox": {
+            "x": 75.72,
+            "y": 129.412,
+            "width": 228.241,
+            "height": 12.948000000000008
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "LANDLINE_PHONE_NUMBER",
+          "label": "전화번호",
+          "originalText": "02-234-5678",
+          "maskedText": "02-234-****",
+          "pageNumber": 140,
+          "boundingBox": {
+            "x": 442.977,
+            "y": 99.808,
+            "width": 55.88000000000005,
+            "height": 11.951999999999998
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "LANDLINE_PHONE_NUMBER",
+          "label": "전화번호",
+          "originalText": "02-123-1234",
+          "maskedText": "02-123-****",
+          "pageNumber": 140,
+          "boundingBox": {
+            "x": 464.701,
+            "y": 168.1,
+            "width": 53.539999999999964,
+            "height": 11.700000000000017
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "LANDLINE_PHONE_NUMBER",
+          "label": "전화번호",
+          "originalText": "02-123-1234",
+          "maskedText": "02-123-****",
+          "pageNumber": 140,
+          "boundingBox": {
+            "x": 464.701,
+            "y": 192.94,
+            "width": 53.539999999999964,
+            "height": 11.699999999999989
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "LANDLINE_PHONE_NUMBER",
+          "label": "전화번호",
+          "originalText": "02-123-1234",
+          "maskedText": "02-123-****",
+          "pageNumber": 140,
+          "boundingBox": {
+            "x": 464.701,
+            "y": 217.78,
+            "width": 53.539999999999964,
+            "height": 11.699999999999989
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "LANDLINE_PHONE_NUMBER",
+          "label": "전화번호",
+          "originalText": "02-124-2345",
+          "maskedText": "02-124-****",
+          "pageNumber": 140,
+          "boundingBox": {
+            "x": 177.181,
+            "y": 283.78,
+            "width": 281.62800000000004,
+            "height": 11.700000000000045
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "EMAIL_ADDRESS",
+          "label": "이메일",
+          "originalText": "abcd@efgf.co.kr",
+          "maskedText": "****@efgf.co.kr",
+          "pageNumber": 140,
+          "boundingBox": {
+            "x": 177.181,
+            "y": 283.78,
+            "width": 281.62800000000004,
+            "height": 11.700000000000045
+          },
+          "detectionSource": "pdf-structured"
+        }
+      ]
+    },
+    {
+      "name": "financial_statement_negative_control",
+      "file": "samples\\\\financial-statement.pdf",
+      "note": "공개 재무제표 샘플 baseline",
+      "findingCount": 0,
+      "types": [],
+      "pages": [],
+      "findings": []
+    },
+    {
+      "name": "korean_complex_negative_control",
+      "file": "samples\\\\korean-complex.pdf",
+      "note": "공개 한글 복합 PDF baseline",
+      "findingCount": 1,
+      "types": [
+        "EMAIL_ADDRESS"
+      ],
+      "pages": [
+        1
+      ],
+      "findings": [
+        {
+          "type": "EMAIL_ADDRESS",
+          "label": "이메일",
+          "originalText": "oldforest@korea.kr",
+          "maskedText": "old******@korea.kr",
+          "pageNumber": 1,
+          "boundingBox": {
+            "x": 45.24,
+            "y": 72.621,
+            "width": 189.292,
+            "height": 18.41600000000001
+          },
+          "detectionSource": "pdf-structured"
+        }
+      ]
+    },
+    {
+      "name": "synthetic_full_mask",
+      "file": "samples\\\\pii\\\\synthetic-korean-pii-full.pdf",
+      "note": "마스킹 API 호출 후 masked PDF 재탐지",
+      "findingCount": 12,
+      "types": [
+        "BANK_ACCOUNT_NUMBER",
+        "CREDIT_CARD_NUMBER",
+        "DRIVER_LICENSE_NUMBER",
+        "EMAIL_ADDRESS",
+        "FOREIGNER_REGISTRATION_NUMBER",
+        "IP_ADDRESS",
+        "LANDLINE_PHONE_NUMBER",
+        "MOBILE_PHONE_NUMBER",
+        "PASSPORT_NUMBER",
+        "PERSON_NAME",
+        "RESIDENT_REGISTRATION_NUMBER",
+        "STREET_ADDRESS"
+      ],
+      "pages": [
+        1
+      ],
+      "findings": [
+        {
+          "type": "STREET_ADDRESS",
+          "label": "주소",
+          "originalText": "서울 영등포구 국제금융로 10 3층",
+          "maskedText": "서울 영등포구 국제금융로 *****",
+          "pageNumber": 1,
+          "boundingBox": {
+            "x": 50.0,
+            "y": 508.616,
+            "width": 246.848,
+            "height": 23.586230769230767
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "IP_ADDRESS",
+          "label": "IP주소",
+          "originalText": "192.168.254.123",
+          "maskedText": "192.168.***.123",
+          "pageNumber": 1,
+          "boundingBox": {
+            "x": 50.0,
+            "y": 532.2022307692307,
+            "width": 246.848,
+            "height": 23.586230769230767
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "EMAIL_ADDRESS",
+          "label": "이메일",
+          "originalText": "abcdefg@naver.com",
+          "maskedText": "abc****@naver.com",
+          "pageNumber": 1,
+          "boundingBox": {
+            "x": 50.0,
+            "y": 555.7884615384615,
+            "width": 246.848,
+            "height": 23.586230769230767
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "BANK_ACCOUNT_NUMBER",
+          "label": "계좌번호",
+          "originalText": "123-45-6789-012",
+          "maskedText": "***-**-****-012",
+          "pageNumber": 1,
+          "boundingBox": {
+            "x": 50.0,
+            "y": 579.3746923076923,
+            "width": 246.848,
+            "height": 23.586230769230767
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "CREDIT_CARD_NUMBER",
+          "label": "신용카드번호",
+          "originalText": "4111-1111-1111-1111",
+          "maskedText": "****-****-****-1111",
+          "pageNumber": 1,
+          "boundingBox": {
+            "x": 50.0,
+            "y": 602.9609230769231,
+            "width": 246.848,
+            "height": 23.586230769230767
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "LANDLINE_PHONE_NUMBER",
+          "label": "전화번호",
+          "originalText": "02-1234-5678",
+          "maskedText": "02-1234-****",
+          "pageNumber": 1,
+          "boundingBox": {
+            "x": 50.0,
+            "y": 626.5471538461538,
+            "width": 246.848,
+            "height": 23.586230769230767
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "MOBILE_PHONE_NUMBER",
+          "label": "휴대폰번호",
+          "originalText": "010-1234-5678",
+          "maskedText": "010-1234-****",
+          "pageNumber": 1,
+          "boundingBox": {
+            "x": 50.0,
+            "y": 650.1333846153846,
+            "width": 246.848,
+            "height": 23.586230769230767
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "FOREIGNER_REGISTRATION_NUMBER",
+          "label": "외국인등록번호",
+          "originalText": "123456-5123456",
+          "maskedText": "123456-*******",
+          "pageNumber": 1,
+          "boundingBox": {
+            "x": 50.0,
+            "y": 673.7196153846154,
+            "width": 246.848,
+            "height": 23.586230769230767
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "PASSPORT_NUMBER",
+          "label": "여권번호",
+          "originalText": "M12345678",
+          "maskedText": "M1234****",
+          "pageNumber": 1,
+          "boundingBox": {
+            "x": 50.0,
+            "y": 697.3058461538461,
+            "width": 246.848,
+            "height": 23.586230769230767
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "DRIVER_LICENSE_NUMBER",
+          "label": "운전면허번호",
+          "originalText": "11-24-123456-62",
+          "maskedText": "11-24-******-62",
+          "pageNumber": 1,
+          "boundingBox": {
+            "x": 50.0,
+            "y": 720.892076923077,
+            "width": 246.848,
+            "height": 23.586230769230767
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "RESIDENT_REGISTRATION_NUMBER",
+          "label": "주민등록번호",
+          "originalText": "800901-1234567",
+          "maskedText": "800901-*******",
+          "pageNumber": 1,
+          "boundingBox": {
+            "x": 50.0,
+            "y": 744.4783076923077,
+            "width": 246.848,
+            "height": 23.586230769230767
+          },
+          "detectionSource": "pdf-structured"
+        },
+        {
+          "type": "PERSON_NAME",
+          "label": "이름",
+          "originalText": "홍길동",
+          "maskedText": "홍*동",
+          "pageNumber": 1,
+          "boundingBox": {
+            "x": 50.0,
+            "y": 768.0645384615384,
+            "width": 246.848,
+            "height": 23.586230769230767
+          },
+          "detectionSource": "pdf-structured"
+        }
+      ],
+      "maskedDownloadUrl": "http://127.0.0.1:18086/api/v1/pii/files/6d4012f5-f862-4411-8524-aed4d9d74b5c",
+      "redetectFindingCount": 0
+    }
+  ],
+  "validations": [
+    {
+      "name": "detect_unsupported_text_file",
+      "expectedStatus": 415,
+      "actualStatus": 415,
+      "note": "Only PDF, PNG, JPG, JPEG are supported."
+    },
+    {
+      "name": "download_missing_masked_file",
+      "expectedStatus": 404,
+      "actualStatus": 404,
+      "note": "Unknown artifact id should return not found."
+    }
+  ],
+  "png": {
+    "status": "SKIPPED",
+    "note": "사용자 요청에 따라 PNG vLLM OCR 경로는 구현만 하고, vLLM endpoint 미구성 상태에서 실행 검증은 생략했습니다."
+  }
+}

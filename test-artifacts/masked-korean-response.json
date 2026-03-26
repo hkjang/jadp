@@ -1,0 +1,179 @@
+{
+  "documentId": "d69cce1c-e36c-41b1-89dc-9173c5a2b1d6",
+  "originalFilename": "synthetic-korean-pii-full.pdf",
+  "maskedFileId": "2e202e0a-9866-434b-95a1-f448f0f8d511",
+  "maskedFilename": "synthetic-korean-pii-full-masked.pdf",
+  "maskedContentType": "application/pdf",
+  "maskedDownloadUrl": "http://localhost:39080/api/v1/pii/files/2e202e0a-9866-434b-95a1-f448f0f8d511",
+  "findingCount": 12,
+  "findings": [
+    {
+      "type": "STREET_ADDRESS",
+      "label": "주소",
+      "originalText": "서울 영등포구 국제금융로 10 3층",
+      "maskedText": "서울 영등포구 국제금융로 *****",
+      "pageNumber": 1,
+      "boundingBox": {
+        "x": 50.0,
+        "y": 508.616,
+        "width": 246.848,
+        "height": 23.586230769230767
+      },
+      "detectionSource": "pdf-structured"
+    },
+    {
+      "type": "IP_ADDRESS",
+      "label": "IP주소",
+      "originalText": "192.168.254.123",
+      "maskedText": "192.168.***.123",
+      "pageNumber": 1,
+      "boundingBox": {
+        "x": 50.0,
+        "y": 532.2022307692307,
+        "width": 246.848,
+        "height": 23.586230769230767
+      },
+      "detectionSource": "pdf-structured"
+    },
+    {
+      "type": "EMAIL_ADDRESS",
+      "label": "이메일",
+      "originalText": "abcdefg@naver.com",
+      "maskedText": "abc****@naver.com",
+      "pageNumber": 1,
+      "boundingBox": {
+        "x": 50.0,
+        "y": 555.7884615384615,
+        "width": 246.848,
+        "height": 23.586230769230767
+      },
+      "detectionSource": "pdf-structured"
+    },
+    {
+      "type": "BANK_ACCOUNT_NUMBER",
+      "label": "계좌번호",
+      "originalText": "123-45-6789-012",
+      "maskedText": "***-**-****-012",
+      "pageNumber": 1,
+      "boundingBox": {
+        "x": 50.0,
+        "y": 579.3746923076923,
+        "width": 246.848,
+        "height": 23.586230769230767
+      },
+      "detectionSource": "pdf-structured"
+    },
+    {
+      "type": "CREDIT_CARD_NUMBER",
+      "label": "신용카드번호",
+      "originalText": "4111-1111-1111-1111",
+      "maskedText": "****-****-****-1111",
+      "pageNumber": 1,
+      "boundingBox": {
+        "x": 50.0,
+        "y": 602.9609230769231,
+        "width": 246.848,
+        "height": 23.586230769230767
+      },
+      "detectionSource": "pdf-structured"
+    },
+    {
+      "type": "LANDLINE_PHONE_NUMBER",
+      "label": "전화번호",
+      "originalText": "02-1234-5678",
+      "maskedText": "02-1234-****",
+      "pageNumber": 1,
+      "boundingBox": {
+        "x": 50.0,
+        "y": 626.5471538461538,
+        "width": 246.848,
+        "height": 23.586230769230767
+      },
+      "detectionSource": "pdf-structured"
+    },
+    {
+      "type": "MOBILE_PHONE_NUMBER",
+      "label": "휴대폰번호",
+      "originalText": "010-1234-5678",
+      "maskedText": "010-1234-****",
+      "pageNumber": 1,
+      "boundingBox": {
+        "x": 50.0,
+        "y": 650.1333846153846,
+        "width": 246.848,
+        "height": 23.586230769230767
+      },
+      "detectionSource": "pdf-structured"
+    },
+    {
+      "type": "FOREIGNER_REGISTRATION_NUMBER",
+      "label": "외국인등록번호",
+      "originalText": "123456-5123456",
+      "maskedText": "123456-*******",
+      "pageNumber": 1,
+      "boundingBox": {
+        "x": 50.0,
+        "y": 673.7196153846154,
+        "width": 246.848,
+        "height": 23.586230769230767
+      },
+      "detectionSource": "pdf-structured"
+    },
+    {
+      "type": "PASSPORT_NUMBER",
+      "label": "여권번호",
+      "originalText": "M12345678",
+      "maskedText": "M1234****",
+      "pageNumber": 1,
+      "boundingBox": {
+        "x": 50.0,
+        "y": 697.3058461538461,
+        "width": 246.848,
+        "height": 23.586230769230767
+      },
+      "detectionSource": "pdf-structured"
+    },
+    {
+      "type": "DRIVER_LICENSE_NUMBER",
+      "label": "운전면허번호",
+      "originalText": "11-24-123456-62",
+      "maskedText": "11-24-******-62",
+      "pageNumber": 1,
+      "boundingBox": {
+        "x": 50.0,
+        "y": 720.892076923077,
+        "width": 246.848,
+        "height": 23.586230769230767
+      },
+      "detectionSource": "pdf-structured"
+    },
+    {
+      "type": "RESIDENT_REGISTRATION_NUMBER",
+      "label": "주민등록번호",
+      "originalText": "800901-1234567",
+      "maskedText": "800901-*******",
+      "pageNumber": 1,
+      "boundingBox": {
+        "x": 50.0,
+        "y": 744.4783076923077,
+        "width": 246.848,
+        "height": 23.586230769230767
+      },
+      "detectionSource": "pdf-structured"
+    },
+    {
+      "type": "PERSON_NAME",
+      "label": "이름",
+      "originalText": "홍길동",
+      "maskedText": "홍*동",
+      "pageNumber": 1,
+      "boundingBox": {
+        "x": 50.0,
+        "y": 768.0645384615384,
+        "width": 246.848,
+        "height": 23.586230769230767
+      },
+      "detectionSource": "pdf-structured"
+    }
+  ]
+}

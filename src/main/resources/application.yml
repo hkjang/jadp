@@ -1,0 +1,50 @@
+spring:
+  application:
+    name: jadp
+  thymeleaf:
+    cache: false
+  servlet:
+    multipart:
+      max-file-size: 25MB
+      max-request-size: 25MB
+
+server:
+  error:
+    include-message: always
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: always
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+app:
+  storage:
+    base-dir: var/app-data
+  opendataloader:
+    version-hint: 1.3.0
+    hybrid:
+      enabled: false
+      backend: docling-fast
+      mode: auto
+      url: http://localhost:5002
+      timeout-millis: 60000
+      fallback: true
+      auto-apply-to-requests: false
+      auto-apply-to-pii: true
+      prefer-full-mode: false
+  vllm-ocr:
+    enabled: false
+    base-url:
+    api-key:
+    model:
+    timeout-seconds: 120
