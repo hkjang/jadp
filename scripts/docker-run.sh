@@ -22,6 +22,8 @@ HYBRID_TIMEOUT_MILLIS="${HYBRID_TIMEOUT_MILLIS:-120000}"
 HYBRID_FALLBACK="${HYBRID_FALLBACK:-true}"
 HYBRID_LOG_LEVEL="${HYBRID_LOG_LEVEL:-info}"
 JAVA_OPTS="${JAVA_OPTS:-}"
+APP_STARTUP_TIMEOUT_SEC="${APP_STARTUP_TIMEOUT_SEC:-60}"
+HYBRID_STARTUP_TIMEOUT_SEC="${HYBRID_STARTUP_TIMEOUT_SEC:-180}"
 
 if [[ -z "${HYBRID_IMAGE}" ]]; then
   if [[ "${HYBRID_VARIANT}" == "gpu" ]]; then
@@ -34,6 +36,38 @@ fi
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 APP_STORAGE_PATH="${ROOT_DIR}/${STORAGE_DIR}"
 HYBRID_CACHE_PATH="${ROOT_DIR}/${HYBRID_CACHE_DIR}"
+
+wait_for_http() {
+  local url="$1"
+  local timeout_sec="$2"
+  local label="$3"
+  local container_name="$4"
+  local started_at
+  started_at="$(date +%s)"
+
+  while true; do
+    if curl -fsS "${url}" >/dev/null 2>&1; then
+      echo "${label} ready: ${url}"
+      return 0
+    fi
+
+    if ! docker ps --format '{{.Names}}' | grep -Fx "${container_name}" >/dev/null 2>&1; then
+      echo "${label} container '${container_name}' is not running." >&2
+      docker ps -a --filter "name=${container_name}"
+      docker logs "${container_name}" --tail 200 || true
+      return 1
+    fi
+
+    if (( "$(date +%s)" - started_at >= timeout_sec )); then
+      echo "${label} did not become ready within ${timeout_sec}s: ${url}" >&2
+      docker ps -a --filter "name=${container_name}"
+      docker logs "${container_name}" --tail 200 || true
+      return 1
+    fi
+
+    sleep 2
+  done
+}
 
 mkdir -p "${APP_STORAGE_PATH}" "${HYBRID_CACHE_PATH}"
 
@@ -109,10 +143,19 @@ fi
 APP_ARGS+=("${APP_IMAGE}")
 docker "${APP_ARGS[@]}" >/dev/null
 
+if [[ "${USE_HYBRID}" == "true" ]]; then
+  wait_for_http "http://localhost:${HYBRID_PORT}/docs" "${HYBRID_STARTUP_TIMEOUT_SEC}" "Hybrid API" "${HYBRID_CONTAINER}"
+fi
+
+wait_for_http "http://localhost:${APP_PORT}/actuator/health" "${APP_STARTUP_TIMEOUT_SEC}" "JADP app" "${APP_CONTAINER}"
+
 echo "JADP app  : http://localhost:${APP_PORT}"
 echo "Swagger   : http://localhost:${APP_PORT}/swagger-ui.html"
 echo "Health    : http://localhost:${APP_PORT}/actuator/health"
+echo "App logs  : docker logs ${APP_CONTAINER} --tail 200"
+echo "App ports : docker ps --filter name=${APP_CONTAINER}"
 if [[ "${USE_HYBRID}" == "true" ]]; then
   echo "Hybrid API: http://localhost:${HYBRID_PORT}"
   echo "Hybrid tag: ${HYBRID_IMAGE} (${HYBRID_VARIANT})"
+  echo "Hybrid logs: docker logs ${HYBRID_CONTAINER} --tail 200"
 fi

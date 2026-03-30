@@ -102,6 +102,18 @@ GPU 변형은 하이브리드 컨테이너에 `--gpus all` 을 추가합니다.
 - `http://localhost:8080/swagger-ui.html`
 - `http://localhost:8080/actuator/health`
 
+호스트 포트를 바꿨다면 그 포트로 확인합니다. 예를 들어 `8050:8080` 으로 띄운 경우:
+
+```bash
+curl http://localhost:8050/actuator/health
+docker ps --filter name=jadp-app
+docker logs jadp-app --tail 200
+```
+
+앱 로그의 `Tomcat started on port 8080` 은 컨테이너 내부 포트이고, 외부 접속 포트는 `docker ps` 의 `0.0.0.0:8050->8080/tcp` 매핑으로 확인합니다.
+
+최신 실행 스크립트는 단순히 `docker run` 만 하고 끝나지 않고, 앱 `/actuator/health` 와 하이브리드 `/docs` 응답이 실제로 살아날 때까지 기다립니다. 준비되지 않으면 바로 `docker logs` 를 출력하고 실패로 종료합니다.
+
 ## 이미지와 차트 설명 강화
 
 PDF 안에 그림, 차트, 도식이 많고 설명 텍스트까지 결과에 포함하고 싶다면 아래처럼 실행합니다.

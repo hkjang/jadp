@@ -20,11 +20,49 @@ param(
     [int]$HybridTimeoutMillis = 120000,
     [bool]$HybridFallback = $true,
     [string]$HybridLogLevel = "info",
-    [string]$JavaOpts = ""
+    [string]$JavaOpts = "",
+    [int]$AppStartupTimeoutSec = 60,
+    [int]$HybridStartupTimeoutSec = 180
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
+
+function Wait-ForHttpReady {
+    param(
+        [Parameter(Mandatory = $true)][string]$Url,
+        [Parameter(Mandatory = $true)][int]$TimeoutSec,
+        [Parameter(Mandatory = $true)][string]$Label,
+        [Parameter(Mandatory = $true)][string]$ContainerName
+    )
+
+    $deadline = (Get-Date).AddSeconds($TimeoutSec)
+    while ((Get-Date) -lt $deadline) {
+        try {
+            $response = Invoke-WebRequest -UseBasicParsing $Url -TimeoutSec 5
+            if ($response.StatusCode -ge 200 -and $response.StatusCode -lt 400) {
+                Write-Host "$Label ready: $Url"
+                return
+            }
+        } catch {
+        }
+
+        $running = docker ps --format "{{.Names}}" | Where-Object { $_ -eq $ContainerName }
+        if (-not $running) {
+            Write-Warning "$Label container '$ContainerName' is not running."
+            docker ps -a --filter "name=$ContainerName"
+            docker logs $ContainerName --tail 200
+            throw "$Label startup failed because container stopped."
+        }
+
+        Start-Sleep -Seconds 2
+    }
+
+    Write-Warning "$Label did not become ready within $TimeoutSec seconds: $Url"
+    docker ps -a --filter "name=$ContainerName"
+    docker logs $ContainerName --tail 200
+    throw "$Label startup timed out."
+}
 
 if (-not $HybridImage) {
     $HybridImage = if ($HybridVariant -eq "gpu") { "jadp-hybrid-gpu:latest" } else { "jadp-hybrid-cpu:latest" }
@@ -105,10 +143,19 @@ if ($UseHybrid) {
 $appArgs += $AppImage
 docker @appArgs | Out-Null
 
+if ($UseHybrid) {
+    Wait-ForHttpReady -Url "http://localhost:$HybridPort/docs" -TimeoutSec $HybridStartupTimeoutSec -Label "Hybrid API" -ContainerName $HybridContainer
+}
+
+Wait-ForHttpReady -Url "http://localhost:$AppPort/actuator/health" -TimeoutSec $AppStartupTimeoutSec -Label "JADP app" -ContainerName $AppContainer
+
 Write-Host "JADP app  : http://localhost:$AppPort"
 Write-Host "Swagger   : http://localhost:$AppPort/swagger-ui.html"
 Write-Host "Health    : http://localhost:$AppPort/actuator/health"
+Write-Host "App logs  : docker logs $AppContainer --tail 200"
+Write-Host "App ports : docker ps --filter name=$AppContainer"
 if ($UseHybrid) {
     Write-Host "Hybrid API: http://localhost:$HybridPort"
     Write-Host "Hybrid tag: $HybridImage ($HybridVariant)"
+    Write-Host "Hybrid logs: docker logs $HybridContainer --tail 200"
 }

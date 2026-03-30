@@ -126,6 +126,20 @@ FORCE_OCR=true OCR_LANG=ko,en bash ./scripts/docker-run.sh
 - 앱 Swagger: `http://localhost:8080/swagger-ui.html`
 - 하이브리드 FastAPI 문서: `http://localhost:5002/docs`
 
+포트를 바꿔 띄운 경우에는 호스트 포트로 확인하면 됩니다. 예를 들어 `APP_PORT=8050` 또는 `-AppPort 8050` 으로 실행했다면:
+
+```bash
+curl http://localhost:8050/actuator/health
+docker ps --filter name=jadp-app
+docker logs jadp-app --tail 200
+```
+
+중요:
+
+- 앱 로그에 보이는 `Tomcat started on port 8080` 은 컨테이너 내부 포트입니다.
+- 외부에서 접속하는 포트 `8050` 은 `docker ps` 의 `0.0.0.0:8050->8080/tcp` 매핑에서 확인합니다.
+- 최신 `docker-run.sh` / `docker-run.ps1` 는 기동 후 실제 `health` 응답까지 기다리고, 실패하면 자동으로 컨테이너 로그를 보여줍니다.
+
 루트 경로 `http://localhost:5002/` 는 `404` 여도 정상입니다. 하이브리드 서버는 Uvicorn/FastAPI 이므로 `/docs` 로 확인하는 것이 맞습니다.
 
 ## 테스트
