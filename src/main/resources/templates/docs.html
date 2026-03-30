@@ -67,6 +67,7 @@
             <a class="chip" th:href="${swaggerUrl}">Swagger UI</a>
             <a class="chip" th:href="${apiDocsUrl}">OpenAPI JSON</a>
             <a class="chip" th:href="${testPageUrl}">테스트 화면</a>
+            <a class="chip" th:href="${upstageUrl}">Upstage 콘솔</a>
         </div>
     </div>
 
@@ -116,6 +117,18 @@
                 <td><code>GET /api/v1/pii/files/{fileId}</code></td>
                 <td>masked 파일 다운로드</td>
             </tr>
+            <tr>
+                <td><code>POST /v1/pii-masker/oac/detect</code></td>
+                <td>Upstage PII Masker OAC 호환 응답 구조로 탐지 결과 반환</td>
+            </tr>
+            <tr>
+                <td><code>POST /v1/pii-masker/oac/mask</code></td>
+                <td>Upstage PII Masker OAC 호환 구조와 masked 파일 링크 반환</td>
+            </tr>
+            <tr>
+                <td><code>GET /upstage</code></td>
+                <td>Upstage Parse 및 PII OAC 호환 API를 따로 검증하는 전용 테스트 페이지</td>
+            </tr>
             </tbody>
         </table>
     </div>
@@ -125,6 +138,7 @@
         <p>OpenDataLoader Java Quick Start는 <code>Config</code> 와 <code>OpenDataLoaderPDF.processFile()</code> 중심 예시를 제공합니다. 이 샘플은 버전 간 setter 차이를 줄이기 위해 반사 기반 어댑터를 사용하고, README에 버전 고정과 검증 절차를 함께 명시합니다.</p>
         <p>민감정보 옵션은 라이브러리 기본 안전장치에 더해 텍스트 산출물 후처리 치환도 수행하도록 설계되어 있어, 버전 차이로 특정 safety option setter가 달라져도 동작을 최대한 유지합니다.</p>
         <p>PII 탐지 API에서 PDF는 OCR을 사용하지 않고 OpenDataLoader JSON 구조와 bounding box를 기반으로 분석합니다. PNG/JPG는 별도 <code>app.vllm-ocr.*</code> 설정이 있는 경우에만 OpenAI 호환 vLLM 비전 API를 호출합니다.</p>
+        <p>이미지형 PDF 대응은 하이브리드 full 모드 1차 분석 뒤에 표/그림 영역 재시도와 중심 컬럼/밴드 타일 재시도를 추가해, 이미지 안 텍스트의 bbox 회수를 최대한 높이도록 보강했습니다.</p>
         <p>masked PDF는 재검색 가능한 원문 텍스트가 남지 않도록 페이지를 렌더링한 뒤 개인정보 영역을 덮어쓴 라스터 PDF로 생성합니다.</p>
     </div>
 

@@ -48,4 +48,31 @@ class PiiPatternMatcherTest {
         assertThat(PiiPatternMatcher.findMatches("사업장주소,전화번호,담당부서")).isEmpty();
         assertThat(PiiPatternMatcher.findMatches("또는 개인정보 여부")).isEmpty();
     }
+
+    @Test
+    void detectsContextualMatchesFromTableStyleLabels() {
+        assertThat(PiiPatternMatcher.findMatchesInContext("이름", "김철수"))
+                .extracting(PiiTextMatch::type)
+                .containsExactly(PiiType.PERSON_NAME);
+        assertThat(PiiPatternMatcher.findMatchesInContext("주소", "서울특별시 강남구 테헤란로 123"))
+                .extracting(PiiTextMatch::type)
+                .containsExactly(PiiType.STREET_ADDRESS);
+        assertThat(PiiPatternMatcher.findMatchesInContext("계좌번호", "1002-345-678901"))
+                .extracting(PiiTextMatch::type)
+                .containsExactly(PiiType.BANK_ACCOUNT_NUMBER);
+        assertThat(PiiPatternMatcher.findMatchesInContext("여권번호", "M12345678"))
+                .extracting(PiiTextMatch::type)
+                .containsExactly(PiiType.PASSPORT_NUMBER);
+    }
+
+    @Test
+    void detectsWeakCardAndAccountPatternsWhenContextIsStrong() {
+        assertThat(PiiPatternMatcher.findMatches("결제 카드: 1234-5678-9012-3456 / 12/26"))
+                .extracting(PiiTextMatch::type)
+                .contains(PiiType.CREDIT_CARD_NUMBER);
+
+        assertThat(PiiPatternMatcher.findMatches("우리은행 1002-345-678901 송금 요청"))
+                .extracting(PiiTextMatch::type)
+                .contains(PiiType.BANK_ACCOUNT_NUMBER);
+    }
 }

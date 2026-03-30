@@ -22,6 +22,9 @@ public final class PiiPatternMatcher {
     private static final Pattern ACCOUNT_LABEL_PATTERN = Pattern.compile(LABEL_PREFIX + "(계좌번호\\s*[:：]\\s*)([0-9][0-9\\- ]{6,}[0-9])(?=$|\\s|[,.)])");
     private static final Pattern NAME_LABEL_PATTERN = Pattern.compile(LABEL_PREFIX + "((?:성명|이름|대표자)\\s*[:：]\\s*)([가-힣]{2,4})(?=$|\\s|[,.)])");
     private static final Pattern ADDRESS_LABEL_PATTERN = Pattern.compile(LABEL_PREFIX + "((?:주소|도로명주소)\\s*[:：]\\s*)(.+)$");
+    private static final Pattern GENERIC_ACCOUNT_PATTERN = Pattern.compile("(?<!\\d)([0-9][0-9\\- ]{6,}[0-9])(?!\\d)");
+    private static final Pattern GENERIC_PASSPORT_PATTERN = Pattern.compile("(?<![A-Z0-9])([A-Z][0-9]{7,8}|[A-Z0-9]{8,9})(?![A-Z0-9])");
+    private static final Pattern GENERIC_NAME_PATTERN = Pattern.compile("(?<![가-힣])([가-힣]{2,4})(?![가-힣])");
 
     private PiiPatternMatcher() {
     }
@@ -35,14 +38,83 @@ public final class PiiPatternMatcher {
         addLandline(matches, text);
         addCards(matches, text);
         addAccount(matches, text);
+        addInlineAccount(matches, text);
         addName(matches, text);
         addRegex(matches, text, EMAIL_PATTERN, PiiType.EMAIL_ADDRESS, "이메일");
         addIp(matches, text);
         addAddress(matches, text);
+        addInlineAddress(matches, text);
 
         return matches.stream()
                 .sorted(Comparator.comparingInt(PiiTextMatch::start).thenComparingInt(PiiTextMatch::end))
                 .toList();
+    }
+
+    public static List<PiiTextMatch> findMatchesInContext(String labelText, String valueText) {
+        if (labelText == null || valueText == null) {
+            return List.of();
+        }
+
+        String normalizedLabel = normalizeLabel(labelText);
+        String normalizedValue = valueText.trim();
+        if (normalizedLabel.isBlank() || normalizedValue.isBlank()) {
+            return List.of();
+        }
+
+        List<PiiTextMatch> matches = new ArrayList<>();
+        if (normalizedLabel.contains("주민등록번호")) {
+            addResidentLike(matches, normalizedValue);
+            return sortMatches(matches);
+        }
+        if (normalizedLabel.contains("외국인등록번호")) {
+            addResidentLike(matches, normalizedValue);
+            return sortMatches(matches.stream()
+                    .filter(match -> match.type() == PiiType.FOREIGNER_REGISTRATION_NUMBER)
+                    .toList());
+        }
+        if (normalizedLabel.contains("운전면허")) {
+            addRegex(matches, normalizedValue, DRIVER_PATTERN, PiiType.DRIVER_LICENSE_NUMBER, "운전면허번호");
+            return sortMatches(matches);
+        }
+        if (normalizedLabel.contains("여권")) {
+            addContextualPassport(matches, normalizedValue);
+            return sortMatches(matches);
+        }
+        if (normalizedLabel.contains("휴대폰") || normalizedLabel.contains("휴대전화")
+                || normalizedLabel.contains("모바일") || normalizedLabel.contains("핸드폰")) {
+            addRegex(matches, normalizedValue, MOBILE_PATTERN, PiiType.MOBILE_PHONE_NUMBER, "휴대폰번호");
+            return sortMatches(matches);
+        }
+        if (normalizedLabel.contains("전화번호") || normalizedLabel.contains("연락처")) {
+            addRegex(matches, normalizedValue, MOBILE_PATTERN, PiiType.MOBILE_PHONE_NUMBER, "휴대폰번호");
+            addLandline(matches, normalizedValue);
+            return sortMatches(matches);
+        }
+        if (normalizedLabel.contains("신용카드") || normalizedLabel.contains("카드번호")) {
+            addCards(matches, normalizedValue);
+            return sortMatches(matches);
+        }
+        if (normalizedLabel.contains("계좌")) {
+            addContextualAccount(matches, normalizedValue);
+            return sortMatches(matches);
+        }
+        if (normalizedLabel.contains("이메일")) {
+            addRegex(matches, normalizedValue, EMAIL_PATTERN, PiiType.EMAIL_ADDRESS, "이메일");
+            return sortMatches(matches);
+        }
+        if (normalizedLabel.contains("ip")) {
+            addIp(matches, normalizedValue);
+            return sortMatches(matches);
+        }
+        if (normalizedLabel.contains("주소")) {
+            addContextualAddress(matches, normalizedValue);
+            return sortMatches(matches);
+        }
+        if (normalizedLabel.equals("이름") || normalizedLabel.contains("성명") || normalizedLabel.contains("대표자")) {
+            addContextualName(matches, normalizedValue);
+            return sortMatches(matches);
+        }
+        return List.of();
     }
 
     private static void addResidentLike(List<PiiTextMatch> matches, String text) {
@@ -81,6 +153,21 @@ public final class PiiPatternMatcher {
         }
     }
 
+    private static void addContextualPassport(List<PiiTextMatch> matches, String valueText) {
+        Matcher matcher = GENERIC_PASSPORT_PATTERN.matcher(valueText);
+        while (matcher.find()) {
+            String raw = matcher.group(1);
+            matches.add(new PiiTextMatch(
+                    PiiType.PASSPORT_NUMBER,
+                    "여권번호",
+                    raw,
+                    PiiMaskingRules.mask(PiiType.PASSPORT_NUMBER, raw),
+                    matcher.start(1),
+                    matcher.end(1)
+            ));
+        }
+    }
+
     private static void addLandline(List<PiiTextMatch> matches, String text) {
         Matcher matcher = LANDLINE_PATTERN.matcher(text);
         while (matcher.find()) {
@@ -109,7 +196,7 @@ public final class PiiPatternMatcher {
         while (matcher.find()) {
             String raw = matcher.group();
             String digits = raw.replaceAll("\\D", "");
-            if (digits.length() != 16 || !passesLuhn(digits)) {
+            if (digits.length() != 16 || (!passesLuhn(digits) && !looksLikeCardContext(text, matcher.start(), matcher.end()))) {
                 continue;
             }
             matches.add(new PiiTextMatch(
@@ -138,6 +225,52 @@ public final class PiiPatternMatcher {
         }
     }
 
+    private static void addContextualAccount(List<PiiTextMatch> matches, String valueText) {
+        Matcher matcher = GENERIC_ACCOUNT_PATTERN.matcher(valueText);
+        while (matcher.find()) {
+            String raw = matcher.group(1).trim();
+            if (raw.replaceAll("\\D", "").length() < 7) {
+                continue;
+            }
+            matches.add(new PiiTextMatch(
+                    PiiType.BANK_ACCOUNT_NUMBER,
+                    "계좌번호",
+                    raw,
+                    PiiMaskingRules.mask(PiiType.BANK_ACCOUNT_NUMBER, raw),
+                    matcher.start(1),
+                matcher.end(1)
+            ));
+        }
+    }
+
+    private static void addInlineAccount(List<PiiTextMatch> matches, String text) {
+        if (text.contains("계좌번호")) {
+            return;
+        }
+        Matcher matcher = GENERIC_ACCOUNT_PATTERN.matcher(text);
+        while (matcher.find()) {
+            String raw = matcher.group(1).trim();
+            String digits = raw.replaceAll("\\D", "");
+            if (digits.length() < 7 || digits.length() > 14) {
+                continue;
+            }
+            if (MOBILE_PATTERN.matcher(raw).matches() || CARD_PATTERN.matcher(raw).matches()) {
+                continue;
+            }
+            if (!looksLikeAccountContext(text, matcher.start(), matcher.end())) {
+                continue;
+            }
+            matches.add(new PiiTextMatch(
+                    PiiType.BANK_ACCOUNT_NUMBER,
+                    "계좌번호",
+                    raw,
+                    PiiMaskingRules.mask(PiiType.BANK_ACCOUNT_NUMBER, raw),
+                    matcher.start(1),
+                    matcher.end(1)
+            ));
+        }
+    }
+
     private static void addName(List<PiiTextMatch> matches, String text) {
         Matcher matcher = NAME_LABEL_PATTERN.matcher(text);
         while (matcher.find()) {
@@ -150,6 +283,22 @@ public final class PiiPatternMatcher {
                     matcher.start(2),
                     matcher.end(2)
             ));
+        }
+    }
+
+    private static void addContextualName(List<PiiTextMatch> matches, String valueText) {
+        Matcher matcher = GENERIC_NAME_PATTERN.matcher(valueText);
+        while (matcher.find()) {
+            String raw = matcher.group(1);
+            matches.add(new PiiTextMatch(
+                    PiiType.PERSON_NAME,
+                    "이름",
+                    raw,
+                    PiiMaskingRules.mask(PiiType.PERSON_NAME, raw),
+                    matcher.start(1),
+                    matcher.end(1)
+            ));
+            return;
         }
     }
 
@@ -198,6 +347,39 @@ public final class PiiPatternMatcher {
         }
     }
 
+    private static void addContextualAddress(List<PiiTextMatch> matches, String valueText) {
+        String normalized = valueText.replaceAll("\\s+", " ").trim();
+        if (!looksLikeStreetAddress(normalized)) {
+            return;
+        }
+        matches.add(new PiiTextMatch(
+                PiiType.STREET_ADDRESS,
+                "주소",
+                normalized,
+                PiiMaskingRules.mask(PiiType.STREET_ADDRESS, normalized),
+                0,
+                normalized.length()
+        ));
+    }
+
+    private static void addInlineAddress(List<PiiTextMatch> matches, String text) {
+        if (text.contains("주소:") || text.contains("주소：") || text.contains("도로명주소")) {
+            return;
+        }
+        String normalized = text.replaceAll("\\s+", " ").trim();
+        if (!looksLikeStreetAddress(normalized)) {
+            return;
+        }
+        matches.add(new PiiTextMatch(
+                PiiType.STREET_ADDRESS,
+                "주소",
+                normalized,
+                PiiMaskingRules.mask(PiiType.STREET_ADDRESS, normalized),
+                0,
+                normalized.length()
+        ));
+    }
+
     private static void addRegex(List<PiiTextMatch> matches, String text, Pattern pattern, PiiType type, String label) {
         Matcher matcher = pattern.matcher(text);
         while (matcher.find()) {
@@ -230,6 +412,26 @@ public final class PiiPatternMatcher {
         return sum % 10 == 0;
     }
 
+    private static boolean looksLikeCardContext(String text, int start, int end) {
+        String around = around(text, start, end).toLowerCase();
+        return around.contains("유효기간")
+                || around.contains("만료")
+                || around.contains("expiry")
+                || around.contains("exp")
+                || around.contains("cvv")
+                || around.matches(".*\\b\\d{2}/\\d{2}\\b.*");
+    }
+
+    private static boolean looksLikeAccountContext(String text, int start, int end) {
+        String around = around(text, start, end);
+        return around.contains("계좌")
+                || around.contains("은행")
+                || around.contains("송금")
+                || around.contains("입금")
+                || around.contains("출금")
+                || around.contains("이체");
+    }
+
     private static boolean looksLikeStreetAddress(String raw) {
         if (raw.length() < 6) {
             return false;
@@ -244,5 +446,19 @@ public final class PiiPatternMatcher {
             return false;
         }
         return normalized.split("\\s+").length >= 3;
+    }
+
+    private static String around(String text, int start, int end) {
+        return text.substring(Math.max(0, start - 24), Math.min(text.length(), end + 24));
+    }
+
+    private static String normalizeLabel(String labelText) {
+        return labelText.replaceAll("[\\s:&：/()\\[\\]-]+", "");
+    }
+
+    private static List<PiiTextMatch> sortMatches(List<PiiTextMatch> matches) {
+        return matches.stream()
+                .sorted(Comparator.comparingInt(PiiTextMatch::start).thenComparingInt(PiiTextMatch::end))
+                .toList();
     }
 }

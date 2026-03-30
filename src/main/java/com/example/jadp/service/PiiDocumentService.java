@@ -3,9 +3,15 @@ package com.example.jadp.service;
 import com.example.jadp.config.StorageProperties;
 import com.example.jadp.model.GeneratedArtifact;
 import com.example.jadp.model.PiiDetectionResult;
+import com.example.jadp.model.PiiFinding;
 import com.example.jadp.model.PiiMaskingResult;
 import com.example.jadp.support.ApiException;
 import com.example.jadp.support.FileNameSanitizer;
+import com.example.jadp.support.ImagePdfSupport;
+import com.example.jadp.support.PiiFindingMergeSupport;
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -14,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
@@ -22,47 +29,50 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class PiiDocumentService {
 
-    private final PdfStructuredPiiDetector pdfStructuredPiiDetector;
+    private final PdfImageAwarePiiDetector pdfImageAwarePiiDetector;
     private final PdfMaskingService pdfMaskingService;
-    private final VllmVisionPiiDetector vllmVisionPiiDetector;
+    private final ImageNativePiiDetector imageNativePiiDetector;
     private final ImageMaskingService imageMaskingService;
     private final Path baseDirectory;
     private final Map<String, GeneratedArtifact> artifacts = new ConcurrentHashMap<>();
 
-    public PiiDocumentService(PdfStructuredPiiDetector pdfStructuredPiiDetector,
+    public PiiDocumentService(PdfImageAwarePiiDetector pdfImageAwarePiiDetector,
                               PdfMaskingService pdfMaskingService,
-                              VllmVisionPiiDetector vllmVisionPiiDetector,
+                              ImageNativePiiDetector imageNativePiiDetector,
                               ImageMaskingService imageMaskingService,
                               StorageProperties storageProperties) {
-        this.pdfStructuredPiiDetector = pdfStructuredPiiDetector;
+        this.pdfImageAwarePiiDetector = pdfImageAwarePiiDetector;
         this.pdfMaskingService = pdfMaskingService;
-        this.vllmVisionPiiDetector = vllmVisionPiiDetector;
+        this.imageNativePiiDetector = imageNativePiiDetector;
         this.imageMaskingService = imageMaskingService;
         this.baseDirectory = Path.of(storageProperties.getBaseDir()).toAbsolutePath().normalize().resolve("pii-data");
     }
 
     public PiiDetectionResult detect(MultipartFile file) {
-        Workspace workspace = createWorkspace(file);
+        return detect(file, false);
+    }
+
+    public PiiDetectionResult detect(MultipartFile file, boolean wrapImageAsPdf) {
+        Workspace workspace = createWorkspace(file, wrapImageAsPdf);
         return switch (workspace.mediaType()) {
-            case "pdf" -> pdfStructuredPiiDetector.detect(
+            case "pdf" -> detectPdfWorkspace(workspace);
+            case "image" -> imageNativePiiDetector.detect(
                     workspace.documentId(),
                     workspace.originalFilename(),
                     workspace.contentType(),
                     workspace.sourceFile(),
                     workspace.workingDirectory()
             );
-            case "image" -> vllmVisionPiiDetector.detect(
-                    workspace.documentId(),
-                    workspace.originalFilename(),
-                    workspace.contentType(),
-                    workspace.sourceFile()
-            );
             default -> throw new ApiException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Only PDF, PNG, JPG, JPEG are supported.");
         };
     }
 
     public PiiMaskingResult mask(MultipartFile file) {
-        PiiDetectionResult detectionResult = detect(file);
+        return mask(file, false);
+    }
+
+    public PiiMaskingResult mask(MultipartFile file, boolean wrapImageAsPdf) {
+        PiiDetectionResult detectionResult = detect(file, wrapImageAsPdf);
         try {
             Path outputDirectory = detectionResult.sourceFile().getParent().getParent().resolve("output");
             Files.createDirectories(outputDirectory);
@@ -89,7 +99,7 @@ public class PiiDocumentService {
         return artifact;
     }
 
-    private Workspace createWorkspace(MultipartFile file) {
+    private Workspace createWorkspace(MultipartFile file, boolean wrapImageAsPdf) {
         validateFile(file);
         UUID documentId = UUID.randomUUID();
         try {
@@ -100,20 +110,95 @@ public class PiiDocumentService {
 
             String originalFilename = StringUtils.hasText(file.getOriginalFilename()) ? file.getOriginalFilename() : "document";
             String safeFilename = FileNameSanitizer.sanitize(originalFilename);
-            Path sourceFile = inputDirectory.resolve(safeFilename);
-            file.transferTo(sourceFile);
+            String uploadedMediaType = mediaType(file, originalFilename);
+            String uploadedContentType = normalizedContentType(file);
+            Path uploadedSourceFile = inputDirectory.resolve(safeFilename);
+            file.transferTo(uploadedSourceFile);
+
+            String workspaceMediaType = uploadedMediaType;
+            String workspaceContentType = uploadedContentType;
+            Path sourceFile = uploadedSourceFile;
+            boolean wrappedFromImage = false;
+            if ("image".equals(workspaceMediaType) && wrapImageAsPdf) {
+                String wrappedFilename = stripExtension(safeFilename) + ".pdf";
+                sourceFile = inputDirectory.resolve(wrappedFilename);
+                ImagePdfSupport.wrapImageInPdf(ImagePdfSupport.readImage(uploadedSourceFile), sourceFile);
+                workspaceMediaType = "pdf";
+                workspaceContentType = "application/pdf";
+                wrappedFromImage = true;
+            }
 
             return new Workspace(
                     documentId,
                     originalFilename,
                     safeFilename,
-                    normalizedContentType(file),
-                    mediaType(file, originalFilename),
+                    workspaceContentType,
+                    workspaceMediaType,
                     sourceFile,
-                    workingDirectory
+                    workingDirectory,
+                    uploadedContentType,
+                    uploadedMediaType,
+                    uploadedSourceFile,
+                    wrappedFromImage
             );
         } catch (IOException ex) {
             throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to store uploaded file", ex);
+        }
+    }
+
+    private PiiDetectionResult detectPdfWorkspace(Workspace workspace) {
+        PiiDetectionResult pdfResult = pdfImageAwarePiiDetector.detect(
+                workspace.documentId(),
+                workspace.originalFilename(),
+                workspace.contentType(),
+                workspace.sourceFile(),
+                workspace.workingDirectory()
+        );
+        if (!workspace.wrappedFromImage() || workspace.uploadedSourceFile() == null || !imageNativePiiDetector.isConfigured()) {
+            return pdfResult;
+        }
+
+        PiiDetectionResult imageResult = imageNativePiiDetector.detect(
+                workspace.documentId(),
+                workspace.originalFilename(),
+                workspace.uploadedContentType(),
+                workspace.uploadedSourceFile(),
+                workspace.workingDirectory()
+        );
+        return PiiFindingMergeSupport.mergeDetectionResult(
+                pdfResult,
+                toWrappedPdfCoordinates(imageResult.findings(), workspace.sourceFile())
+        );
+    }
+
+    private List<PiiFinding> toWrappedPdfCoordinates(List<PiiFinding> imageFindings, Path wrappedPdf) {
+        try (PDDocument document = Loader.loadPDF(wrappedPdf.toFile())) {
+            if (document.getNumberOfPages() == 0) {
+                return imageFindings;
+            }
+            PDRectangle box = document.getPage(0).getCropBox();
+            if (box == null || box.getWidth() <= 0 || box.getHeight() <= 0) {
+                box = document.getPage(0).getMediaBox();
+            }
+            double pageHeight = box.getHeight();
+            return imageFindings.stream()
+                    .map(finding -> new PiiFinding(
+                            finding.type(),
+                            finding.label(),
+                            finding.originalText(),
+                            finding.maskedText(),
+                            1,
+                            new com.example.jadp.model.PiiBoundingBox(
+                                    finding.boundingBox().x(),
+                                    Math.max(0d, pageHeight - (finding.boundingBox().y() + finding.boundingBox().height())),
+                                    finding.boundingBox().width(),
+                                    finding.boundingBox().height()
+                            ),
+                            finding.detectionSource() + "-native"
+                    ))
+                    .toList();
+        } catch (IOException ex) {
+            throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to map image findings into wrapped PDF coordinates", ex);
         }
     }
 
@@ -204,7 +289,11 @@ public class PiiDocumentService {
             String contentType,
             String mediaType,
             Path sourceFile,
-            Path workingDirectory
+            Path workingDirectory,
+            String uploadedContentType,
+            String uploadedMediaType,
+            Path uploadedSourceFile,
+            boolean wrappedFromImage
     ) {
     }
 }

@@ -30,6 +30,7 @@ pwsh .\scripts\docker-build.ps1
 Bash 기준 빌드:
 
 ```bash
+chmod +x ./scripts/docker-build.sh ./scripts/docker-run.sh
 bash ./scripts/docker-build.sh
 ```
 

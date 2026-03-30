@@ -9,11 +9,12 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.List;
 
-@Schema(name = "PdfConvertRequest", description = "Multipart PDF conversion request")
+@Schema(name = "PdfConvertRequest", description = "Multipart document conversion request for PDF or PNG/JPEG images")
 public class PdfConvertRequest {
 
     @NotNull(message = "file is required")
-    @Schema(type = "string", format = "binary", description = "PDF file to upload")
+    @Schema(type = "string", format = "binary",
+            description = "PDF or PNG/JPEG image to upload. Image uploads are wrapped into a single-page PDF before processing.")
     private MultipartFile file;
 
     @ArraySchema(schema = @Schema(example = "markdown"))

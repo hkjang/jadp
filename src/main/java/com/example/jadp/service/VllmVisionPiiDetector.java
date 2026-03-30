@@ -46,7 +46,36 @@ public class VllmVisionPiiDetector {
                                      String originalFilename,
                                      String contentType,
                                      Path sourceFile) {
-        if (!properties.isEnabled() || !StringUtils.hasText(properties.getBaseUrl()) || !StringUtils.hasText(properties.getModel())) {
+        if (!isConfigured()) {
+            throw new ApiException(HttpStatus.SERVICE_UNAVAILABLE,
+                    "PNG OCR requires app.vllm-ocr.enabled=true and configured base-url/model.");
+        }
+        try {
+            return new PiiDetectionResult(
+                    documentId,
+                    originalFilename,
+                    contentType,
+                    "image",
+                    1,
+                    sourceFile,
+                    detectFindings(sourceFile, contentType, 1, "vllm-vision")
+            );
+        } catch (IOException ex) {
+            throw new ApiException(HttpStatus.SERVICE_UNAVAILABLE, "vLLM OCR invocation failed: " + ex.getMessage(), ex);
+        }
+    }
+
+    public boolean isConfigured() {
+        return properties.isEnabled()
+                && StringUtils.hasText(properties.getBaseUrl())
+                && StringUtils.hasText(properties.getModel());
+    }
+
+    public List<PiiFinding> detectFindings(Path sourceFile,
+                                           String contentType,
+                                           int pageNumber,
+                                           String detectionSource) throws IOException {
+        if (!isConfigured()) {
             throw new ApiException(HttpStatus.SERVICE_UNAVAILABLE,
                     "PNG OCR requires app.vllm-ocr.enabled=true and configured base-url/model.");
         }
@@ -122,27 +151,18 @@ public class VllmVisionPiiDetector {
                         node.path("label").asText(type.name()),
                         node.path("text").asText(),
                         PiiMaskingRules.mask(type, node.path("text").asText()),
-                        1,
+                        pageNumber,
                         new PiiBoundingBox(
                                 bbox.path("x").asDouble(),
                                 bbox.path("y").asDouble(),
                                 bbox.path("width").asDouble(),
                                 bbox.path("height").asDouble()
                         ),
-                        "vllm-vision"
+                        detectionSource
                 ));
             }
-
-            return new PiiDetectionResult(
-                    documentId,
-                    originalFilename,
-                    contentType,
-                    "image",
-                    1,
-                    sourceFile,
-                    findings
-            );
-        } catch (IOException | InterruptedException ex) {
+            return findings;
+        } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
             throw new ApiException(HttpStatus.SERVICE_UNAVAILABLE, "vLLM OCR invocation failed: " + ex.getMessage(), ex);
         }

@@ -3,4 +3,5 @@
 .mvnrepo/
 target/
 var/
+test-artifacts/
 *.log

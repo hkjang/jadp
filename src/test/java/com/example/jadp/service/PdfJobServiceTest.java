@@ -7,11 +7,16 @@ import com.example.jadp.model.JobStatus;
 import com.example.jadp.model.PdfConversionOptions;
 import com.example.jadp.config.HybridProcessingProperties;
 import com.example.jadp.support.ApiException;
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.pdmodel.PDDocument;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockMultipartFile;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -207,6 +212,74 @@ class PdfJobServiceTest {
         assertThat(markdownContent)
                 .contains("/api/v1/pdf/files/" + image.id())
                 .doesNotContain(image.absolutePath().toString());
+    }
+
+    @Test
+    void convertSyncWrapsPngUploadIntoSinglePagePdfBeforeConversion() throws IOException {
+        StorageProperties properties = new StorageProperties();
+        properties.setBaseDir(tempDir.toString());
+
+        PdfConversionEngine engine = new StubEngine() {
+            @Override
+            public void convert(Path inputFile, Path outputDirectory, PdfConversionOptions options) {
+                assertThat(inputFile.getFileName().toString()).endsWith(".pdf");
+                try (PDDocument document = Loader.loadPDF(inputFile.toFile())) {
+                    assertThat(document.getNumberOfPages()).isEqualTo(1);
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+                try {
+                    Files.writeString(outputDirectory.resolve("result.json"), "{\"ok\":true}");
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        };
+
+        PdfJobService service = new PdfJobService(
+                engine,
+                hybridOptionsResolver(),
+                new SensitiveDataSanitizer(),
+                Runnable::run,
+                properties
+        );
+
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "page.png",
+                "image/png",
+                createPngBytes(32, 48)
+        );
+
+        ConversionJob job = service.convertSync(file, new PdfConversionOptions(
+                List.of("json"),
+                null,
+                null,
+                false,
+                false,
+                "xycut",
+                "default",
+                "off",
+                "png",
+                null,
+                false,
+                false,
+                "off",
+                "auto",
+                null,
+                30_000L,
+                true
+        ));
+
+        assertThat(job.getStatus()).isEqualTo(JobStatus.SUCCEEDED);
+        assertThat(job.getUploadPath().getFileName().toString()).endsWith(".pdf");
+    }
+
+    private byte[] createPngBytes(int width, int height) throws IOException {
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        ImageIO.write(image, "png", output);
+        return output.toByteArray();
     }
 
     private abstract static class StubEngine implements PdfConversionEngine {

@@ -87,6 +87,57 @@ class PdfStructuredPiiDetectorTest {
         assertThat(foreigner.originalText()).isEqualTo("123456-5123456");
     }
 
+    @Test
+    void detectsTableStyleValuesViaLabelContext() throws IOException {
+        PdfConversionEngine engine = new StubEngine() {
+            @Override
+            public void convert(Path inputFile, Path outputDirectory, PdfConversionOptions options) {
+                try {
+                    Files.createDirectories(outputDirectory);
+                    Files.writeString(outputDirectory.resolve("table.json"), """
+                            {
+                              "file name": "table.pdf",
+                              "number of pages": 1,
+                              "kids": [
+                                {"type": "table cell", "page number": 1, "bounding box": [40.0, 680.0, 150.0, 720.0], "content": "이름"},
+                                {"type": "table cell", "page number": 1, "bounding box": [200.0, 680.0, 340.0, 720.0], "content": "김철수"},
+                                {"type": "table cell", "page number": 1, "bounding box": [40.0, 620.0, 150.0, 660.0], "content": "주소"},
+                                {"type": "table cell", "page number": 1, "bounding box": [200.0, 620.0, 420.0, 660.0], "content": "서울특별시 강남구 테헤란로 123"},
+                                {"type": "table cell", "page number": 1, "bounding box": [40.0, 560.0, 150.0, 600.0], "content": "계좌번호"},
+                                {"type": "table cell", "page number": 1, "bounding box": [200.0, 560.0, 380.0, 600.0], "content": "1002-345-678901"}
+                              ]
+                            }
+                            """);
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        };
+
+        PdfStructuredPiiDetector detector = new PdfStructuredPiiDetector(
+                engine,
+                new HybridOptionsResolver(new HybridProcessingProperties()),
+                new ObjectMapper()
+        );
+        Path sourceFile = Files.writeString(tempDir.resolve("table.pdf"), "dummy");
+
+        PiiDetectionResult result = detector.detect(
+                UUID.randomUUID(),
+                "table.pdf",
+                "application/pdf",
+                sourceFile,
+                tempDir
+        );
+
+        assertThat(result.findings()).extracting(PiiFinding::type).contains(
+                PiiType.PERSON_NAME,
+                PiiType.STREET_ADDRESS,
+                PiiType.BANK_ACCOUNT_NUMBER
+        );
+        assertThat(result.findings().stream().filter(finding -> finding.type() == PiiType.PERSON_NAME).findFirst().orElseThrow().originalText())
+                .isEqualTo("김철수");
+    }
+
     private abstract static class StubEngine implements PdfConversionEngine {
         @Override
         public boolean isAvailable() {

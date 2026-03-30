@@ -6,8 +6,13 @@ import com.example.jadp.model.GeneratedArtifact;
 import com.example.jadp.model.PdfConversionOptions;
 import com.example.jadp.support.ApiException;
 import com.example.jadp.support.FileNameSanitizer;
+import com.example.jadp.support.ImagePdfSupport;
 import com.example.jadp.support.OptionCatalog;
 import com.example.jadp.support.PageRangeValidator;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -108,7 +113,7 @@ public class PdfJobService {
                     : "document.pdf";
             String safeFilename = FileNameSanitizer.sanitize(originalFileName);
             Path uploadPath = inputDir.resolve(safeFilename);
-            file.transferTo(uploadPath);
+            storeUploadedDocument(file, uploadPath);
 
             ConversionJob job = new ConversionJob(jobId, safeFilename, file.getSize(), uploadPath, outputDir, options);
             jobs.put(jobId, job);
@@ -348,19 +353,52 @@ public class PdfJobService {
 
     private void validateFile(MultipartFile file) {
         if (file == null || file.isEmpty()) {
-            throw new ApiException(HttpStatus.BAD_REQUEST, "A PDF file is required.");
+            throw new ApiException(HttpStatus.BAD_REQUEST, "A PDF or supported image file is required.");
         }
-        String filename = file.getOriginalFilename();
-        if (!StringUtils.hasText(filename) || !filename.toLowerCase().endsWith(".pdf")) {
-            throw new ApiException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Only .pdf uploads are supported.");
-        }
-        String contentType = file.getContentType();
-        if (StringUtils.hasText(contentType)
-                && !"application/pdf".equalsIgnoreCase(contentType)
-                && !"application/octet-stream".equalsIgnoreCase(contentType)) {
+        if (uploadMediaType(file) == null) {
             throw new ApiException(HttpStatus.UNSUPPORTED_MEDIA_TYPE,
-                    "Unsupported content type: " + contentType);
+                    "Only .pdf, .png, .jpg, and .jpeg uploads are supported.");
         }
+    }
+
+    private void storeUploadedDocument(MultipartFile file, Path uploadPath) throws IOException {
+        String mediaType = uploadMediaType(file);
+        if ("pdf".equals(mediaType)) {
+            file.transferTo(uploadPath);
+            return;
+        }
+        if ("image".equals(mediaType)) {
+            wrapImageInPdf(file, uploadPath);
+            return;
+        }
+        throw new ApiException(HttpStatus.UNSUPPORTED_MEDIA_TYPE,
+                "Only .pdf, .png, .jpg, and .jpeg uploads are supported.");
+    }
+
+    private void wrapImageInPdf(MultipartFile file, Path uploadPath) throws IOException {
+        ImagePdfSupport.wrapImageInPdf(ImagePdfSupport.readImage(file.getInputStream()), uploadPath);
+    }
+
+    private String uploadMediaType(MultipartFile file) {
+        String filename = file.getOriginalFilename();
+        String lowerName = filename == null ? "" : filename.toLowerCase();
+        if (lowerName.endsWith(".pdf")) {
+            return "pdf";
+        }
+        if (lowerName.endsWith(".png") || lowerName.endsWith(".jpg") || lowerName.endsWith(".jpeg")) {
+            return "image";
+        }
+
+        String contentType = file.getContentType();
+        if ("application/pdf".equalsIgnoreCase(contentType)) {
+            return "pdf";
+        }
+        if ("image/png".equalsIgnoreCase(contentType)
+                || "image/jpeg".equalsIgnoreCase(contentType)
+                || "image/jpg".equalsIgnoreCase(contentType)) {
+            return "image";
+        }
+        return null;
     }
 
     private static String blankToNull(String value) {

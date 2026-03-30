@@ -20,6 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,28 +47,19 @@ public class PdfStructuredPiiDetector {
                                      String contentType,
                                      Path sourceFile,
                                      Path workingDirectory) {
+        return detect(documentId, originalFilename, contentType, sourceFile, workingDirectory, defaultDetectionOptions());
+    }
+
+    public PiiDetectionResult detect(UUID documentId,
+                                     String originalFilename,
+                                     String contentType,
+                                     Path sourceFile,
+                                     Path workingDirectory,
+                                     PdfConversionOptions requestedOptions) {
         try {
-            Path outputDirectory = workingDirectory.resolve("odl-json");
+            PdfConversionOptions detectionOptions = hybridOptionsResolver.applyDefaults(requestedOptions, HybridUsage.PII_DETECTION);
+            Path outputDirectory = workingDirectory.resolve(outputDirectoryName(detectionOptions));
             Files.createDirectories(outputDirectory);
-            PdfConversionOptions detectionOptions = hybridOptionsResolver.applyDefaults(new PdfConversionOptions(
-                    List.of("json"),
-                    null,
-                    null,
-                    false,
-                    false,
-                    "xycut",
-                    "default",
-                    "off",
-                    "png",
-                    null,
-                    false,
-                    false,
-                    "off",
-                    "auto",
-                    null,
-                    null,
-                    true
-            ), HybridUsage.PII_DETECTION);
             engine.convert(sourceFile, outputDirectory, detectionOptions);
 
             Path jsonFile = Files.list(outputDirectory)
@@ -83,19 +75,11 @@ public class PdfStructuredPiiDetector {
             Map<String, PiiFinding> unique = new LinkedHashMap<>();
             for (TextSegment segment : segments) {
                 for (PiiTextMatch match : PiiPatternMatcher.findMatches(segment.text())) {
-                    PiiFinding finding = new PiiFinding(
-                            match.type(),
-                            match.label(),
-                            match.originalText(),
-                            match.maskedText(),
-                            segment.pageNumber(),
-                            segment.boundingBox(),
-                            "pdf-structured"
-                    );
-                    String key = finding.type() + "|" + finding.pageNumber() + "|" + finding.originalText()
-                            + "|" + finding.boundingBox().x() + "|" + finding.boundingBox().y();
-                    unique.putIfAbsent(key, finding);
+                    registerFinding(unique, toFinding(match, segment, "pdf-structured"));
                 }
+            }
+            for (PiiFinding contextualFinding : contextualFindings(segments)) {
+                registerFinding(unique, contextualFinding);
             }
 
             List<PiiFinding> findings = unique.values().stream()
@@ -116,6 +100,50 @@ public class PdfStructuredPiiDetector {
         } catch (IOException ex) {
             throw new IllegalStateException("Failed to analyze PDF for PII", ex);
         }
+    }
+
+    public PdfConversionOptions defaultDetectionOptions() {
+        return new PdfConversionOptions(
+                List.of("json"),
+                null,
+                null,
+                false,
+                false,
+                "xycut",
+                "default",
+                "off",
+                "png",
+                null,
+                false,
+                false,
+                "off",
+                "auto",
+                null,
+                null,
+                true
+        );
+    }
+
+    public PdfConversionOptions aggressiveImageAwareOptions() {
+        return new PdfConversionOptions(
+                List.of("json"),
+                null,
+                null,
+                true,
+                true,
+                "xycut",
+                "default",
+                "off",
+                "png",
+                null,
+                false,
+                false,
+                null,
+                "full",
+                null,
+                60_000L,
+                true
+        );
     }
 
     private void collectSegments(JsonNode node, List<TextSegment> segments) {
@@ -149,6 +177,88 @@ public class PdfStructuredPiiDetector {
         if (node.isArray()) {
             node.forEach(child -> collectSegments(child, segments));
         }
+    }
+
+    private List<PiiFinding> contextualFindings(List<TextSegment> segments) {
+        Map<Integer, List<TextSegment>> byPage = segments.stream()
+                .collect(Collectors.groupingBy(TextSegment::pageNumber, LinkedHashMap::new, Collectors.toList()));
+        List<PiiFinding> findings = new ArrayList<>();
+        for (Map.Entry<Integer, List<TextSegment>> entry : byPage.entrySet()) {
+            List<TextSegment> pageSegments = entry.getValue();
+            for (TextSegment labelSegment : pageSegments) {
+                TextSegment valueSegment = findValueSegment(pageSegments, labelSegment);
+                if (valueSegment == null) {
+                    continue;
+                }
+                List<PiiTextMatch> matches = PiiPatternMatcher.findMatchesInContext(labelSegment.text(), valueSegment.text());
+                for (PiiTextMatch match : matches) {
+                    findings.add(toFinding(match, valueSegment, "pdf-structured-context"));
+                }
+            }
+        }
+        return findings;
+    }
+
+    private TextSegment findValueSegment(List<TextSegment> pageSegments, TextSegment labelSegment) {
+        String normalizedLabel = labelSegment.text().replaceAll("\\s+", "");
+        if (!isLikelyLabel(normalizedLabel)) {
+            return null;
+        }
+
+        double labelCenterY = labelSegment.boundingBox().y() + labelSegment.boundingBox().height() / 2d;
+        TextSegment bestRight = null;
+        double bestRightScore = Double.MAX_VALUE;
+        TextSegment bestStacked = null;
+        double bestStackedScore = Double.MAX_VALUE;
+        for (TextSegment candidate : pageSegments) {
+            if (candidate == labelSegment || candidate.text().isBlank()) {
+                continue;
+            }
+
+            double candidateCenterY = candidate.boundingBox().y() + candidate.boundingBox().height() / 2d;
+            double verticalGap = Math.abs(candidateCenterY - labelCenterY);
+            double horizontalGap = candidate.boundingBox().x() - labelSegment.boundingBox().x();
+            boolean rightAligned = horizontalGap > Math.max(12d, labelSegment.boundingBox().width() * 0.15d)
+                    && verticalGap <= Math.max(labelSegment.boundingBox().height(), candidate.boundingBox().height()) * 1.6d;
+            boolean stackedBelow = candidate.boundingBox().y() < labelSegment.boundingBox().y()
+                    && Math.abs(candidate.boundingBox().x() - labelSegment.boundingBox().x()) <= Math.max(18d, labelSegment.boundingBox().width() * 0.25d)
+                    && verticalGap <= (labelSegment.boundingBox().height() + candidate.boundingBox().height()) * 2.8d;
+            if (rightAligned) {
+                double score = verticalGap + Math.max(0d, horizontalGap);
+                if (score < bestRightScore) {
+                    bestRightScore = score;
+                    bestRight = candidate;
+                }
+            } else if (stackedBelow) {
+                double score = verticalGap + Math.abs(candidate.boundingBox().x() - labelSegment.boundingBox().x());
+                if (score < bestStackedScore) {
+                    bestStackedScore = score;
+                    bestStacked = candidate;
+                }
+            }
+        }
+        return bestRight != null ? bestRight : bestStacked;
+    }
+
+    private boolean isLikelyLabel(String normalizedLabel) {
+        return normalizedLabel.contains("주민등록번호")
+                || normalizedLabel.contains("외국인등록번호")
+                || normalizedLabel.contains("운전면허")
+                || normalizedLabel.contains("여권번호")
+                || normalizedLabel.contains("휴대폰번호")
+                || normalizedLabel.contains("휴대전화")
+                || normalizedLabel.contains("전화번호")
+                || normalizedLabel.contains("연락처")
+                || normalizedLabel.contains("신용카드")
+                || normalizedLabel.contains("카드번호")
+                || normalizedLabel.contains("계좌번호")
+                || normalizedLabel.contains("계좌")
+                || normalizedLabel.equals("이름")
+                || normalizedLabel.contains("성명")
+                || normalizedLabel.contains("대표자")
+                || normalizedLabel.contains("이메일")
+                || normalizedLabel.contains("IP주소")
+                || normalizedLabel.contains("주소");
     }
 
     private List<TextSegment> splitStructuredSegment(int pageNumber, String content, PiiBoundingBox bbox) {
@@ -186,6 +296,32 @@ public class PdfStructuredPiiDetector {
             ));
         }
         return segments;
+    }
+
+    private PiiFinding toFinding(PiiTextMatch match, TextSegment segment, String source) {
+        return new PiiFinding(
+                match.type(),
+                match.label(),
+                match.originalText(),
+                match.maskedText(),
+                segment.pageNumber(),
+                segment.boundingBox(),
+                source
+        );
+    }
+
+    private void registerFinding(Map<String, PiiFinding> unique, PiiFinding finding) {
+        String key = finding.type() + "|" + finding.pageNumber() + "|" + finding.originalText()
+                + "|" + finding.boundingBox().x() + "|" + finding.boundingBox().y()
+                + "|" + finding.detectionSource();
+        unique.putIfAbsent(key, finding);
+    }
+
+    private String outputDirectoryName(PdfConversionOptions options) {
+        String hybrid = options.hybrid() == null ? "off" : options.hybrid();
+        String mode = options.hybridMode() == null ? "auto" : options.hybridMode();
+        String structTree = Boolean.TRUE.equals(options.useStructTree()) ? "struct" : "plain";
+        return "odl-json-" + hybrid + "-" + mode + "-" + structTree;
     }
 
     private record TextSegment(
