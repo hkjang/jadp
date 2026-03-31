@@ -77,7 +77,7 @@ mvn -s .mvn-local-settings.xml spring-boot:run
 
 ```bash
 mvn -s .mvn-local-settings.xml -DskipTests package
-APP_STORAGE_BASE_DIR=var/app-data java -jar target/jadp-0.0.1-SNAPSHOT.jar
+APP_STORAGE_BASE_DIR=var/app-data java -jar target/jadp-0.3.2.jar
 ```
 
 메모:
@@ -236,13 +236,14 @@ curl -X POST "http://localhost:8080/v1/pii-masker/oac/mask" \
 - 하이브리드 `docling-fast` 백엔드 연계와 Docker 실행 스크립트 제공
 - Docker 앱 이미지에 한글 글꼴을 포함해 masked PDF 오버레이 한글 깨짐 보강
 - Upstage Parse 호환 엔드포인트와 Upstage PII Masker OAC 호환 엔드포인트 제공
-- 이미지형 PDF 대응을 위해 `표/그림 영역 재시도 -> 중심 컬럼/밴드 타일 재시도` 전략을 추가
+- 이미지형 PDF 대응을 위해 `force OCR -> 원본 이미지 direct 분석 -> PDF 래핑 분석 -> 표/그림 영역 재시도 -> 격자/컬럼/밴드 타일 재시도` 전략을 추가
 
 ## 알려진 주의사항
 
 - OpenDataLoader 버전별 setter 표면이 달라질 수 있어, 새 버전 적용 전 실제 PDF 샘플 회귀 테스트가 필요합니다.
 - `sanitize=true` 는 텍스트 계열 산출물 후처리도 함께 수행합니다. 바이너리 PDF 산출물 자체를 재작성하지는 않습니다.
 - `hybrid` 옵션은 문서상 백엔드 URL/타임아웃/fallback 을 지원하지만, 실제 운영에서는 별도 하이브리드 서버 준비가 필요합니다.
+- `samples/dp` 의 `threat-matrix` 샘플은 현재 `docling-fast` 단독 기준으로 전화번호/계좌번호가 끝까지 회수되지 않았습니다. 이 구간은 bbox 전략보다 OCR 백엔드 상한의 영향이 커서, 더 높은 정확도가 필요하면 별도 비전 OCR/VLM 백엔드 연동이 필요합니다.
 
 ## Hybrid 개선
 

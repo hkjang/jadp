@@ -89,16 +89,18 @@ public class UpstagePiiOacCompatibilityService {
     private List<UpstagePiiOacResponse.Vertex> toVertices(PiiFinding finding,
                                                           String mediaType,
                                                           UpstagePiiOacResponse.Page page) {
-        double left = round2(finding.boundingBox().x());
-        double right = round2(finding.boundingBox().x() + finding.boundingBox().width());
+        double pageWidth = page == null ? Double.MAX_VALUE : page.width();
+        double pageHeight = page == null ? Double.MAX_VALUE : page.height();
+        double left = clamp(round2(finding.boundingBox().x()), 0d, pageWidth);
+        double right = clamp(round2(finding.boundingBox().x() + finding.boundingBox().width()), 0d, pageWidth);
         double top;
         double bottom;
         if ("pdf".equals(mediaType)) {
-            top = round2(page.height() - (finding.boundingBox().y() + finding.boundingBox().height()));
-            bottom = round2(page.height() - finding.boundingBox().y());
+            top = clamp(round2(pageHeight - (finding.boundingBox().y() + finding.boundingBox().height())), 0d, pageHeight);
+            bottom = clamp(round2(pageHeight - finding.boundingBox().y()), 0d, pageHeight);
         } else {
-            top = round2(finding.boundingBox().y());
-            bottom = round2(finding.boundingBox().y() + finding.boundingBox().height());
+            top = clamp(round2(finding.boundingBox().y()), 0d, pageHeight);
+            bottom = clamp(round2(finding.boundingBox().y() + finding.boundingBox().height()), 0d, pageHeight);
         }
         return List.of(
                 new UpstagePiiOacResponse.Vertex(left, top),
@@ -148,6 +150,10 @@ public class UpstagePiiOacCompatibilityService {
 
     private double round2(double value) {
         return Math.round(value * 100d) / 100d;
+    }
+
+    private double clamp(double value, double min, double max) {
+        return Math.max(min, Math.min(max, value));
     }
 
     private String fileDownloadUrl(String artifactId) {

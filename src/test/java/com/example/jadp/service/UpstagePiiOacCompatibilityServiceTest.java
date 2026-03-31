@@ -114,6 +114,49 @@ class UpstagePiiOacCompatibilityServiceTest {
         assertThat(response.maskedDocument().downloadUrl()).isEqualTo("/api/v1/pii/files/artifact-1");
     }
 
+    @Test
+    void detectClampsBoundingBoxesToPageBounds() throws Exception {
+        PiiDocumentService piiDocumentService = mock(PiiDocumentService.class);
+        UpstagePiiOacCompatibilityService service = new UpstagePiiOacCompatibilityService(piiDocumentService);
+
+        Path pdf = createPdf(tempDir.resolve("sample-clamp.pdf"), 200, 400);
+        PiiDetectionResult detectionResult = new PiiDetectionResult(
+                UUID.randomUUID(),
+                "sample.pdf",
+                "application/pdf",
+                "pdf",
+                1,
+                pdf,
+                List.of(new PiiFinding(
+                        PiiType.MOBILE_PHONE_NUMBER,
+                        "휴대폰번호",
+                        "010-1234-5678",
+                        "010-1234-****",
+                        1,
+                        new PiiBoundingBox(190, -20, 80, 60),
+                        "hybrid-direct-table-page-ocr"
+                ))
+        );
+        when(piiDocumentService.detect(any(), eq(true))).thenReturn(detectionResult);
+
+        UpstagePiiOacResponse response = service.detect(new MockMultipartFile(
+                "document",
+                "sample.pdf",
+                "application/pdf",
+                new byte[]{1}
+        ), true);
+
+        assertThat(response.items()).hasSize(1);
+        assertThat(response.items().get(0).boundingBoxes().get(0).vertices())
+                .extracting(UpstagePiiOacResponse.Vertex::x, UpstagePiiOacResponse.Vertex::y)
+                .containsExactly(
+                        org.assertj.core.groups.Tuple.tuple(190.0, 360.0),
+                        org.assertj.core.groups.Tuple.tuple(200.0, 360.0),
+                        org.assertj.core.groups.Tuple.tuple(200.0, 400.0),
+                        org.assertj.core.groups.Tuple.tuple(190.0, 400.0)
+                );
+    }
+
     private Path createPdf(Path target, float width, float height) throws IOException {
         try (PDDocument document = new PDDocument()) {
             document.addPage(new PDPage(new PDRectangle(width, height)));

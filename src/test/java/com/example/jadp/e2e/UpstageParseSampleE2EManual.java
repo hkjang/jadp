@@ -14,9 +14,14 @@ import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequ
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -30,12 +35,17 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 @SpringBootTest(properties = {
         "app.storage.base-dir=var/upstage-parse-sample-e2e-data",
-        "app.opendataloader.hybrid.enabled=false"
+        "app.opendataloader.hybrid.enabled=true",
+        "app.opendataloader.hybrid.backend=docling-fast",
+        "app.opendataloader.hybrid.url=${jadp.test.hybrid-url:http://localhost:36002}",
+        "app.opendataloader.hybrid.auto-apply-to-requests=false",
+        "app.opendataloader.hybrid.prefer-full-mode=true"
 })
 @AutoConfigureMockMvc
 class UpstageParseSampleE2EManual {
 
     private static final Path SAMPLE_DIR = Path.of("samples", "dp");
+    private static final String HYBRID_URL = System.getProperty("jadp.test.hybrid-url", "http://localhost:36002");
     private static final Path ARTIFACT_DIR = Path.of("test-artifacts", "upstage-parse-compat");
 
     @Autowired
@@ -46,6 +56,7 @@ class UpstageParseSampleE2EManual {
 
     @Test
     void generateCompatibilityReportFromSampleImages() throws Exception {
+        assertHybridBackendAvailable();
         Files.createDirectories(ARTIFACT_DIR);
         Files.createDirectories(ARTIFACT_DIR.resolve("responses"));
 
@@ -164,6 +175,20 @@ class UpstageParseSampleE2EManual {
         assertThat(results.stream().allMatch(result -> result.status() == 200)).isTrue();
     }
 
+    private void assertHybridBackendAvailable() throws Exception {
+        HttpClient client = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(5))
+                .build();
+        HttpResponse<Void> response = client.send(
+                HttpRequest.newBuilder(URI.create(HYBRID_URL + "/docs"))
+                        .timeout(Duration.ofSeconds(5))
+                        .GET()
+                        .build(),
+                HttpResponse.BodyHandlers.discarding()
+        );
+        assertThat(response.statusCode()).isEqualTo(200);
+    }
+
     private List<String> extractTopTexts(JsonNode root) {
         if (root == null || !root.path("elements").isArray()) {
             return List.of();
@@ -214,8 +239,8 @@ class UpstageParseSampleE2EManual {
         builder.append("- 생성 시각: ").append(Instant.now()).append("\n");
         builder.append("- 대상 엔드포인트: `/v1/document-digitization` (Spring MockMvc 기반 호출)\n");
         builder.append("- 샘플 폴더: `samples/dp`\n");
-        builder.append("- 하이브리드 백엔드 사용 여부: 미사용 (`app.opendataloader.hybrid.enabled=false`)\n");
-        builder.append("- 참고: PNG 파일은 내부에서 1페이지 PDF로 감싼 뒤 OpenDataLoader 경로로 처리됩니다.\n\n");
+        builder.append("- 하이브리드 백엔드 사용 여부: 사용 (`").append(HYBRID_URL).append("`, `docling-fast`)\n");
+        builder.append("- 참고: PNG 파일은 기본 변환 경로에서는 1페이지 PDF로 감싼 뒤 OpenDataLoader를 호출하고, Upstage 호환 레이어는 `ocr=force` 또는 이미지 문서에서 direct hybrid OCR 결과를 우선 사용합니다.\n\n");
 
         builder.append("## 요약\n\n");
         builder.append("| 샘플 | 시나리오 | HTTP | ms | 요소 수 | HTML 길이 | MD 길이 | Text 길이 | 기대 키워드 적중 |\n");
@@ -275,10 +300,9 @@ class UpstageParseSampleE2EManual {
         }
 
         builder.append("## 해석\n\n");
-        builder.append("- 현재 호환 레이어는 Upstage 스타일의 입력 및 응답 형식을 맞춰 주지만, 실제 파싱 엔진은 여전히 OpenDataLoader입니다.\n");
-        builder.append("- 이번 샘플은 이미지 기반 PNG 문서이므로, 별도 OCR 또는 하이브리드 백엔드 없이 PDF 래핑 경로만 사용할 경우 텍스트 복원 성능이 매우 제한적이었습니다.\n");
-        builder.append("- 6개 시나리오 모두 HTTP 200으로 정상 응답했지만, 세 샘플 모두 `figure` 1건만 반환했고 한글 텍스트와 개인정보 예시 값은 추출되지 않았습니다.\n");
-        builder.append("- `base64_encoding` 파라미터는 호환성 차원에서 입력은 받지만, 현재 구현은 base64 이미지 payload를 응답에 포함하지 않습니다.\n");
+        builder.append("- 현재 호환 레이어는 OpenDataLoader 기본 산출물과 direct hybrid OCR 결과를 비교해서 더 풍부한 쪽을 채택합니다.\n");
+        builder.append("- 이미지 기반 PNG 문서는 내부 PDF 래핑 경로만으로는 `figure` 위주로 끝나는 경우가 많아서, 이번 보강에서는 `ocr=force` 또는 이미지 업로드 시 direct docling OCR fallback 을 추가했습니다.\n");
+        builder.append("- `base64_encoding` 파라미터는 호환성 차원에서 입력은 받지만, 현재 구현은 base64 바이너리 payload 자체를 응답에 포함하지 않고 텍스트/HTML/Markdown 구조에 집중합니다.\n");
         return builder.toString();
     }
 

@@ -3,6 +3,7 @@ package com.example.jadp.dto;
 import com.example.jadp.model.PdfConversionOptions;
 import org.springframework.util.StringUtils;
 
+import java.util.Locale;
 import java.util.List;
 
 public record UpstageParseRequest(
@@ -49,6 +50,18 @@ public record UpstageParseRequest(
 
     public String effectiveModel() {
         return blankToDefault(model, "document-parse");
+    }
+
+    public boolean requestsOcr() {
+        if (!StringUtils.hasText(ocr)) {
+            return false;
+        }
+        String normalized = ocr.trim().toLowerCase(Locale.ROOT);
+        return !normalized.equals("false")
+                && !normalized.equals("off")
+                && !normalized.equals("disable")
+                && !normalized.equals("disabled")
+                && !normalized.equals("skip");
     }
 
     private static String blankToDefault(String value, String defaultValue) {

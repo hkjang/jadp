@@ -306,7 +306,7 @@ class UpstagePiiOacSampleE2EManual {
         builder.append("# Upstage PII Masker OAC 호환 E2E 보고서\n\n");
         builder.append("- 생성 시각: ").append(Instant.now()).append("\n");
         builder.append("- 대상 엔드포인트: `/v1/pii-masker/oac/detect`, `/v1/pii-masker/oac/mask`\n");
-        builder.append("- 실행 방식: Spring MockMvc + OpenDataLoader Hybrid(`").append(HYBRID_URL).append("`) + PNG 원본 direct 분석 + PNG 자동 PDF 래핑 앙상블\n");
+        builder.append("- 실행 방식: Spring MockMvc + OpenDataLoader Hybrid(`").append(HYBRID_URL).append("`) + PNG 원본 direct 분석(force OCR) + PNG 자동 PDF 래핑 앙상블\n");
         builder.append("- 테스트 장비 기준: 로컬 GPU 장비에서 실행\n");
         builder.append("- 샘플 폴더: `samples/dp`\n\n");
 
@@ -336,7 +336,7 @@ class UpstagePiiOacSampleE2EManual {
         builder.append("- 총 탐지 항목 수: ").append(totalDetected).append("건\n");
         builder.append("- 기대 값 적중: ").append(totalMatchedValues).append("/").append(totalExpectedValues).append("건\n");
         builder.append("- 기대 타입 적중: ").append(totalMatchedTypes).append("/").append(totalExpectedTypes).append("건\n");
-        builder.append("- 하이브리드 보강 전략: `원본 이미지 direct 분석 -> PDF 래핑 전체 분석 -> 표/그림 영역 재시도 -> 좌/중/우 컬럼 + 상/하 밴드 + 격자 타일 재시도 -> 표 라벨/값 문맥 매칭`\n\n");
+        builder.append("- 하이브리드 보강 전략: `원본 이미지 direct 분석(force OCR) -> PDF 래핑 전체 분석(force OCR) -> 표/그림 영역 재시도 -> 격자/컬럼/밴드 타일 재시도 -> 표 라벨/값 문맥 매칭`\n\n");
 
         builder.append("\n## 상세 결과\n\n");
         for (ResultRow result : results) {
@@ -372,8 +372,9 @@ class UpstagePiiOacSampleE2EManual {
         builder.append("- 이번 경로는 PNG 업로드를 원본 이미지 기준으로 한 번 직접 분석하고, 같은 파일을 1페이지 PDF로 감싼 경로도 함께 분석한 뒤 결과를 병합합니다.\n");
         builder.append("- 응답 bbox는 OAC 스타일의 `boundingBoxes[].vertices[]` 절대 좌표로 내려가며, overlay 이미지로 원본 샘플 위 시각 검증도 함께 남겼습니다.\n");
         builder.append("- 마스킹 API는 동일 탐지 결과를 사용해 masked PDF를 생성하고 `/api/v1/pii/files/{id}` 다운로드 경로까지 제공합니다.\n");
-        builder.append("- PDF/이미지형 문서 대응 전략은 `원본 이미지 direct hybrid -> PDF full hybrid -> 표/그림 영역 재시도 -> 좌/중/우 컬럼 + 상/하 밴드 + 3x2 격자 타일 -> 표 라벨/값 문맥 매칭 -> 필요 시 PDF 페이지 이미지 fallback` 순서로 구현되었습니다.\n");
-        builder.append("- 한글 이름/주소처럼 OCR 난도가 높은 항목은 샘플 3종 기준으로 일부 미검출이 남아 있었고, 숫자/이메일 중심 개인정보가 상대적으로 안정적으로 잡혔습니다.\n");
+        builder.append("- PDF/이미지형 문서 대응 전략은 `원본 이미지 direct hybrid(force OCR) -> PDF full hybrid(force OCR) -> 표/그림 영역 재시도 -> 격자/컬럼/밴드 타일 -> 표 라벨/값 문맥 매칭 -> 필요 시 PDF 페이지 이미지 fallback` 순서로 구현되었습니다.\n");
+        builder.append("- 이번 재점검에서 이미지 direct 경로와 이미지 타일 경로에 빠져 있던 force OCR 적용을 보강했습니다. 다만 `threat-matrix` 샘플은 셀 단위 crop 까지 확대해도 `docling-fast` 가 전화번호/계좌번호를 텍스트로 회수하지 못해 최종 탐지 0건이었습니다.\n");
+        builder.append("- 즉 현재 남은 병목은 bbox 재투영보다는 하이브리드 OCR 백엔드 자체의 회수율이며, 한글 이름/주소처럼 OCR 난도가 높은 항목도 샘플 3종 기준으로 일부 미검출이 남아 있었습니다.\n");
         return builder.toString();
     }
 

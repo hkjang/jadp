@@ -64,7 +64,7 @@ public class HybridDoclingDirectPiiDetector {
     /** DPI used when rendering a full page image for direct docling OCR. */
     private static final float IMAGE_PAGE_DPI = 200f;
     private static final int TILE_TARGET_WIDTH = 2_048;
-    private static final int MAX_TILE_CALLS = 10;
+    private static final int MAX_TILE_CALLS = 14;
     private static final int TILE_BAND_COUNT = 4;
     /** Maximum total elapsed time for the entire detect operation (convert + tiles). */
     private static final long MAX_DETECT_ELAPSED_MILLIS = 180_000L;
@@ -149,11 +149,24 @@ public class HybridDoclingDirectPiiDetector {
                     }
                     int pageNumber = pageIndex + 1;
                     log.info("[PII-HYBRID] Per-page OCR: rendering page {} at {}dpi", pageNumber, (int) IMAGE_PAGE_DPI);
+                    PDPage page = doc.getPage(pageIndex);
+                    PDRectangle box = page.getCropBox();
+                    if (box == null || box.getWidth() <= 0 || box.getHeight() <= 0) {
+                        box = page.getMediaBox();
+                    }
                     BufferedImage pageImage = renderer.renderImageWithDPI(pageIndex, IMAGE_PAGE_DPI, ImageType.RGB);
                     Path pagePng = pageImageDir.resolve("page-" + pageNumber + ".png");
                     ImageIO.write(pageImage, "PNG", pagePng.toFile());
 
-                    List<PiiFinding> pageFindings = detectImagePageForPdf(pageNumber, pagePng, workingDirectory);
+                    List<PiiFinding> pageFindings = detectImagePageForPdf(
+                            pageNumber,
+                            pagePng,
+                            pageImage.getWidth(),
+                            pageImage.getHeight(),
+                            box.getWidth(),
+                            box.getHeight(),
+                            workingDirectory
+                    );
                     log.info("[PII-HYBRID] Page {} per-page OCR: {} findings", pageNumber, pageFindings.size());
                     allFindings = new ArrayList<>(PiiFindingMergeSupport.mergeFindings(allFindings, pageFindings));
                 }
@@ -174,9 +187,15 @@ public class HybridDoclingDirectPiiDetector {
      * Sends a single rendered page PNG to docling, extracts findings, and
      * remaps the page number to the actual PDF page number.
      */
-    private List<PiiFinding> detectImagePageForPdf(int pageNumber, Path pagePng, Path workingDirectory)
+    private List<PiiFinding> detectImagePageForPdf(int pageNumber,
+                                                   Path pagePng,
+                                                   int renderedWidth,
+                                                   int renderedHeight,
+                                                   double pdfWidth,
+                                                   double pdfHeight,
+                                                   Path workingDirectory)
             throws IOException, InterruptedException {
-        JsonNode pageRoot = convert(pagePng, "image/png");
+        JsonNode pageRoot = convert(pagePng, "image/png", true);
         JsonNode pageJson = pageRoot.path("document").path("json_content");
         Files.writeString(
                 workingDirectory.resolve("hybrid-page-" + pageNumber + ".json"),
@@ -186,10 +205,18 @@ public class HybridDoclingDirectPiiDetector {
         // extractFindings uses pageNo from docling's response (always 1 for a single PNG).
         // Override with the actual PDF page number.
         List<PiiFinding> findings = extractFindings(pageJson, CoordinateSpace.IMAGE);
+        double scaleX = pdfWidth / Math.max(1d, renderedWidth);
+        double scaleY = pdfHeight / Math.max(1d, renderedHeight);
         return findings.stream()
                 .map(f -> new PiiFinding(
                         f.type(), f.label(), f.originalText(), f.maskedText(),
-                        pageNumber, f.boundingBox(),
+                        pageNumber,
+                        new PiiBoundingBox(
+                                f.boundingBox().x() * scaleX,
+                                Math.max(0d, pdfHeight - ((f.boundingBox().y() + f.boundingBox().height()) * scaleY)),
+                                f.boundingBox().width() * scaleX,
+                                f.boundingBox().height() * scaleY
+                        ),
                         f.detectionSource() + "-page-ocr"))
                 .toList();
     }
@@ -206,7 +233,7 @@ public class HybridDoclingDirectPiiDetector {
 
     public List<PiiFinding> detectImage(Path imageFile, String contentType, Path workingDirectory) {
         String mimeType = StringUtils.hasText(contentType) ? contentType : probeContentType(imageFile);
-        return detectDirect(imageFile, mimeType, workingDirectory, CoordinateSpace.IMAGE, "hybrid-direct-image.json");
+        return detectDirect(imageFile, mimeType, workingDirectory, CoordinateSpace.IMAGE, "hybrid-direct-image.json", true);
     }
 
     private List<PiiFinding> detectDirect(Path sourceFile,
@@ -214,13 +241,22 @@ public class HybridDoclingDirectPiiDetector {
                                           Path workingDirectory,
                                           CoordinateSpace coordinateSpace,
                                           String responseFilename) {
+        return detectDirect(sourceFile, contentType, workingDirectory, coordinateSpace, responseFilename, false);
+    }
+
+    private List<PiiFinding> detectDirect(Path sourceFile,
+                                          String contentType,
+                                          Path workingDirectory,
+                                          CoordinateSpace coordinateSpace,
+                                          String responseFilename,
+                                          boolean forceOcr) {
         if (!isConfigured()) {
             return List.of();
         }
         long startTime = System.currentTimeMillis();
         try {
             log.info("[PII-HYBRID] Starting direct detect for {} ({})", sourceFile.getFileName(), contentType);
-            JsonNode root = convert(sourceFile, contentType);
+            JsonNode root = convert(sourceFile, contentType, forceOcr);
             long convertElapsed = System.currentTimeMillis() - startTime;
             log.info("[PII-HYBRID] Initial convert completed in {}ms", convertElapsed);
 
@@ -251,6 +287,16 @@ public class HybridDoclingDirectPiiDetector {
             log.error("[PII-HYBRID] Detection failed after {}ms: {}", elapsed, ex.getMessage(), ex);
             return List.of();
         }
+    }
+
+    public JsonNode convertDocument(Path sourceFile,
+                                    String contentType,
+                                    boolean forceOcr) throws IOException, InterruptedException {
+        if (!isConfigured()) {
+            throw new IOException("Hybrid docling backend is not configured.");
+        }
+        String mimeType = StringUtils.hasText(contentType) ? contentType : probeContentType(sourceFile);
+        return convert(sourceFile, mimeType, forceOcr);
     }
 
     private JsonNode convert(Path uploadFile, String contentType) throws IOException, InterruptedException {
@@ -606,7 +652,7 @@ public class HybridDoclingDirectPiiDetector {
                 BufferedImage pageImage = renderedPages.computeIfAbsent(region.pageNumber(), pageNumber ->
                         renderPage(renderer, pageNumber - 1));
                 double pageHeight = pageHeights.getOrDefault(region.pageNumber(), (double) pageImage.getHeight());
-                for (CropWindow cropWindow : buildFocusWindows(region)) {
+                for (CropWindow cropWindow : buildCandidateWindows(region, pageImage)) {
                     if (tileCounter >= MAX_TILE_CALLS) {
                         log.info("[PII-HYBRID] Tile limit reached ({} tiles)", tileCounter);
                         return findings;
@@ -623,7 +669,7 @@ public class HybridDoclingDirectPiiDetector {
                     Path tilePath = tileDirectory.resolve("page-" + region.pageNumber() + "-tile-" + (++tileCounter) + ".png");
                     ImageIO.write(scaledImage.image(), "PNG", tilePath.toFile());
 
-                    JsonNode tileRoot = convert(tilePath, "image/png");
+                    JsonNode tileRoot = convert(tilePath, "image/png", true);
                     JsonNode tileJson = tileRoot.path("document").path("json_content");
                     findings = new ArrayList<>(PiiFindingMergeSupport.mergeFindings(
                             findings,
@@ -664,7 +710,7 @@ public class HybridDoclingDirectPiiDetector {
         List<PiiFinding> findings = new ArrayList<>();
 
         for (CandidateRegion region : candidateRegions.stream().limit(3).toList()) {
-            for (CropWindow cropWindow : buildFocusWindows(region)) {
+            for (CropWindow cropWindow : buildCandidateWindows(region, image)) {
                 if (tileCounter >= MAX_TILE_CALLS) {
                     log.info("[PII-HYBRID] Image tile limit reached ({} tiles)", tileCounter);
                     return findings;
@@ -681,7 +727,7 @@ public class HybridDoclingDirectPiiDetector {
                 Path tilePath = tileDirectory.resolve("image-tile-" + (++tileCounter) + ".png");
                 ImageIO.write(scaledImage.image(), "PNG", tilePath.toFile());
 
-                JsonNode tileRoot = convert(tilePath, StringUtils.hasText(contentType) ? contentType : "image/png");
+                JsonNode tileRoot = convert(tilePath, StringUtils.hasText(contentType) ? contentType : "image/png", true);
                 JsonNode tileJson = tileRoot.path("document").path("json_content");
                 findings = new ArrayList<>(PiiFindingMergeSupport.mergeFindings(
                         findings,
@@ -697,6 +743,18 @@ public class HybridDoclingDirectPiiDetector {
             }
         }
         return findings;
+    }
+
+    private List<CropWindow> buildCandidateWindows(CandidateRegion region, BufferedImage pageImage) {
+        List<CropWindow> windows = new ArrayList<>();
+        if (region.width() >= 320d && region.height() >= 180d) {
+            windows.addAll(buildTableGridWindows(region, pageImage));
+        }
+        windows.addAll(buildFocusWindows(region));
+        return windows.stream()
+                .filter(window -> window.width() >= 180d && window.height() >= 80d)
+                .distinct()
+                .toList();
     }
 
     private BufferedImage renderPage(PDFRenderer renderer, int pageIndex) {
@@ -807,12 +865,78 @@ public class HybridDoclingDirectPiiDetector {
         return new CandidateRegion(source, pageNumber, bbox.x(), bbox.y(), bbox.width(), bbox.height());
     }
 
+    private List<CropWindow> buildTableGridWindows(CandidateRegion region, BufferedImage pageImage) {
+        BufferedImage regionImage = crop(pageImage, new CropWindow(
+                region.pageNumber(),
+                region.x(),
+                region.y(),
+                region.width(),
+                region.height(),
+                region.source() + "-grid-base"
+        ));
+        if (regionImage == null) {
+            return List.of();
+        }
+
+        List<IntRange> columns = buildSegmentsFromBoundaries(
+                detectVerticalBoundaries(regionImage),
+                regionImage.getWidth(),
+                0.12d
+        );
+        List<IntRange> rows = buildSegmentsFromBoundaries(
+                detectHorizontalBoundaries(regionImage),
+                regionImage.getHeight(),
+                0.06d
+        );
+        if (columns.size() < 2 || rows.size() < 2) {
+            return List.of();
+        }
+
+        int primaryValueColumn = columns.size() >= 3 ? 1 : columns.size() - 1;
+        int bodyRowStart = rows.size() >= 3 ? 1 : 0;
+        int bodyRowEnd = Math.min(rows.size(), bodyRowStart + 5);
+        List<CropWindow> windows = new ArrayList<>();
+
+        for (int rowIndex = bodyRowStart; rowIndex < bodyRowEnd; rowIndex++) {
+            IntRange row = rows.get(rowIndex);
+            IntRange valueColumn = columns.get(primaryValueColumn);
+            windows.add(insetWindow(
+                    region,
+                    valueColumn.start(),
+                    row.start(),
+                    valueColumn.size(),
+                    row.size(),
+                    region.source() + "-grid-value-r" + (rowIndex - bodyRowStart + 1)
+            ));
+
+            IntRange contextStart = columns.get(0);
+            IntRange contextEnd = columns.get(primaryValueColumn);
+            windows.add(insetWindow(
+                    region,
+                    contextStart.start(),
+                    row.start(),
+                    contextEnd.end() - contextStart.start(),
+                    row.size(),
+                    region.source() + "-grid-context-r" + (rowIndex - bodyRowStart + 1)
+            ));
+        }
+        return windows;
+    }
+
     private List<CropWindow> buildFocusWindows(CandidateRegion region) {
         List<CropWindow> windows = new ArrayList<>();
+        if ("table".equals(region.source()) && region.width() >= 320d) {
+            CropWindow valueColumn = fractionalWindow(region, 0.42d, 0d, 0.58d, 1d, region.source() + "-value-right");
+            windows.add(valueColumn);
+            windows.addAll(splitBands(valueColumn, 6, 0.10d));
+            windows.add(fractionalWindow(region, 0.32d, 0d, 0.68d, 1d, region.source() + "-value-wide"));
+        }
         windows.add(new CropWindow(region.pageNumber(), region.x(), region.y(), region.width(), region.height(), region.source() + "-full"));
 
         if (region.width() >= 360d) {
-            windows.add(fractionalWindow(region, 0d, 0d, 0.52d, 1d, region.source() + "-left"));
+            if (!"table".equals(region.source())) {
+                windows.add(fractionalWindow(region, 0d, 0d, 0.52d, 1d, region.source() + "-left"));
+            }
             windows.add(fractionalWindow(region, 0.18d, 0d, 0.64d, 1d, region.source() + "-center"));
             windows.add(fractionalWindow(region, 0.48d, 0d, 0.52d, 1d, region.source() + "-right"));
         }
@@ -846,6 +970,130 @@ public class HybridDoclingDirectPiiDetector {
                 region.height() * heightRatio,
                 name
         );
+    }
+
+    private CropWindow insetWindow(CandidateRegion region,
+                                   int x,
+                                   int y,
+                                   int width,
+                                   int height,
+                                   String name) {
+        int padX = Math.max(8, width / 40);
+        int padY = Math.max(8, height / 10);
+        double left = region.x() + x + padX;
+        double top = region.y() + y + padY;
+        double adjustedWidth = Math.max(80d, width - (padX * 2d));
+        double adjustedHeight = Math.max(60d, height - (padY * 2d));
+        return new CropWindow(
+                region.pageNumber(),
+                left,
+                top,
+                adjustedWidth,
+                adjustedHeight,
+                name
+        );
+    }
+
+    private List<Integer> detectVerticalBoundaries(BufferedImage image) {
+        List<Integer> strong = new ArrayList<>();
+        for (int x = 0; x < image.getWidth(); x++) {
+            int darkCount = 0;
+            for (int y = 0; y < image.getHeight(); y++) {
+                if (isDark(image.getRGB(x, y))) {
+                    darkCount++;
+                }
+            }
+            if (darkCount >= image.getHeight() * 0.52d) {
+                strong.add(x);
+            }
+        }
+        return collapseCenters(strong, Math.max(4, image.getWidth() / 240));
+    }
+
+    private List<Integer> detectHorizontalBoundaries(BufferedImage image) {
+        List<Integer> strong = new ArrayList<>();
+        for (int y = 0; y < image.getHeight(); y++) {
+            int darkCount = 0;
+            for (int x = 0; x < image.getWidth(); x++) {
+                if (isDark(image.getRGB(x, y))) {
+                    darkCount++;
+                }
+            }
+            if (darkCount >= image.getWidth() * 0.40d) {
+                strong.add(y);
+            }
+        }
+        return collapseBoundaries(strong, Math.max(4, image.getHeight() / 220));
+    }
+
+    private boolean isDark(int rgb) {
+        int red = (rgb >> 16) & 0xFF;
+        int green = (rgb >> 8) & 0xFF;
+        int blue = rgb & 0xFF;
+        double luminance = (0.299d * red) + (0.587d * green) + (0.114d * blue);
+        return luminance < 145d;
+    }
+
+    private List<Integer> collapseCenters(List<Integer> positions, int minGap) {
+        List<Integer> centers = new ArrayList<>();
+        if (positions.isEmpty()) {
+            return centers;
+        }
+        int runStart = positions.get(0);
+        int previous = runStart;
+        for (int index = 1; index < positions.size(); index++) {
+            int current = positions.get(index);
+            if (current - previous > minGap) {
+                centers.add((runStart + previous) / 2);
+                runStart = current;
+            }
+            previous = current;
+        }
+        centers.add((runStart + previous) / 2);
+        return centers;
+    }
+
+    private List<Integer> collapseBoundaries(List<Integer> positions, int minGap) {
+        List<Integer> boundaries = new ArrayList<>();
+        if (positions.isEmpty()) {
+            return boundaries;
+        }
+        int runStart = positions.get(0);
+        int previous = runStart;
+        for (int index = 1; index < positions.size(); index++) {
+            int current = positions.get(index);
+            if (current - previous > minGap) {
+                boundaries.add(runStart);
+                boundaries.add(previous);
+                runStart = current;
+            }
+            previous = current;
+        }
+        boundaries.add(runStart);
+        boundaries.add(previous);
+        return boundaries.stream().distinct().sorted().toList();
+    }
+
+    private List<IntRange> buildSegmentsFromBoundaries(List<Integer> boundaries, int size, double minRatio) {
+        List<Integer> points = new ArrayList<>();
+        points.add(0);
+        for (Integer boundary : boundaries) {
+            if (boundary != null && boundary > 0 && boundary < size) {
+                points.add(boundary);
+            }
+        }
+        points.add(size);
+        List<Integer> normalized = points.stream().distinct().sorted().toList();
+        List<IntRange> segments = new ArrayList<>();
+        int minSize = Math.max(24, (int) Math.round(size * minRatio));
+        for (int index = 0; index < normalized.size() - 1; index++) {
+            int start = normalized.get(index);
+            int end = normalized.get(index + 1);
+            if (end - start >= minSize) {
+                segments.add(new IntRange(start, end));
+            }
+        }
+        return segments;
     }
 
     private List<CropWindow> splitBands(CropWindow window, int bandCount, double overlapRatio) {
@@ -1134,6 +1382,15 @@ public class HybridDoclingDirectPiiDetector {
             BufferedImage image,
             double scale
     ) {
+    }
+
+    private record IntRange(
+            int start,
+            int end
+    ) {
+        int size() {
+            return Math.max(0, end - start);
+        }
     }
 
     private record TableCell(

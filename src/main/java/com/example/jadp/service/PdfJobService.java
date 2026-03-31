@@ -117,6 +117,10 @@ public class PdfJobService {
                     ? file.getOriginalFilename()
                     : "document.pdf";
             String safeFilename = FileNameSanitizer.sanitize(originalFileName);
+            // When uploading an image, it gets wrapped into a single-page PDF – fix the extension
+            if ("image".equals(uploadMediaType(file))) {
+                safeFilename = safeFilename.replaceAll("(?i)\\.(png|jpe?g)$", ".pdf");
+            }
             log.debug("[JOB] originalFilename='{}' → safeFilename='{}'", originalFileName, safeFilename);
             Path uploadPath = inputDir.resolve(safeFilename);
             storeUploadedDocument(file, uploadPath);
