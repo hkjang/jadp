@@ -50,6 +50,16 @@ public class HybridDoclingDirectPiiDetector {
 
     private static final Logger log = LoggerFactory.getLogger(HybridDoclingDirectPiiDetector.class);
 
+    /** Candidate field names tried in order when sending multipart uploads to docling. */
+    private static final List<String> FILE_FIELD_CANDIDATES = List.of("files", "file");
+
+    /**
+     * Resolved docling file-field name (e.g. "files" or "file").
+     * Probed lazily on first use and cached for the lifetime of the application.
+     * {@code null} means not yet resolved.
+     */
+    private volatile String resolvedFileField = null;
+
     private static final float TILE_RENDER_DPI = 144f;
     /** DPI used when rendering a full page image for direct docling OCR. */
     private static final float IMAGE_PAGE_DPI = 200f;
@@ -250,54 +260,166 @@ public class HybridDoclingDirectPiiDetector {
     /**
      * Calls the docling {@code /v1/convert/file} endpoint.
      *
+     * <p>Different versions of opendataloader-pdf-hybrid use different multipart
+     * field names for the uploaded file ("files" in ≥2.1, "file" in older builds).
+     * This method resolves the correct field name on first call via a lightweight
+     * OpenAPI probe and caches the result. On 422 it automatically retries with
+     * the alternative field name and updates the cache.
+     *
      * @param forceOcr when {@code true} adds a JSON options part with
-     *                 {@code force_full_page_ocr: true, do_ocr: true} so that
-     *                 image-based pages are guaranteed to be OCR-processed.
+     *                 {@code force_full_page_ocr: true} so that image-based
+     *                 pages are guaranteed to be OCR-processed.
      */
     private JsonNode convert(Path uploadFile, String contentType, boolean forceOcr)
             throws IOException, InterruptedException {
-        String boundary = "----jadp-" + UUID.randomUUID();
-        byte[] payload = multipartPayload(uploadFile, boundary, contentType, forceOcr);
+
+        String fileField = resolveFileFieldName();
         long callStart = System.currentTimeMillis();
-        log.debug("[PII-HYBRID] Calling hybrid convert: {} ({} bytes, timeout={}ms, forceOcr={})",
-                uploadFile.getFileName(), payload.length, properties.getTimeoutMillis(), forceOcr);
+
+        JsonNode result = tryConvert(uploadFile, contentType, forceOcr, fileField, callStart);
+        if (result != null) {
+            return result;
+        }
+
+        // 422: the cached field name was rejected – try the alternative and update cache.
+        String fallbackField = FILE_FIELD_CANDIDATES.stream()
+                .filter(f -> !f.equals(fileField))
+                .findFirst()
+                .orElseThrow(() -> new IOException(
+                        "No alternative docling file-field name available after 422 with field='" + fileField + "'"));
+
+        log.warn("[PII-HYBRID] 422 with field='{}' – retrying with field='{}' and updating cache",
+                fileField, fallbackField);
+        result = tryConvert(uploadFile, contentType, forceOcr, fallbackField, callStart);
+        if (result != null) {
+            resolvedFileField = fallbackField;   // update cache
+            log.info("[PII-HYBRID] docling file-field updated to '{}' (was '{}')", fallbackField, fileField);
+            return result;
+        }
+
+        // Both field names failed – throw with the body of the last response.
+        throw new IOException("Hybrid convert failed for both field names '"
+                + fileField + "' and '" + fallbackField + "' – see WARN logs above.");
+    }
+
+    /**
+     * Performs one HTTP POST attempt.
+     * Returns the parsed JSON on success (2xx), {@code null} on 422 (caller should retry),
+     * and throws {@link IOException} on any other 4xx/5xx.
+     */
+    private JsonNode tryConvert(Path uploadFile, String contentType, boolean forceOcr,
+                                String fileField, long callStart)
+            throws IOException, InterruptedException {
+        String boundary = "----jadp-" + UUID.randomUUID();
+        byte[] payload = multipartPayload(uploadFile, boundary, contentType, forceOcr, fileField);
+        log.debug("[PII-HYBRID] POST /v1/convert/file field='{}' file={} size={}B forceOcr={}",
+                fileField, uploadFile.getFileName(), payload.length, forceOcr);
+
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(trimTrailingSlash(properties.getUrl()) + "/v1/convert/file"))
                 .header("Content-Type", "multipart/form-data; boundary=" + boundary)
                 .timeout(Duration.ofMillis(properties.getTimeoutMillis()))
                 .POST(HttpRequest.BodyPublishers.ofByteArray(payload))
                 .build();
+
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-        long callElapsed = System.currentTimeMillis() - callStart;
-        if (response.statusCode() >= 400) {
-            log.error("[PII-HYBRID] Hybrid convert failed: status={} elapsed={}ms file={}",
-                    response.statusCode(), callElapsed, uploadFile.getFileName());
-            throw new IOException("Hybrid direct request failed with status " + response.statusCode());
+        long elapsed = System.currentTimeMillis() - callStart;
+
+        if (response.statusCode() == 422) {
+            // Log the validation-error body so it is visible in jadp-app logs.
+            String body = response.body() == null ? "(empty)" : response.body();
+            log.warn("[PII-HYBRID] 422 Unprocessable from docling (field='{}', elapsed={}ms): {}",
+                    fileField, elapsed, body.length() > 500 ? body.substring(0, 500) + "…" : body);
+            return null;   // signal caller to retry
         }
-        log.debug("[PII-HYBRID] Hybrid convert OK: status={} elapsed={}ms forceOcr={}",
-                response.statusCode(), callElapsed, forceOcr);
+
+        if (response.statusCode() >= 400) {
+            String body = response.body() == null ? "(empty)" : response.body();
+            log.error("[PII-HYBRID] Hybrid convert HTTP {} (field='{}', elapsed={}ms) file={}: {}",
+                    response.statusCode(), fileField, elapsed, uploadFile.getFileName(),
+                    body.length() > 500 ? body.substring(0, 500) + "…" : body);
+            throw new IOException("Hybrid convert failed – status " + response.statusCode()
+                    + ", body: " + (body.length() > 200 ? body.substring(0, 200) : body));
+        }
+
+        log.debug("[PII-HYBRID] 200 OK field='{}' elapsed={}ms forceOcr={}", fileField, elapsed, forceOcr);
         return objectMapper.readTree(response.body());
     }
 
-    private byte[] multipartPayload(Path uploadFile, String boundary, String contentType) throws IOException {
-        return multipartPayload(uploadFile, boundary, contentType, false);
+    /**
+     * Lazily resolves and caches the correct multipart field name for the connected
+     * docling instance by inspecting its OpenAPI schema.
+     * Falls back to the first candidate ("files") if the probe fails.
+     */
+    private String resolveFileFieldName() {
+        if (resolvedFileField != null) {
+            return resolvedFileField;
+        }
+        synchronized (this) {
+            if (resolvedFileField != null) {
+                return resolvedFileField;
+            }
+            resolvedFileField = probeFileFieldName();
+            log.info("[PII-HYBRID] Resolved docling file-field name: '{}'", resolvedFileField);
+        }
+        return resolvedFileField;
     }
 
-    private byte[] multipartPayload(Path uploadFile, String boundary, String contentType, boolean forceOcr)
+    /**
+     * Queries {@code /openapi.json} and looks for the upload field name inside
+     * the {@code /v1/convert/file} request body schema.
+     * Returns the first match from {@link #FILE_FIELD_CANDIDATES}, or "files" as default.
+     */
+    private String probeFileFieldName() {
+        try {
+            String openApiUrl = trimTrailingSlash(properties.getUrl()) + "/openapi.json";
+            HttpRequest req = HttpRequest.newBuilder()
+                    .uri(URI.create(openApiUrl))
+                    .timeout(Duration.ofSeconds(5))
+                    .GET()
+                    .build();
+            HttpResponse<String> resp = httpClient.send(req, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            if (resp.statusCode() == 200) {
+                JsonNode spec = objectMapper.readTree(resp.body());
+                // Look for Body_convert_file_v1_convert_file_post schema properties
+                JsonNode schemas = spec.path("components").path("schemas");
+                for (String candidate : FILE_FIELD_CANDIDATES) {
+                    // Check if the candidate field appears in any convert-file body schema
+                    for (JsonNode schema : schemas) {
+                        if (!schema.path("properties").path(candidate).isMissingNode()) {
+                            log.debug("[PII-HYBRID] OpenAPI probe found field '{}' in docling schema", candidate);
+                            return candidate;
+                        }
+                    }
+                }
+                log.warn("[PII-HYBRID] OpenAPI probe found no matching field name – defaulting to 'files'");
+            } else {
+                log.warn("[PII-HYBRID] OpenAPI probe returned HTTP {} – defaulting to 'files'", resp.statusCode());
+            }
+        } catch (Exception ex) {
+            log.warn("[PII-HYBRID] OpenAPI probe failed ({}): {} – defaulting to 'files'",
+                    ex.getClass().getSimpleName(), ex.getMessage());
+        }
+        return FILE_FIELD_CANDIDATES.get(0);  // "files"
+    }
+
+    private byte[] multipartPayload(Path uploadFile, String boundary, String contentType,
+                                    boolean forceOcr, String fileField)
             throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         // ── file part ────────────────────────────────────────────────────────
+        // RFC 5987: encode non-ASCII filename chars as UTF-8 percent-encoding
+        String safeFilename = encodeFilenameForHeader(uploadFile.getFileName().toString());
         out.write(("--" + boundary + "\r\n").getBytes(StandardCharsets.UTF_8));
-        out.write(("Content-Disposition: form-data; name=\"files\"; filename=\""
-                + uploadFile.getFileName() + "\"\r\n").getBytes(StandardCharsets.UTF_8));
+        out.write(("Content-Disposition: form-data; name=\"" + fileField + "\"; filename=\""
+                + safeFilename + "\"\r\n").getBytes(StandardCharsets.UTF_8));
         out.write(("Content-Type: " + contentType + "\r\n\r\n").getBytes(StandardCharsets.UTF_8));
         out.write(Files.readAllBytes(uploadFile));
         out.write("\r\n".getBytes(StandardCharsets.UTF_8));
 
         // ── options part (force OCR) ─────────────────────────────────────────
         if (forceOcr) {
-            // Both field names are included for compatibility across docling versions.
             String optionsJson = "{\"force_full_page_ocr\":true,\"do_ocr\":true}";
             out.write(("--" + boundary + "\r\n").getBytes(StandardCharsets.UTF_8));
             out.write("Content-Disposition: form-data; name=\"options\"\r\n".getBytes(StandardCharsets.UTF_8));
@@ -308,6 +430,31 @@ public class HybridDoclingDirectPiiDetector {
 
         out.write(("--" + boundary + "--\r\n").getBytes(StandardCharsets.UTF_8));
         return out.toByteArray();
+    }
+
+    /**
+     * Percent-encodes any non-ASCII (e.g. Korean/CJK) characters in a filename
+     * so that python-multipart can parse the Content-Disposition header correctly.
+     * ASCII printable characters (except {@code "} and {@code \}) are kept as-is.
+     */
+    private static String encodeFilenameForHeader(String filename) {
+        StringBuilder sb = new StringBuilder(filename.length() + 32);
+        byte[] utf8 = filename.getBytes(StandardCharsets.UTF_8);
+        // Re-decode to process character-by-character
+        for (int i = 0; i < filename.length(); ) {
+            int cp = filename.codePointAt(i);
+            if (cp < 0x80 && cp != '"' && cp != '\\') {
+                sb.append((char) cp);
+            } else {
+                // Percent-encode the UTF-8 bytes for this code point
+                byte[] cpBytes = new String(Character.toChars(cp)).getBytes(StandardCharsets.UTF_8);
+                for (byte b : cpBytes) {
+                    sb.append(String.format("%%%02X", b & 0xFF));
+                }
+            }
+            i += Character.charCount(cp);
+        }
+        return sb.toString();
     }
 
     private List<PiiFinding> extractFindings(JsonNode documentJson, CoordinateSpace coordinateSpace) {

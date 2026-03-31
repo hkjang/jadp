@@ -23,7 +23,9 @@ HYBRID_FALLBACK="${HYBRID_FALLBACK:-true}"
 HYBRID_LOG_LEVEL="${HYBRID_LOG_LEVEL:-info}"
 JAVA_OPTS="${JAVA_OPTS:-}"
 APP_STARTUP_TIMEOUT_SEC="${APP_STARTUP_TIMEOUT_SEC:-60}"
-HYBRID_STARTUP_TIMEOUT_SEC="${HYBRID_STARTUP_TIMEOUT_SEC:-120}"
+# GPU 모델 로딩 포함 최대 5분. SKIP_HYBRID_WAIT=true 이면 대기 건너뜀.
+HYBRID_STARTUP_TIMEOUT_SEC="${HYBRID_STARTUP_TIMEOUT_SEC:-300}"
+SKIP_HYBRID_WAIT="${SKIP_HYBRID_WAIT:-false}"
 RUN_SMOKE_TEST="${RUN_SMOKE_TEST:-false}"
 
 if [[ -z "${HYBRID_IMAGE}" ]]; then
@@ -46,27 +48,29 @@ wait_for_http() {
   local started_at
   started_at="$(date +%s)"
 
+  echo "Waiting for ${label} (timeout ${timeout_sec}s): ${url}"
   while true; do
-    if curl -fsS "${url}" >/dev/null 2>&1; then
-      echo "${label} ready: ${url}"
+    # --max-time 3: curl 자체 대기를 3초로 제한해 폴링 주기 제어
+    if curl -fsS --max-time 3 --connect-timeout 2 "${url}" >/dev/null 2>&1; then
+      echo "${label} ready ($(( $(date +%s) - started_at ))s): ${url}"
       return 0
     fi
 
     if ! docker ps --format '{{.Names}}' | grep -Fx "${container_name}" >/dev/null 2>&1; then
-      echo "${label} container '${container_name}' is not running." >&2
+      echo "${label} container '${container_name}' stopped unexpectedly." >&2
       docker ps -a --filter "name=${container_name}"
-      docker logs "${container_name}" --tail 200 || true
+      docker logs "${container_name}" --tail 100 || true
       return 1
     fi
 
     if (( "$(date +%s)" - started_at >= timeout_sec )); then
       echo "${label} did not become ready within ${timeout_sec}s: ${url}" >&2
       docker ps -a --filter "name=${container_name}"
-      docker logs "${container_name}" --tail 200 || true
+      docker logs "${container_name}" --tail 100 || true
       return 1
     fi
 
-    sleep 2
+    sleep 3
   done
 }
 
@@ -157,7 +161,12 @@ APP_ARGS+=("${APP_IMAGE}")
 docker "${APP_ARGS[@]}" >/dev/null
 
 if [[ "${USE_HYBRID}" == "true" ]]; then
-  wait_for_http "http://localhost:${HYBRID_PORT}/docs" "${HYBRID_STARTUP_TIMEOUT_SEC}" "Hybrid API" "${HYBRID_CONTAINER}"
+  if [[ "${SKIP_HYBRID_WAIT}" == "true" ]]; then
+    echo "SKIP_HYBRID_WAIT=true – skipping hybrid readiness check."
+    echo "  Run manually: curl http://localhost:${HYBRID_PORT}/health"
+  else
+    wait_for_http "http://localhost:${HYBRID_PORT}/health" "${HYBRID_STARTUP_TIMEOUT_SEC}" "Hybrid API" "${HYBRID_CONTAINER}"
+  fi
 fi
 
 wait_for_http "http://localhost:${APP_PORT}/actuator/health" "${APP_STARTUP_TIMEOUT_SEC}" "JADP app" "${APP_CONTAINER}"
