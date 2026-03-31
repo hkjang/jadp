@@ -5,6 +5,7 @@ import com.example.jadp.model.PiiBoundingBox;
 import com.example.jadp.model.PiiFinding;
 import com.example.jadp.model.PiiType;
 import com.example.jadp.support.ImagePdfSupport;
+import com.example.jadp.support.PdfImageContentDetector;
 import com.example.jadp.support.PiiFindingMergeSupport;
 import com.example.jadp.support.PiiMaskingRules;
 import com.example.jadp.support.PiiPatternMatcher;
@@ -50,6 +51,8 @@ public class HybridDoclingDirectPiiDetector {
     private static final Logger log = LoggerFactory.getLogger(HybridDoclingDirectPiiDetector.class);
 
     private static final float TILE_RENDER_DPI = 144f;
+    /** DPI used when rendering a full page image for direct docling OCR. */
+    private static final float IMAGE_PAGE_DPI = 200f;
     private static final int TILE_TARGET_WIDTH = 2_048;
     private static final int MAX_TILE_CALLS = 10;
     private static final int TILE_BAND_COUNT = 4;
@@ -79,7 +82,116 @@ public class HybridDoclingDirectPiiDetector {
     }
 
     public List<PiiFinding> detectPdf(Path pdfFile, Path workingDirectory) {
+        if (!isConfigured()) {
+            return List.of();
+        }
+        // Detect image-based pages upfront and use dedicated OCR path when found.
+        List<Integer> imagePageIndices = imageBasedPageIndices(pdfFile);
+        if (!imagePageIndices.isEmpty()) {
+            log.info("[PII-HYBRID] {} image-based page(s) detected in '{}' – using image-aware OCR path",
+                    imagePageIndices.size(), pdfFile.getFileName());
+            return detectPdfImageAware(pdfFile, imagePageIndices, workingDirectory);
+        }
         return detectDirect(pdfFile, "application/pdf", workingDirectory, CoordinateSpace.PDF, "hybrid-direct-docling.json");
+    }
+
+    /**
+     * Image-aware PDF PII detection:
+     * <ol>
+     *   <li>Send the whole PDF to docling with {@code force_full_page_ocr=true} to get
+     *       a baseline OCR result for all pages.</li>
+     *   <li>For every image-based page render a high-resolution PNG (200 DPI) and
+     *       send it to docling individually so that fine-grained OCR runs on the
+     *       actual raster content.</li>
+     *   <li>Merge all findings, deduplicating overlapping bounding boxes.</li>
+     * </ol>
+     */
+    private List<PiiFinding> detectPdfImageAware(Path pdfFile,
+                                                  List<Integer> imagePageIndices,
+                                                  Path workingDirectory) {
+        long startTime = System.currentTimeMillis();
+        List<PiiFinding> allFindings = new ArrayList<>();
+        try {
+            // ── Step 1: whole-PDF OCR with force_full_page_ocr ──────────────
+            log.info("[PII-HYBRID] Sending '{}' to docling (force_full_page_ocr=true)", pdfFile.getFileName());
+            JsonNode root = convert(pdfFile, "application/pdf", true);
+            JsonNode documentJson = root.path("document").path("json_content");
+            Files.writeString(
+                    workingDirectory.resolve("hybrid-direct-docling.json"),
+                    objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(root),
+                    StandardCharsets.UTF_8);
+            allFindings.addAll(extractFindings(documentJson, CoordinateSpace.PDF));
+            log.info("[PII-HYBRID] Whole-PDF OCR: {} findings from {} text elements in {}ms",
+                    allFindings.size(), documentJson.path("texts").size(),
+                    System.currentTimeMillis() - startTime);
+
+            // ── Step 2: per-page high-res OCR for each image-based page ─────
+            Path pageImageDir = workingDirectory.resolve("hybrid-page-images");
+            Files.createDirectories(pageImageDir);
+
+            try (PDDocument doc = Loader.loadPDF(pdfFile.toFile())) {
+                PDFRenderer renderer = new PDFRenderer(doc);
+                for (int pageIndex : imagePageIndices) {
+                    if (System.currentTimeMillis() - startTime >= MAX_DETECT_ELAPSED_MILLIS) {
+                        log.warn("[PII-HYBRID] Time limit reached – stopping per-page OCR at page {}",
+                                pageIndex + 1);
+                        break;
+                    }
+                    int pageNumber = pageIndex + 1;
+                    log.info("[PII-HYBRID] Per-page OCR: rendering page {} at {}dpi", pageNumber, (int) IMAGE_PAGE_DPI);
+                    BufferedImage pageImage = renderer.renderImageWithDPI(pageIndex, IMAGE_PAGE_DPI, ImageType.RGB);
+                    Path pagePng = pageImageDir.resolve("page-" + pageNumber + ".png");
+                    ImageIO.write(pageImage, "PNG", pagePng.toFile());
+
+                    List<PiiFinding> pageFindings = detectImagePageForPdf(pageNumber, pagePng, workingDirectory);
+                    log.info("[PII-HYBRID] Page {} per-page OCR: {} findings", pageNumber, pageFindings.size());
+                    allFindings = new ArrayList<>(PiiFindingMergeSupport.mergeFindings(allFindings, pageFindings));
+                }
+            }
+
+            log.info("[PII-HYBRID] Image-aware detection complete: {} findings in {}ms",
+                    allFindings.size(), System.currentTimeMillis() - startTime);
+            return allFindings;
+
+        } catch (Exception ex) {
+            log.error("[PII-HYBRID] Image-aware PDF detection failed after {}ms: {}",
+                    System.currentTimeMillis() - startTime, ex.getMessage(), ex);
+            return allFindings.isEmpty() ? List.of() : allFindings;
+        }
+    }
+
+    /**
+     * Sends a single rendered page PNG to docling, extracts findings, and
+     * remaps the page number to the actual PDF page number.
+     */
+    private List<PiiFinding> detectImagePageForPdf(int pageNumber, Path pagePng, Path workingDirectory)
+            throws IOException, InterruptedException {
+        JsonNode pageRoot = convert(pagePng, "image/png");
+        JsonNode pageJson = pageRoot.path("document").path("json_content");
+        Files.writeString(
+                workingDirectory.resolve("hybrid-page-" + pageNumber + ".json"),
+                objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(pageRoot),
+                StandardCharsets.UTF_8);
+
+        // extractFindings uses pageNo from docling's response (always 1 for a single PNG).
+        // Override with the actual PDF page number.
+        List<PiiFinding> findings = extractFindings(pageJson, CoordinateSpace.IMAGE);
+        return findings.stream()
+                .map(f -> new PiiFinding(
+                        f.type(), f.label(), f.originalText(), f.maskedText(),
+                        pageNumber, f.boundingBox(),
+                        f.detectionSource() + "-page-ocr"))
+                .toList();
+    }
+
+    /** Returns 0-based image-page indices for {@code pdfFile}, or empty list on error. */
+    private List<Integer> imageBasedPageIndices(Path pdfFile) {
+        try (PDDocument doc = Loader.loadPDF(pdfFile.toFile())) {
+            return PdfImageContentDetector.imageBasedPageIndices(doc);
+        } catch (IOException ex) {
+            log.warn("[PII-HYBRID] Could not check image pages in '{}': {}", pdfFile.getFileName(), ex.getMessage());
+            return List.of();
+        }
     }
 
     public List<PiiFinding> detectImage(Path imageFile, String contentType, Path workingDirectory) {
@@ -132,11 +244,23 @@ public class HybridDoclingDirectPiiDetector {
     }
 
     private JsonNode convert(Path uploadFile, String contentType) throws IOException, InterruptedException {
+        return convert(uploadFile, contentType, false);
+    }
+
+    /**
+     * Calls the docling {@code /v1/convert/file} endpoint.
+     *
+     * @param forceOcr when {@code true} adds a JSON options part with
+     *                 {@code force_full_page_ocr: true, do_ocr: true} so that
+     *                 image-based pages are guaranteed to be OCR-processed.
+     */
+    private JsonNode convert(Path uploadFile, String contentType, boolean forceOcr)
+            throws IOException, InterruptedException {
         String boundary = "----jadp-" + UUID.randomUUID();
-        byte[] payload = multipartPayload(uploadFile, boundary, contentType);
+        byte[] payload = multipartPayload(uploadFile, boundary, contentType, forceOcr);
         long callStart = System.currentTimeMillis();
-        log.debug("[PII-HYBRID] Calling hybrid convert: {} ({} bytes, timeout={}ms)",
-                uploadFile.getFileName(), payload.length, properties.getTimeoutMillis());
+        log.debug("[PII-HYBRID] Calling hybrid convert: {} ({} bytes, timeout={}ms, forceOcr={})",
+                uploadFile.getFileName(), payload.length, properties.getTimeoutMillis(), forceOcr);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(trimTrailingSlash(properties.getUrl()) + "/v1/convert/file"))
                 .header("Content-Type", "multipart/form-data; boundary=" + boundary)
@@ -150,20 +274,40 @@ public class HybridDoclingDirectPiiDetector {
                     response.statusCode(), callElapsed, uploadFile.getFileName());
             throw new IOException("Hybrid direct request failed with status " + response.statusCode());
         }
-        log.debug("[PII-HYBRID] Hybrid convert OK: status={} elapsed={}ms", response.statusCode(), callElapsed);
+        log.debug("[PII-HYBRID] Hybrid convert OK: status={} elapsed={}ms forceOcr={}",
+                response.statusCode(), callElapsed, forceOcr);
         return objectMapper.readTree(response.body());
     }
 
     private byte[] multipartPayload(Path uploadFile, String boundary, String contentType) throws IOException {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        outputStream.write(("--" + boundary + "\r\n").getBytes(StandardCharsets.UTF_8));
-        outputStream.write(("Content-Disposition: form-data; name=\"files\"; filename=\"" + uploadFile.getFileName() + "\"\r\n")
-                .getBytes(StandardCharsets.UTF_8));
-        outputStream.write(("Content-Type: " + contentType + "\r\n\r\n").getBytes(StandardCharsets.UTF_8));
-        outputStream.write(Files.readAllBytes(uploadFile));
-        outputStream.write("\r\n".getBytes(StandardCharsets.UTF_8));
-        outputStream.write(("--" + boundary + "--\r\n").getBytes(StandardCharsets.UTF_8));
-        return outputStream.toByteArray();
+        return multipartPayload(uploadFile, boundary, contentType, false);
+    }
+
+    private byte[] multipartPayload(Path uploadFile, String boundary, String contentType, boolean forceOcr)
+            throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        // ── file part ────────────────────────────────────────────────────────
+        out.write(("--" + boundary + "\r\n").getBytes(StandardCharsets.UTF_8));
+        out.write(("Content-Disposition: form-data; name=\"files\"; filename=\""
+                + uploadFile.getFileName() + "\"\r\n").getBytes(StandardCharsets.UTF_8));
+        out.write(("Content-Type: " + contentType + "\r\n\r\n").getBytes(StandardCharsets.UTF_8));
+        out.write(Files.readAllBytes(uploadFile));
+        out.write("\r\n".getBytes(StandardCharsets.UTF_8));
+
+        // ── options part (force OCR) ─────────────────────────────────────────
+        if (forceOcr) {
+            // Both field names are included for compatibility across docling versions.
+            String optionsJson = "{\"force_full_page_ocr\":true,\"do_ocr\":true}";
+            out.write(("--" + boundary + "\r\n").getBytes(StandardCharsets.UTF_8));
+            out.write("Content-Disposition: form-data; name=\"options\"\r\n".getBytes(StandardCharsets.UTF_8));
+            out.write("Content-Type: application/json\r\n\r\n".getBytes(StandardCharsets.UTF_8));
+            out.write(optionsJson.getBytes(StandardCharsets.UTF_8));
+            out.write("\r\n".getBytes(StandardCharsets.UTF_8));
+        }
+
+        out.write(("--" + boundary + "--\r\n").getBytes(StandardCharsets.UTF_8));
+        return out.toByteArray();
     }
 
     private List<PiiFinding> extractFindings(JsonNode documentJson, CoordinateSpace coordinateSpace) {

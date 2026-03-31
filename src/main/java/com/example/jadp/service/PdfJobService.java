@@ -9,6 +9,7 @@ import com.example.jadp.support.FileNameSanitizer;
 import com.example.jadp.support.ImagePdfSupport;
 import com.example.jadp.support.OptionCatalog;
 import com.example.jadp.support.PageRangeValidator;
+import com.example.jadp.support.PdfImageContentDetector;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -116,8 +117,15 @@ public class PdfJobService {
                     ? file.getOriginalFilename()
                     : "document.pdf";
             String safeFilename = FileNameSanitizer.sanitize(originalFileName);
+            log.debug("[JOB] originalFilename='{}' → safeFilename='{}'", originalFileName, safeFilename);
             Path uploadPath = inputDir.resolve(safeFilename);
             storeUploadedDocument(file, uploadPath);
+
+            // If the uploaded file is an image-based (scanned) PDF, force docling so OCR is applied.
+            if (PdfImageContentDetector.isImageBasedPdf(uploadPath)) {
+                log.info("[JOB] Image-based PDF detected: '{}' – forcing hybrid=docling-fast/full for OCR", safeFilename);
+                options = forceDoclingOptions(options);
+            }
 
             ConversionJob job = new ConversionJob(jobId, safeFilename, file.getSize(), uploadPath, outputDir, options);
             jobs.put(jobId, job);
@@ -404,6 +412,41 @@ public class PdfJobService {
             return "image";
         }
         return null;
+    }
+
+    /**
+     * Returns a copy of {@code options} with hybrid mode forced to
+     * {@code docling-fast / full} so that scanned (image-based) PDFs are
+     * processed via docling OCR regardless of the caller's setting.
+     *
+     * <p>If no hybrid URL is configured the original options are returned
+     * unchanged – OCR cannot be applied without a docling endpoint.</p>
+     */
+    private PdfConversionOptions forceDoclingOptions(PdfConversionOptions options) {
+        String hybridUrl = StringUtils.hasText(options.hybridUrl()) ? options.hybridUrl() : null;
+        if (hybridUrl == null) {
+            log.warn("[JOB] Image-based PDF detected but no hybrid URL configured – OCR will be skipped");
+            return options;
+        }
+        return new PdfConversionOptions(
+                options.formats(),
+                options.password(),
+                options.pages(),
+                options.keepLineBreaks(),
+                options.useStructTree(),
+                options.readingOrder(),
+                options.tableMethod(),
+                options.imageOutput(),
+                options.imageFormat(),
+                options.imageDir(),
+                options.includeHeaderFooter(),
+                options.sanitize(),
+                "docling-fast",           // force OCR backend
+                "full",                   // full mode: docling owns the entire parse
+                hybridUrl,
+                options.hybridTimeout() != null ? options.hybridTimeout() : 120_000L,
+                false                     // no text fallback – OCR is mandatory for image PDFs
+        );
     }
 
     private static String blankToNull(String value) {

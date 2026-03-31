@@ -23,7 +23,7 @@ HYBRID_FALLBACK="${HYBRID_FALLBACK:-true}"
 HYBRID_LOG_LEVEL="${HYBRID_LOG_LEVEL:-info}"
 JAVA_OPTS="${JAVA_OPTS:-}"
 APP_STARTUP_TIMEOUT_SEC="${APP_STARTUP_TIMEOUT_SEC:-60}"
-HYBRID_STARTUP_TIMEOUT_SEC="${HYBRID_STARTUP_TIMEOUT_SEC:-180}"
+HYBRID_STARTUP_TIMEOUT_SEC="${HYBRID_STARTUP_TIMEOUT_SEC:-120}"
 RUN_SMOKE_TEST="${RUN_SMOKE_TEST:-false}"
 
 if [[ -z "${HYBRID_IMAGE}" ]]; then
@@ -73,10 +73,13 @@ wait_for_http() {
 mkdir -p "${APP_STORAGE_PATH}" "${HYBRID_CACHE_PATH}"
 
 # Ensure the app storage directory is writable by the 'spring' user (UID 999) inside the container.
-# When a host directory is bind-mounted, Docker preserves host ownership, overriding the Dockerfile's chown.
-SPRING_UID=$(docker run --rm "${APP_IMAGE}" id -u spring 2>/dev/null || echo "999")
-if [ "$(stat -c '%u' "${APP_STORAGE_PATH}" 2>/dev/null || stat -f '%u' "${APP_STORAGE_PATH}" 2>/dev/null)" != "${SPRING_UID}" ]; then
-  echo "Fixing ownership of ${APP_STORAGE_PATH} for container user spring (UID ${SPRING_UID})..."
+# UID 999 is fixed in the Dockerfile – no need to spin up a container to query it.
+SPRING_UID=999
+CURRENT_UID=$(stat -c '%u' "${APP_STORAGE_PATH}" 2>/dev/null \
+  || stat -f '%u' "${APP_STORAGE_PATH}" 2>/dev/null \
+  || echo "0")
+if [ "${CURRENT_UID}" != "${SPRING_UID}" ]; then
+  echo "Fixing ownership of ${APP_STORAGE_PATH} for spring user (UID ${SPRING_UID})..."
   sudo chown -R "${SPRING_UID}:${SPRING_UID}" "${APP_STORAGE_PATH}" 2>/dev/null \
     || echo "WARNING: Could not chown ${APP_STORAGE_PATH}. Run: sudo chown -R ${SPRING_UID}:${SPRING_UID} ${APP_STORAGE_PATH}"
 fi
