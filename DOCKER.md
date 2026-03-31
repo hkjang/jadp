@@ -221,6 +221,130 @@ docker run -d \
   jadp:latest
 ```
 
+## 배포 후 스모크 테스트
+
+컨테이너 기동 후 핵심 API가 정상 동작하는지 자동 검증합니다.
+
+```bash
+bash ./scripts/docker-smoke-test.sh
+```
+
+```powershell
+pwsh .\scripts\docker-smoke-test.ps1
+```
+
+`docker-run.sh` 실행 시 자동으로 스모크 테스트를 붙이려면:
+
+```bash
+RUN_SMOKE_TEST=true bash ./scripts/docker-run.sh
+```
+
+테스트 항목:
+
+1. `/actuator/health` 상태 확인
+2. 테스트 콘솔 페이지 접속
+3. Swagger UI 접속
+4. PDF 설정 API 응답
+5. 하이브리드 서비스 연결
+6. PDF 변환 API (이미지 업로드)
+7. PII 감지 API
+8. 한글 파일명 보존 확인
+
+## 오프라인(폐쇄망) 배포
+
+### 사전 준비 체크리스트
+
+인터넷이 되는 환경에서 이미지를 빌드한 뒤 폐쇄망으로 옮깁니다.
+
+1. **Docker 이미지 내보내기** (인터넷 환경)
+
+```bash
+# 빌드
+bash ./scripts/docker-build.sh
+
+# tar 파일로 저장
+docker save jadp:latest | gzip > jadp-app.tar.gz
+docker save jadp-hybrid-cpu:latest | gzip > jadp-hybrid-cpu.tar.gz
+```
+
+2. **폐쇄망 서버에서 이미지 로드**
+
+```bash
+docker load < jadp-app.tar.gz
+docker load < jadp-hybrid-cpu.tar.gz
+```
+
+3. **스토리지 디렉토리 권한 설정**
+
+앱 컨테이너는 `spring` 유저(UID 999)로 실행됩니다. 볼륨 마운트 시 호스트 디렉토리 소유권을 맞춰야 합니다.
+
+```bash
+mkdir -p var/docker-app-data var/docker-hybrid-cache
+# spring 유저의 UID 확인
+docker run --rm jadp:latest id -u spring
+# 소유권 변경 (UID가 999인 경우)
+sudo chown -R 999:999 var/docker-app-data
+```
+
+> `docker-run.sh`는 시작 시 자동으로 권한을 확인·수정하지만, `sudo` 권한이 없으면 수동으로 해야 합니다.
+
+4. **nginx 리버스 프록시 타임아웃**
+
+PII 감지 API는 PDF 복잡도에 따라 수 분이 걸릴 수 있습니다. nginx를 사용한다면 다음을 추가합니다.
+
+```nginx
+location /api/ {
+    proxy_pass http://localhost:8080;
+    proxy_read_timeout 300s;
+    proxy_connect_timeout 10s;
+    proxy_send_timeout 60s;
+    client_max_body_size 25m;
+}
+```
+
+5. **실행 및 검증**
+
+```bash
+bash ./scripts/docker-run.sh
+bash ./scripts/docker-smoke-test.sh
+```
+
+### 트러블슈팅
+
+| 증상 | 원인 | 해결 |
+|------|------|------|
+| API 호출 시 500 `Failed to store uploaded file` | `/var/app-data` 쓰기 권한 없음 | `sudo chown -R 999:999 var/docker-app-data` |
+| PII API 504 Gateway Timeout | nginx `proxy_read_timeout` 기본 60초 | nginx에 `proxy_read_timeout 300s` 추가 |
+| 한글 파일명이 `___`로 변환 | 이전 버전의 FileNameSanitizer | 최신 이미지로 업데이트 |
+| actuator/health는 되지만 API에서 503 | OpenDataLoader JAR가 classpath에 없음 | 빌드 시 Maven 의존성 확인 |
+| 하이브리드 서비스 연결 실패 | 컨테이너 네트워크 분리 | `docker network ls`로 `jadp-net` 확인 |
+| 컨테이너 로그에 에러 없음 | GlobalExceptionHandler가 로그 미출력 (이전 버전) | 최신 이미지로 업데이트 |
+
+### 진단 명령어 모음
+
+```bash
+# 앱 상태 확인
+curl -s http://localhost:8080/actuator/health | python3 -m json.tool
+
+# 앱 로그 (최근 200줄)
+docker logs jadp-app --tail 200
+
+# 하이브리드 로그
+docker logs jadp-hybrid --tail 200
+
+# 스토리지 권한 확인
+docker exec jadp-app ls -la /var/app-data
+
+# 실행 유저 확인
+docker exec jadp-app whoami
+
+# 컨테이너 네트워크 확인
+docker network inspect jadp-net
+
+# 로케일 확인
+docker exec jadp-app locale
+```
+
 ## 운영 메모
 
 - 복잡한 표 정확도와 이미지가 많은 문서 대응력은 하이브리드가 유리하지만, 공식 문서 기준 속도는 Java-only보다 느려질 수 있습니다.

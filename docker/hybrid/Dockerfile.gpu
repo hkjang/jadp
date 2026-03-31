@@ -4,12 +4,17 @@ ENV PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     HYBRID_HOST=0.0.0.0 \
     HYBRID_PORT=5002 \
-    HYBRID_LOG_LEVEL=info
+    HYBRID_LOG_LEVEL=info \
+    LANG=ko_KR.UTF-8 \
+    LANGUAGE=ko_KR:ko \
+    LC_ALL=ko_KR.UTF-8
 
 WORKDIR /opt/hybrid
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends libglib2.0-0 libgl1 libgomp1 \
+    && apt-get install -y --no-install-recommends libglib2.0-0 libgl1 libgomp1 locales \
+    && sed -i 's/# ko_KR.UTF-8/ko_KR.UTF-8/' /etc/locale.gen \
+    && locale-gen ko_KR.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
 
 RUN pip install --no-cache-dir --upgrade pip \

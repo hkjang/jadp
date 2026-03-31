@@ -13,6 +13,8 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -33,6 +35,8 @@ import java.util.concurrent.Executor;
 
 @Service
 public class PdfJobService {
+
+    private static final Logger log = LoggerFactory.getLogger(PdfJobService.class);
 
     private final PdfConversionEngine engine;
     private final HybridOptionsResolver hybridOptionsResolver;
@@ -142,6 +146,7 @@ public class PdfJobService {
             job.markSucceeded(generatedArtifacts);
         } catch (Exception ex) {
             String message = ex.getMessage() == null ? ex.getClass().getSimpleName() : ex.getMessage();
+            log.error("[JOB FAILED] jobId={} file={} – {}", job.getId(), job.getSourceFilename(), message, ex);
             job.markFailed(message);
         }
     }

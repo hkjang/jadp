@@ -17,6 +17,8 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -45,10 +47,14 @@ import java.util.stream.Collectors;
 @Service
 public class HybridDoclingDirectPiiDetector {
 
+    private static final Logger log = LoggerFactory.getLogger(HybridDoclingDirectPiiDetector.class);
+
     private static final float TILE_RENDER_DPI = 144f;
     private static final int TILE_TARGET_WIDTH = 2_048;
     private static final int MAX_TILE_CALLS = 10;
     private static final int TILE_BAND_COUNT = 4;
+    /** Maximum total elapsed time for the entire detect operation (convert + tiles). */
+    private static final long MAX_DETECT_ELAPSED_MILLIS = 180_000L;
 
     private final HybridProcessingProperties properties;
     private final ObjectMapper objectMapper;
@@ -89,8 +95,13 @@ public class HybridDoclingDirectPiiDetector {
         if (!isConfigured()) {
             return List.of();
         }
+        long startTime = System.currentTimeMillis();
         try {
+            log.info("[PII-HYBRID] Starting direct detect for {} ({})", sourceFile.getFileName(), contentType);
             JsonNode root = convert(sourceFile, contentType);
+            long convertElapsed = System.currentTimeMillis() - startTime;
+            log.info("[PII-HYBRID] Initial convert completed in {}ms", convertElapsed);
+
             JsonNode documentJson = root.path("document").path("json_content");
             Path directResponse = workingDirectory.resolve(responseFilename);
             Files.writeString(directResponse,
@@ -98,11 +109,24 @@ public class HybridDoclingDirectPiiDetector {
                     StandardCharsets.UTF_8);
 
             List<PiiFinding> findings = new ArrayList<>(extractFindings(documentJson, coordinateSpace));
+            log.info("[PII-HYBRID] Extracted {} initial findings", findings.size());
+
+            long elapsed = System.currentTimeMillis() - startTime;
+            if (elapsed >= MAX_DETECT_ELAPSED_MILLIS) {
+                log.warn("[PII-HYBRID] Skipping tile detection – elapsed {}ms exceeds limit {}ms", elapsed, MAX_DETECT_ELAPSED_MILLIS);
+                return findings;
+            }
+
             List<PiiFinding> tileFindings = coordinateSpace == CoordinateSpace.PDF
-                    ? detectPdfRegionTiles(sourceFile, workingDirectory, documentJson, findings.size())
-                    : detectImageRegionTiles(sourceFile, contentType, workingDirectory, documentJson, findings.size());
+                    ? detectPdfRegionTiles(sourceFile, workingDirectory, documentJson, findings.size(), startTime)
+                    : detectImageRegionTiles(sourceFile, contentType, workingDirectory, documentJson, findings.size(), startTime);
+            long totalElapsed = System.currentTimeMillis() - startTime;
+            log.info("[PII-HYBRID] Detect completed: {} findings + {} tile findings in {}ms",
+                    findings.size(), tileFindings.size(), totalElapsed);
             return PiiFindingMergeSupport.mergeFindings(findings, tileFindings);
         } catch (Exception ex) {
+            long elapsed = System.currentTimeMillis() - startTime;
+            log.error("[PII-HYBRID] Detection failed after {}ms: {}", elapsed, ex.getMessage(), ex);
             return List.of();
         }
     }
@@ -110,6 +134,9 @@ public class HybridDoclingDirectPiiDetector {
     private JsonNode convert(Path uploadFile, String contentType) throws IOException, InterruptedException {
         String boundary = "----jadp-" + UUID.randomUUID();
         byte[] payload = multipartPayload(uploadFile, boundary, contentType);
+        long callStart = System.currentTimeMillis();
+        log.debug("[PII-HYBRID] Calling hybrid convert: {} ({} bytes, timeout={}ms)",
+                uploadFile.getFileName(), payload.length, properties.getTimeoutMillis());
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(trimTrailingSlash(properties.getUrl()) + "/v1/convert/file"))
                 .header("Content-Type", "multipart/form-data; boundary=" + boundary)
@@ -117,9 +144,13 @@ public class HybridDoclingDirectPiiDetector {
                 .POST(HttpRequest.BodyPublishers.ofByteArray(payload))
                 .build();
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+        long callElapsed = System.currentTimeMillis() - callStart;
         if (response.statusCode() >= 400) {
+            log.error("[PII-HYBRID] Hybrid convert failed: status={} elapsed={}ms file={}",
+                    response.statusCode(), callElapsed, uploadFile.getFileName());
             throw new IOException("Hybrid direct request failed with status " + response.statusCode());
         }
+        log.debug("[PII-HYBRID] Hybrid convert OK: status={} elapsed={}ms", response.statusCode(), callElapsed);
         return objectMapper.readTree(response.body());
     }
 
@@ -259,7 +290,8 @@ public class HybridDoclingDirectPiiDetector {
     private List<PiiFinding> detectPdfRegionTiles(Path pdfFile,
                                                   Path workingDirectory,
                                                   JsonNode documentJson,
-                                                  int existingFindingCount) throws IOException, InterruptedException {
+                                                  int existingFindingCount,
+                                                  long startTime) throws IOException, InterruptedException {
         if (existingFindingCount >= 6) {
             return List.of();
         }
@@ -285,6 +317,11 @@ public class HybridDoclingDirectPiiDetector {
                 double pageHeight = pageHeights.getOrDefault(region.pageNumber(), (double) pageImage.getHeight());
                 for (CropWindow cropWindow : buildFocusWindows(region)) {
                     if (tileCounter >= MAX_TILE_CALLS) {
+                        log.info("[PII-HYBRID] Tile limit reached ({} tiles)", tileCounter);
+                        return findings;
+                    }
+                    if (System.currentTimeMillis() - startTime >= MAX_DETECT_ELAPSED_MILLIS) {
+                        log.warn("[PII-HYBRID] Aborting PDF tiles – elapsed time exceeded {}ms after {} tiles", MAX_DETECT_ELAPSED_MILLIS, tileCounter);
                         return findings;
                     }
                     BufferedImage tileImage = crop(pageImage, cropWindow);
@@ -318,7 +355,8 @@ public class HybridDoclingDirectPiiDetector {
                                                     String contentType,
                                                     Path workingDirectory,
                                                     JsonNode documentJson,
-                                                    int existingFindingCount) throws IOException, InterruptedException {
+                                                    int existingFindingCount,
+                                                    long startTime) throws IOException, InterruptedException {
         if (existingFindingCount >= 6) {
             return List.of();
         }
@@ -337,6 +375,11 @@ public class HybridDoclingDirectPiiDetector {
         for (CandidateRegion region : candidateRegions.stream().limit(3).toList()) {
             for (CropWindow cropWindow : buildFocusWindows(region)) {
                 if (tileCounter >= MAX_TILE_CALLS) {
+                    log.info("[PII-HYBRID] Image tile limit reached ({} tiles)", tileCounter);
+                    return findings;
+                }
+                if (System.currentTimeMillis() - startTime >= MAX_DETECT_ELAPSED_MILLIS) {
+                    log.warn("[PII-HYBRID] Aborting image tiles – elapsed time exceeded {}ms after {} tiles", MAX_DETECT_ELAPSED_MILLIS, tileCounter);
                     return findings;
                 }
                 BufferedImage tileImage = crop(image, cropWindow);

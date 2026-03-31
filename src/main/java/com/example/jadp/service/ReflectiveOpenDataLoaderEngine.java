@@ -135,6 +135,7 @@ public class ReflectiveOpenDataLoaderEngine implements PdfConversionEngine, Disp
             } catch (Throwable ex) {
                 available = false;
                 availabilityError = ex;
+                log.error("[ENGINE] OpenDataLoader classes NOT found on classpath: {}", ex.getMessage(), ex);
             }
         }
     }

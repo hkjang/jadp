@@ -24,6 +24,7 @@ HYBRID_LOG_LEVEL="${HYBRID_LOG_LEVEL:-info}"
 JAVA_OPTS="${JAVA_OPTS:-}"
 APP_STARTUP_TIMEOUT_SEC="${APP_STARTUP_TIMEOUT_SEC:-60}"
 HYBRID_STARTUP_TIMEOUT_SEC="${HYBRID_STARTUP_TIMEOUT_SEC:-180}"
+RUN_SMOKE_TEST="${RUN_SMOKE_TEST:-false}"
 
 if [[ -z "${HYBRID_IMAGE}" ]]; then
   if [[ "${HYBRID_VARIANT}" == "gpu" ]]; then
@@ -70,6 +71,15 @@ wait_for_http() {
 }
 
 mkdir -p "${APP_STORAGE_PATH}" "${HYBRID_CACHE_PATH}"
+
+# Ensure the app storage directory is writable by the 'spring' user (UID 999) inside the container.
+# When a host directory is bind-mounted, Docker preserves host ownership, overriding the Dockerfile's chown.
+SPRING_UID=$(docker run --rm "${APP_IMAGE}" id -u spring 2>/dev/null || echo "999")
+if [ "$(stat -c '%u' "${APP_STORAGE_PATH}" 2>/dev/null || stat -f '%u' "${APP_STORAGE_PATH}" 2>/dev/null)" != "${SPRING_UID}" ]; then
+  echo "Fixing ownership of ${APP_STORAGE_PATH} for container user spring (UID ${SPRING_UID})..."
+  sudo chown -R "${SPRING_UID}:${SPRING_UID}" "${APP_STORAGE_PATH}" 2>/dev/null \
+    || echo "WARNING: Could not chown ${APP_STORAGE_PATH}. Run: sudo chown -R ${SPRING_UID}:${SPRING_UID} ${APP_STORAGE_PATH}"
+fi
 
 if ! docker network inspect "${NETWORK_NAME}" >/dev/null 2>&1; then
   docker network create "${NETWORK_NAME}" >/dev/null
@@ -158,4 +168,16 @@ if [[ "${USE_HYBRID}" == "true" ]]; then
   echo "Hybrid API: http://localhost:${HYBRID_PORT}"
   echo "Hybrid tag: ${HYBRID_IMAGE} (${HYBRID_VARIANT})"
   echo "Hybrid logs: docker logs ${HYBRID_CONTAINER} --tail 200"
+fi
+
+if [[ "${RUN_SMOKE_TEST}" == "true" ]]; then
+  SMOKE_SCRIPT="${ROOT_DIR}/scripts/docker-smoke-test.sh"
+  if [[ -x "${SMOKE_SCRIPT}" ]]; then
+    echo ""
+    echo "Running smoke tests..."
+    APP_PORT="${APP_PORT}" HYBRID_PORT="${HYBRID_PORT}" bash "${SMOKE_SCRIPT}" \
+      "http://localhost:${APP_PORT}" "http://localhost:${HYBRID_PORT}"
+  else
+    echo "WARNING: Smoke test script not found or not executable: ${SMOKE_SCRIPT}"
+  fi
 fi
